@@ -11,12 +11,12 @@ except:
 
 #arguments = ['Maavaarulu', ]
 
-arguments = ['Gaddhoo'] #['Thinadhoo']#, , 'Maavaarulu', 'Kaludirehaa']#, 'Vaadhoo (Gaafu Dhaalu)',
+arguments = ['Maavaarulu']#, 'Kaludirehaa']#, 'Vaadhoo (Gaafu Dhaalu)',
             #, 'Hoandeddhoo', , ,
             #'Fares Maathodaa', 'Kanduhulhudhoo'] 
 
 def process_task(argument):
-    IslandTime.TimeSeriesCoastSat(argument, 'Maldives', overwrite=True, re_download=True, sat_list=['S2'], date_range=['2022-08-20', '2022-12-31']).main()
+    IslandTime.TimeSeriesCoastSat(argument, 'Maldives', overwrite=True, re_download=True, sat_list=['S2'], date_range=['2022-07-06', '2022-12-31']).main()
     island_info = IslandTime.run_all(argument, 'Maldives')
     return f"Processed argument: {argument}"
 
