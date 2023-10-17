@@ -3,6 +3,7 @@ cache
 coastsatmaster
 coastsat
 archives
+info_copernicus
 *.png
 old_jupyter_notebooks
 *.nc
@@ -19,3 +20,7 @@ old_jupyter_notebooks
 *.tiff
 *.shp.xml
 *.zip
+*.xml
+*.json
+*.kmz
+*.txt
