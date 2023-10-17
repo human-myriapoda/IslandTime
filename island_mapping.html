@@ -1,0 +1,1392 @@
+<!DOCTYPE html>
+<html>
+<head>
+    
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+    
+        <script>
+            L_NO_TOUCH = false;
+            L_DISABLE_3D = false;
+        </script>
+    
+    <style>html, body {width: 100%;height: 100%;margin: 0;padding: 0;}</style>
+    <style>#map {position:absolute;top:0;bottom:0;right:0;left:0;}</style>
+    <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.js"></script>
+    <script src="https://code.jquery.com/jquery-1.12.4.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.2.0/css/all.min.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/python-visualization/folium/folium/templates/leaflet.awesome.rotate.min.css"/>
+    
+            <meta name="viewport" content="width=device-width,
+                initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+            <style>
+                #map_1872a0503f700bf94324b6d047ff6cdb {
+                    position: relative;
+                    width: 100.0%;
+                    height: 100.0%;
+                    left: 0.0%;
+                    top: 0.0%;
+                }
+                .leaflet-container { font-size: 1rem; }
+            </style>
+        
+</head>
+<body>
+    
+    
+            <div class="folium-map" id="map_1872a0503f700bf94324b6d047ff6cdb" ></div>
+        
+</body>
+<script>
+    
+    
+            var map_1872a0503f700bf94324b6d047ff6cdb = L.map(
+                "map_1872a0503f700bf94324b6d047ff6cdb",
+                {
+                    center: [0.6465399020408163, 73.36404208630337],
+                    crs: L.CRS.EPSG3857,
+                    zoom: 5,
+                    zoomControl: true,
+                    preferCanvas: false,
+                }
+            );
+
+            
+
+        
+    
+            var tile_layer_babdcfa373216b8b3424f084101d6456 = L.tileLayer(
+                "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+                {"attribution": "Data by \u0026copy; \u003ca target=\"_blank\" href=\"http://openstreetmap.org\"\u003eOpenStreetMap\u003c/a\u003e, under \u003ca target=\"_blank\" href=\"http://www.openstreetmap.org/copyright\"\u003eODbL\u003c/a\u003e.", "detectRetina": false, "maxNativeZoom": 18, "maxZoom": 18, "minZoom": 0, "noWrap": false, "opacity": 1, "subdomains": "abc", "tms": false}
+            ).addTo(map_1872a0503f700bf94324b6d047ff6cdb);
+        
+    
+            var marker_ed1ceeb43e98b4fe7bbbbe29dbf4ec90 = L.marker(
+                [0.521705, 73.539965],
+                {}
+            ).addTo(map_1872a0503f700bf94324b6d047ff6cdb);
+        
+    
+            var icon_a3dd54776833003cab028dfe125aae85 = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "info-sign", "iconColor": "white", "markerColor": "green", "prefix": "glyphicon"}
+            );
+            marker_ed1ceeb43e98b4fe7bbbbe29dbf4ec90.setIcon(icon_a3dd54776833003cab028dfe125aae85);
+        
+    
+        var popup_9ba37154b0d6238e46727ca5f9045426 = L.popup({"maxWidth": "100%"});
+
+        
+            
+                var html_d74a213072ad4d48f26e4f9d6b1a999a = $(`<div id="html_d74a213072ad4d48f26e4f9d6b1a999a" style="width: 100.0%; height: 100.0%;">Baavanadhoo CoastSat time series available</div>`)[0];
+                popup_9ba37154b0d6238e46727ca5f9045426.setContent(html_d74a213072ad4d48f26e4f9d6b1a999a);
+            
+        
+
+        marker_ed1ceeb43e98b4fe7bbbbe29dbf4ec90.bindPopup(popup_9ba37154b0d6238e46727ca5f9045426)
+        ;
+
+        
+    
+    
+            var marker_e215dc66b855f93a1ee9f30279f2334e = L.marker(
+                [0.6209737, 73.46146847985355],
+                {}
+            ).addTo(map_1872a0503f700bf94324b6d047ff6cdb);
+        
+    
+            var icon_3c1fc59ad4005f4d45170a821de0ee7d = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "info-sign", "iconColor": "white", "markerColor": "green", "prefix": "glyphicon"}
+            );
+            marker_e215dc66b855f93a1ee9f30279f2334e.setIcon(icon_3c1fc59ad4005f4d45170a821de0ee7d);
+        
+    
+        var popup_22f9474cd9613374fbbbd563ba52641d = L.popup({"maxWidth": "100%"});
+
+        
+            
+                var html_1d08bb2e559ebcb453ed7b4c06de8ed3 = $(`<div id="html_1d08bb2e559ebcb453ed7b4c06de8ed3" style="width: 100.0%; height: 100.0%;">Dhaandhoo CoastSat time series available</div>`)[0];
+                popup_22f9474cd9613374fbbbd563ba52641d.setContent(html_1d08bb2e559ebcb453ed7b4c06de8ed3);
+            
+        
+
+        marker_e215dc66b855f93a1ee9f30279f2334e.bindPopup(popup_22f9474cd9613374fbbbd563ba52641d)
+        ;
+
+        
+    
+    
+            var marker_daf2e3d269fa9045f8c8a6edc78a405c = L.marker(
+                [0.542915, 73.534716],
+                {}
+            ).addTo(map_1872a0503f700bf94324b6d047ff6cdb);
+        
+    
+            var icon_39b7aac6130937a1431c58319b286740 = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "info-sign", "iconColor": "white", "markerColor": "green", "prefix": "glyphicon"}
+            );
+            marker_daf2e3d269fa9045f8c8a6edc78a405c.setIcon(icon_39b7aac6130937a1431c58319b286740);
+        
+    
+        var popup_a7392cad2da21db821e609d498835da7 = L.popup({"maxWidth": "100%"});
+
+        
+            
+                var html_16ac7319a258f6475eb0daf730a25965 = $(`<div id="html_16ac7319a258f6475eb0daf730a25965" style="width: 100.0%; height: 100.0%;">Dhigudhoo CoastSat time series available</div>`)[0];
+                popup_a7392cad2da21db821e609d498835da7.setContent(html_16ac7319a258f6475eb0daf730a25965);
+            
+        
+
+        marker_daf2e3d269fa9045f8c8a6edc78a405c.bindPopup(popup_a7392cad2da21db821e609d498835da7)
+        ;
+
+        
+    
+    
+            var marker_840437811d063b084a2f911160cce3cc = L.marker(
+                [0.69140245, 73.4414011845991],
+                {}
+            ).addTo(map_1872a0503f700bf94324b6d047ff6cdb);
+        
+    
+            var icon_5f2df40cacd2c78be2e91a23b612b25d = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "info-sign", "iconColor": "white", "markerColor": "green", "prefix": "glyphicon"}
+            );
+            marker_840437811d063b084a2f911160cce3cc.setIcon(icon_5f2df40cacd2c78be2e91a23b612b25d);
+        
+    
+        var popup_f7d3efabbd94e88315857ae833621541 = L.popup({"maxWidth": "100%"});
+
+        
+            
+                var html_8ca8fbf92386d7d0708fa4f4d0f4da25 = $(`<div id="html_8ca8fbf92386d7d0708fa4f4d0f4da25" style="width: 100.0%; height: 100.0%;">Dhigurah (Gaafu Alif) CoastSat time series available</div>`)[0];
+                popup_f7d3efabbd94e88315857ae833621541.setContent(html_8ca8fbf92386d7d0708fa4f4d0f4da25);
+            
+        
+
+        marker_840437811d063b084a2f911160cce3cc.bindPopup(popup_f7d3efabbd94e88315857ae833621541)
+        ;
+
+        
+    
+    
+            var marker_021c7017ec6d714f3e678116fae989c3 = L.marker(
+                [0.47661, 73.55883565485527],
+                {}
+            ).addTo(map_1872a0503f700bf94324b6d047ff6cdb);
+        
+    
+            var icon_8b586faa48a54c16dfaffb8a9e4c6309 = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "info-sign", "iconColor": "white", "markerColor": "green", "prefix": "glyphicon"}
+            );
+            marker_021c7017ec6d714f3e678116fae989c3.setIcon(icon_8b586faa48a54c16dfaffb8a9e4c6309);
+        
+    
+        var popup_3b2646d0a75c4e078a822da5132c045c = L.popup({"maxWidth": "100%"});
+
+        
+            
+                var html_1be9c27a540815a0241d3e5f53ccafcc = $(`<div id="html_1be9c27a540815a0241d3e5f53ccafcc" style="width: 100.0%; height: 100.0%;">Dhiyadhoo CoastSat time series available</div>`)[0];
+                popup_3b2646d0a75c4e078a822da5132c045c.setContent(html_1be9c27a540815a0241d3e5f53ccafcc);
+            
+        
+
+        marker_021c7017ec6d714f3e678116fae989c3.bindPopup(popup_3b2646d0a75c4e078a822da5132c045c)
+        ;
+
+        
+    
+    
+            var marker_7f93ce02adcd4e6d8d797fb12a10345a = L.marker(
+                [0.672397, 73.438497],
+                {}
+            ).addTo(map_1872a0503f700bf94324b6d047ff6cdb);
+        
+    
+            var icon_9846896bf3e879afe2a7121d8e9d5606 = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "info-sign", "iconColor": "white", "markerColor": "green", "prefix": "glyphicon"}
+            );
+            marker_7f93ce02adcd4e6d8d797fb12a10345a.setIcon(icon_9846896bf3e879afe2a7121d8e9d5606);
+        
+    
+        var popup_ea39ccfc738850be7bd5f219d46f0624 = L.popup({"maxWidth": "100%"});
+
+        
+            
+                var html_9d719eb0cd7b81932197ad8c37890912 = $(`<div id="html_9d719eb0cd7b81932197ad8c37890912" style="width: 100.0%; height: 100.0%;">Falhumaafushi CoastSat time series available</div>`)[0];
+                popup_ea39ccfc738850be7bd5f219d46f0624.setContent(html_9d719eb0cd7b81932197ad8c37890912);
+            
+        
+
+        marker_7f93ce02adcd4e6d8d797fb12a10345a.bindPopup(popup_ea39ccfc738850be7bd5f219d46f0624)
+        ;
+
+        
+    
+    
+            var marker_94ed4c1cc0f92af9369d4ca7b0e4d91c = L.marker(
+                [0.19891355, 73.18972012731159],
+                {}
+            ).addTo(map_1872a0503f700bf94324b6d047ff6cdb);
+        
+    
+            var icon_f38d13518a57e13a89976dbe83f75d5c = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "info-sign", "iconColor": "white", "markerColor": "blue", "prefix": "glyphicon"}
+            );
+            marker_94ed4c1cc0f92af9369d4ca7b0e4d91c.setIcon(icon_f38d13518a57e13a89976dbe83f75d5c);
+        
+    
+        var popup_7e19bdb900bea9a3465593d7d81832c6 = L.popup({"maxWidth": "100%"});
+
+        
+            
+                var html_539ef26911d1310f5d1317264876a42b = $(`<div id="html_539ef26911d1310f5d1317264876a42b" style="width: 100.0%; height: 100.0%;">Fares Maathodaa CoastSat has not started downloading images yet</div>`)[0];
+                popup_7e19bdb900bea9a3465593d7d81832c6.setContent(html_539ef26911d1310f5d1317264876a42b);
+            
+        
+
+        marker_94ed4c1cc0f92af9369d4ca7b0e4d91c.bindPopup(popup_7e19bdb900bea9a3465593d7d81832c6)
+        ;
+
+        
+    
+    
+            var marker_331dc5bfbf171fc1a6bdbb5adbb04c55 = L.marker(
+                [0.87253, 73.244602],
+                {}
+            ).addTo(map_1872a0503f700bf94324b6d047ff6cdb);
+        
+    
+            var icon_d19f4634f44c0fb7201f731c4d0645ea = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "info-sign", "iconColor": "white", "markerColor": "blue", "prefix": "glyphicon"}
+            );
+            marker_331dc5bfbf171fc1a6bdbb5adbb04c55.setIcon(icon_d19f4634f44c0fb7201f731c4d0645ea);
+        
+    
+        var popup_dd78d8406d5ff641f6c198cb727e24ff = L.popup({"maxWidth": "100%"});
+
+        
+            
+                var html_17cee17225923cc3f5ef334a808b3729 = $(`<div id="html_17cee17225923cc3f5ef334a808b3729" style="width: 100.0%; height: 100.0%;">Faruhulhedhoo CoastSat has not started downloading images yet</div>`)[0];
+                popup_dd78d8406d5ff641f6c198cb727e24ff.setContent(html_17cee17225923cc3f5ef334a808b3729);
+            
+        
+
+        marker_331dc5bfbf171fc1a6bdbb5adbb04c55.bindPopup(popup_dd78d8406d5ff641f6c198cb727e24ff)
+        ;
+
+        
+    
+    
+            var marker_db3dadf8e7a3be1558eb03e2dae28185 = L.marker(
+                [0.8742874, 73.25519593811688],
+                {}
+            ).addTo(map_1872a0503f700bf94324b6d047ff6cdb);
+        
+    
+            var icon_2a1f5d80309a6d10a443b8149a30b569 = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "info-sign", "iconColor": "white", "markerColor": "blue", "prefix": "glyphicon"}
+            );
+            marker_db3dadf8e7a3be1558eb03e2dae28185.setIcon(icon_2a1f5d80309a6d10a443b8149a30b569);
+        
+    
+        var popup_6d6a8bb1bb3a579e4c86060ded4d9952 = L.popup({"maxWidth": "100%"});
+
+        
+            
+                var html_16c3e7b82ecf62f1d6663ab2a957a51d = $(`<div id="html_16c3e7b82ecf62f1d6663ab2a957a51d" style="width: 100.0%; height: 100.0%;">Faruhulhudhoo CoastSat has not started downloading images yet</div>`)[0];
+                popup_6d6a8bb1bb3a579e4c86060ded4d9952.setContent(html_16c3e7b82ecf62f1d6663ab2a957a51d);
+            
+        
+
+        marker_db3dadf8e7a3be1558eb03e2dae28185.bindPopup(popup_6d6a8bb1bb3a579e4c86060ded4d9952)
+        ;
+
+        
+    
+    
+            var marker_a734daa0173bed4fd21d3ed50dae8545 = L.marker(
+                [0.22050195, 73.13709683823191],
+                {}
+            ).addTo(map_1872a0503f700bf94324b6d047ff6cdb);
+        
+    
+            var icon_b318170e1c4e75bb3538fa4e55095e66 = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "info-sign", "iconColor": "white", "markerColor": "green", "prefix": "glyphicon"}
+            );
+            marker_a734daa0173bed4fd21d3ed50dae8545.setIcon(icon_b318170e1c4e75bb3538fa4e55095e66);
+        
+    
+        var popup_d2e280577282fa45cfc51e312aeae094 = L.popup({"maxWidth": "100%"});
+
+        
+            
+                var html_4faf49f288c05a804fb56925ccd4008f = $(`<div id="html_4faf49f288c05a804fb56925ccd4008f" style="width: 100.0%; height: 100.0%;">Fiyoaree CoastSat time series available</div>`)[0];
+                popup_d2e280577282fa45cfc51e312aeae094.setContent(html_4faf49f288c05a804fb56925ccd4008f);
+            
+        
+
+        marker_a734daa0173bed4fd21d3ed50dae8545.bindPopup(popup_d2e280577282fa45cfc51e312aeae094)
+        ;
+
+        
+    
+    
+            var marker_2e04d7908fc15ca1a002c287d0e9a64f = L.marker(
+                [0.5627, 73.526143],
+                {}
+            ).addTo(map_1872a0503f700bf94324b6d047ff6cdb);
+        
+    
+            var icon_1dc70e9aad3917e22422d364f054c897 = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "info-sign", "iconColor": "white", "markerColor": "green", "prefix": "glyphicon"}
+            );
+            marker_2e04d7908fc15ca1a002c287d0e9a64f.setIcon(icon_1dc70e9aad3917e22422d364f054c897);
+        
+    
+        var popup_8a8e7fd74f33504b9206d80063a3544d = L.popup({"maxWidth": "100%"});
+
+        
+            
+                var html_7dbe76083dbaa236c06d0ec8acf78e48 = $(`<div id="html_7dbe76083dbaa236c06d0ec8acf78e48" style="width: 100.0%; height: 100.0%;">Funadhoo (Gaafu Dhaalu) CoastSat time series available</div>`)[0];
+                popup_8a8e7fd74f33504b9206d80063a3544d.setContent(html_7dbe76083dbaa236c06d0ec8acf78e48);
+            
+        
+
+        marker_2e04d7908fc15ca1a002c287d0e9a64f.bindPopup(popup_8a8e7fd74f33504b9206d80063a3544d)
+        ;
+
+        
+    
+    
+            var marker_d718114242cc96350e467afa8edad7fb = L.marker(
+                [0.56974, 73.520079],
+                {}
+            ).addTo(map_1872a0503f700bf94324b6d047ff6cdb);
+        
+    
+            var icon_2683d37bae414adadc430ad8d741eba1 = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "info-sign", "iconColor": "white", "markerColor": "green", "prefix": "glyphicon"}
+            );
+            marker_d718114242cc96350e467afa8edad7fb.setIcon(icon_2683d37bae414adadc430ad8d741eba1);
+        
+    
+        var popup_b224d2fd61fde1bb509f7ead0f4d6764 = L.popup({"maxWidth": "100%"});
+
+        
+            
+                var html_853dcd8bc57c8ae600f012cb8d7680eb = $(`<div id="html_853dcd8bc57c8ae600f012cb8d7680eb" style="width: 100.0%; height: 100.0%;">Funadhooviligillaa CoastSat time series available</div>`)[0];
+                popup_b224d2fd61fde1bb509f7ead0f4d6764.setContent(html_853dcd8bc57c8ae600f012cb8d7680eb);
+            
+        
+
+        marker_d718114242cc96350e467afa8edad7fb.bindPopup(popup_b224d2fd61fde1bb509f7ead0f4d6764)
+        ;
+
+        
+    
+    
+            var marker_4092ccba9425866f4642f93367186259 = L.marker(
+                [1.82142215, 73.45173222640615],
+                {}
+            ).addTo(map_1872a0503f700bf94324b6d047ff6cdb);
+        
+    
+            var icon_2c328fcd0b5fc2a9c49c0072c22f9e5b = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "info-sign", "iconColor": "white", "markerColor": "green", "prefix": "glyphicon"}
+            );
+            marker_4092ccba9425866f4642f93367186259.setIcon(icon_2c328fcd0b5fc2a9c49c0072c22f9e5b);
+        
+    
+        var popup_842a55c478083eaa47cc10b7f385baaf = L.popup({"maxWidth": "100%"});
+
+        
+            
+                var html_360fc616dd45760c2aace3b7261a5e75 = $(`<div id="html_360fc616dd45760c2aace3b7261a5e75" style="width: 100.0%; height: 100.0%;">Gaadhoo CoastSat time series available</div>`)[0];
+                popup_842a55c478083eaa47cc10b7f385baaf.setContent(html_360fc616dd45760c2aace3b7261a5e75);
+            
+        
+
+        marker_4092ccba9425866f4642f93367186259.bindPopup(popup_842a55c478083eaa47cc10b7f385baaf)
+        ;
+
+        
+    
+    
+            var marker_d06671878e8c579e0c8cc9f59437f646 = L.marker(
+                [0.3229071, 73.49247561679985],
+                {}
+            ).addTo(map_1872a0503f700bf94324b6d047ff6cdb);
+        
+    
+            var icon_7320305ffbfc7ca145debf4717eda751 = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "info-sign", "iconColor": "white", "markerColor": "blue", "prefix": "glyphicon"}
+            );
+            marker_d06671878e8c579e0c8cc9f59437f646.setIcon(icon_7320305ffbfc7ca145debf4717eda751);
+        
+    
+        var popup_256d2544cbea7a07f0860257d525cd34 = L.popup({"maxWidth": "100%"});
+
+        
+            
+                var html_3cfb43bbd3816a3e71ba71bdc5fb1584 = $(`<div id="html_3cfb43bbd3816a3e71ba71bdc5fb1584" style="width: 100.0%; height: 100.0%;">Gaddhoo CoastSat has not started downloading images yet</div>`)[0];
+                popup_256d2544cbea7a07f0860257d525cd34.setContent(html_3cfb43bbd3816a3e71ba71bdc5fb1584);
+            
+        
+
+        marker_d06671878e8c579e0c8cc9f59437f646.bindPopup(popup_256d2544cbea7a07f0860257d525cd34)
+        ;
+
+        
+    
+    
+            var marker_a37a1ff757fa675f0dcc554bcbb2282f = L.marker(
+                [0.530319, 73.537202],
+                {}
+            ).addTo(map_1872a0503f700bf94324b6d047ff6cdb);
+        
+    
+            var icon_bccb95fff6548e8b7bae7f0a2d37cc11 = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "info-sign", "iconColor": "white", "markerColor": "green", "prefix": "glyphicon"}
+            );
+            marker_a37a1ff757fa675f0dcc554bcbb2282f.setIcon(icon_bccb95fff6548e8b7bae7f0a2d37cc11);
+        
+    
+        var popup_0c515fac30c7ea0f3ead6037b757fc4f = L.popup({"maxWidth": "100%"});
+
+        
+            
+                var html_f7d773ee46f7c4be4a0e11fbba38f8b2 = $(`<div id="html_f7d773ee46f7c4be4a0e11fbba38f8b2" style="width: 100.0%; height: 100.0%;">Galamedhuvaa CoastSat time series available</div>`)[0];
+                popup_0c515fac30c7ea0f3ead6037b757fc4f.setContent(html_f7d773ee46f7c4be4a0e11fbba38f8b2);
+            
+        
+
+        marker_a37a1ff757fa675f0dcc554bcbb2282f.bindPopup(popup_0c515fac30c7ea0f3ead6037b757fc4f)
+        ;
+
+        
+    
+    
+            var marker_0230e8dbf3fd8614404bf311f3f93e9e = L.marker(
+                [0.44207165000000004, 73.56883596985764],
+                {}
+            ).addTo(map_1872a0503f700bf94324b6d047ff6cdb);
+        
+    
+            var icon_b037af1adeb78d58e4f8b7a581d1e36e = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "info-sign", "iconColor": "white", "markerColor": "green", "prefix": "glyphicon"}
+            );
+            marker_0230e8dbf3fd8614404bf311f3f93e9e.setIcon(icon_b037af1adeb78d58e4f8b7a581d1e36e);
+        
+    
+        var popup_d5a5148e8d38021f9ce03423c4e2d81e = L.popup({"maxWidth": "100%"});
+
+        
+            
+                var html_118f291f1345b3ec333b0d183a5bfdc5 = $(`<div id="html_118f291f1345b3ec333b0d183a5bfdc5" style="width: 100.0%; height: 100.0%;">Gemanafushi CoastSat time series available</div>`)[0];
+                popup_d5a5148e8d38021f9ce03423c4e2d81e.setContent(html_118f291f1345b3ec333b0d183a5bfdc5);
+            
+        
+
+        marker_0230e8dbf3fd8614404bf311f3f93e9e.bindPopup(popup_d5a5148e8d38021f9ce03423c4e2d81e)
+        ;
+
+        
+    
+    
+            var marker_e8862f05a286531c39fd0f27edae0640 = L.marker(
+                [0.44412555, 73.00358854247898],
+                {}
+            ).addTo(map_1872a0503f700bf94324b6d047ff6cdb);
+        
+    
+            var icon_e3bf38d5ced7b655e9fd7d32de45b3b8 = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "info-sign", "iconColor": "white", "markerColor": "blue", "prefix": "glyphicon"}
+            );
+            marker_e8862f05a286531c39fd0f27edae0640.setIcon(icon_e3bf38d5ced7b655e9fd7d32de45b3b8);
+        
+    
+        var popup_b0516b50d67053c8361f6a6ff55e4186 = L.popup({"maxWidth": "100%"});
+
+        
+            
+                var html_c56e59d3246ccd57da074915e4f9c640 = $(`<div id="html_c56e59d3246ccd57da074915e4f9c640" style="width: 100.0%; height: 100.0%;">Hoandeddhoo CoastSat has not started downloading images yet</div>`)[0];
+                popup_b0516b50d67053c8361f6a6ff55e4186.setContent(html_c56e59d3246ccd57da074915e4f9c640);
+            
+        
+
+        marker_e8862f05a286531c39fd0f27edae0640.bindPopup(popup_b0516b50d67053c8361f6a6ff55e4186)
+        ;
+
+        
+    
+    
+            var marker_d81efd5f18a27b79feab6140fecf3a13 = L.marker(
+                [1.8227543000000002, 73.39419056867207],
+                {}
+            ).addTo(map_1872a0503f700bf94324b6d047ff6cdb);
+        
+    
+            var icon_c31e13c23e423b9d5c986bac591b55f9 = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "info-sign", "iconColor": "white", "markerColor": "green", "prefix": "glyphicon"}
+            );
+            marker_d81efd5f18a27b79feab6140fecf3a13.setIcon(icon_c31e13c23e423b9d5c986bac591b55f9);
+        
+    
+        var popup_eaf3e1469aa29908c79360c70ee5e757 = L.popup({"maxWidth": "100%"});
+
+        
+            
+                var html_16e90e29656a92e7f4d877ca88199d50 = $(`<div id="html_16e90e29656a92e7f4d877ca88199d50" style="width: 100.0%; height: 100.0%;">Hulhimendhoo CoastSat time series available</div>`)[0];
+                popup_eaf3e1469aa29908c79360c70ee5e757.setContent(html_16e90e29656a92e7f4d877ca88199d50);
+            
+        
+
+        marker_d81efd5f18a27b79feab6140fecf3a13.bindPopup(popup_eaf3e1469aa29908c79360c70ee5e757)
+        ;
+
+        
+    
+    
+            var marker_ccab69c4dcc144c374fdf8c35bf49b17 = L.marker(
+                [0.848428, 73.17889],
+                {}
+            ).addTo(map_1872a0503f700bf94324b6d047ff6cdb);
+        
+    
+            var icon_556a3c959e84886d8313bb375aca2875 = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "info-sign", "iconColor": "white", "markerColor": "green", "prefix": "glyphicon"}
+            );
+            marker_ccab69c4dcc144c374fdf8c35bf49b17.setIcon(icon_556a3c959e84886d8313bb375aca2875);
+        
+    
+        var popup_fec00d3b8d28c5683a0b6f6f1f7c8f7e = L.popup({"maxWidth": "100%"});
+
+        
+            
+                var html_d02365c554df47ee129f137897a6002c = $(`<div id="html_d02365c554df47ee129f137897a6002c" style="width: 100.0%; height: 100.0%;">Kalhehutta CoastSat time series available</div>`)[0];
+                popup_fec00d3b8d28c5683a0b6f6f1f7c8f7e.setContent(html_d02365c554df47ee129f137897a6002c);
+            
+        
+
+        marker_ccab69c4dcc144c374fdf8c35bf49b17.bindPopup(popup_fec00d3b8d28c5683a0b6f6f1f7c8f7e)
+        ;
+
+        
+    
+    
+            var marker_6a7f53731b6e56f3e25e38b2f098ba95 = L.marker(
+                [0.434733, 73.569508],
+                {}
+            ).addTo(map_1872a0503f700bf94324b6d047ff6cdb);
+        
+    
+            var icon_c421b4d201b93c0d3e2ae620241a34ef = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "info-sign", "iconColor": "white", "markerColor": "blue", "prefix": "glyphicon"}
+            );
+            marker_6a7f53731b6e56f3e25e38b2f098ba95.setIcon(icon_c421b4d201b93c0d3e2ae620241a34ef);
+        
+    
+        var popup_4ebab2f3a686465288174dab071e0698 = L.popup({"maxWidth": "100%"});
+
+        
+            
+                var html_1dddc5502f639ccf5bb4baff10b91b7e = $(`<div id="html_1dddc5502f639ccf5bb4baff10b91b7e" style="width: 100.0%; height: 100.0%;">Kaludirehaa CoastSat has not started downloading images yet</div>`)[0];
+                popup_4ebab2f3a686465288174dab071e0698.setContent(html_1dddc5502f639ccf5bb4baff10b91b7e);
+            
+        
+
+        marker_6a7f53731b6e56f3e25e38b2f098ba95.bindPopup(popup_4ebab2f3a686465288174dab071e0698)
+        ;
+
+        
+    
+    
+            var marker_0a27d40cf8aa8e5a98f8ddb2ccaeb546 = L.marker(
+                [0.866397, 73.190321],
+                {}
+            ).addTo(map_1872a0503f700bf94324b6d047ff6cdb);
+        
+    
+            var icon_e45e51011ba1b4409957932d2222eaa6 = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "info-sign", "iconColor": "white", "markerColor": "green", "prefix": "glyphicon"}
+            );
+            marker_0a27d40cf8aa8e5a98f8ddb2ccaeb546.setIcon(icon_e45e51011ba1b4409957932d2222eaa6);
+        
+    
+        var popup_980c31d1d53da8d29867f143b3f06df9 = L.popup({"maxWidth": "100%"});
+
+        
+            
+                var html_f7eb4c271d06912c2cf8226d1b8a5723 = $(`<div id="html_f7eb4c271d06912c2cf8226d1b8a5723" style="width: 100.0%; height: 100.0%;">Kan'duvilin'gili CoastSat time series available</div>`)[0];
+                popup_980c31d1d53da8d29867f143b3f06df9.setContent(html_f7eb4c271d06912c2cf8226d1b8a5723);
+            
+        
+
+        marker_0a27d40cf8aa8e5a98f8ddb2ccaeb546.bindPopup(popup_980c31d1d53da8d29867f143b3f06df9)
+        ;
+
+        
+    
+    
+            var marker_3fe9a439f615b6516aede74d4518bc91 = L.marker(
+                [0.3514621, 73.53987094989475],
+                {}
+            ).addTo(map_1872a0503f700bf94324b6d047ff6cdb);
+        
+    
+            var icon_2474b563c58ab909784496ae58596c04 = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "info-sign", "iconColor": "white", "markerColor": "green", "prefix": "glyphicon"}
+            );
+            marker_3fe9a439f615b6516aede74d4518bc91.setIcon(icon_2474b563c58ab909784496ae58596c04);
+        
+    
+        var popup_0865cbc068386724186558994ad17460 = L.popup({"maxWidth": "100%"});
+
+        
+            
+                var html_1008cb172624dcab3ab41f1e830b9d58 = $(`<div id="html_1008cb172624dcab3ab41f1e830b9d58" style="width: 100.0%; height: 100.0%;">Kanduhulhudhoo CoastSat time series available</div>`)[0];
+                popup_0865cbc068386724186558994ad17460.setContent(html_1008cb172624dcab3ab41f1e830b9d58);
+            
+        
+
+        marker_3fe9a439f615b6516aede74d4518bc91.bindPopup(popup_0865cbc068386724186558994ad17460)
+        ;
+
+        
+    
+    
+            var marker_b9b6f9810904834e69ff0f53c18d17cc = L.marker(
+                [0.659023, 73.4386],
+                {}
+            ).addTo(map_1872a0503f700bf94324b6d047ff6cdb);
+        
+    
+            var icon_8a3c1f1a1e9894d791c53ab0b4acdae2 = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "info-sign", "iconColor": "white", "markerColor": "green", "prefix": "glyphicon"}
+            );
+            marker_b9b6f9810904834e69ff0f53c18d17cc.setIcon(icon_8a3c1f1a1e9894d791c53ab0b4acdae2);
+        
+    
+        var popup_3f60b7729a14908e2a40c610087448fe = L.popup({"maxWidth": "100%"});
+
+        
+            
+                var html_7448559fe0516482dd7b589310746917 = $(`<div id="html_7448559fe0516482dd7b589310746917" style="width: 100.0%; height: 100.0%;">Keredhdhoo CoastSat time series available</div>`)[0];
+                popup_3f60b7729a14908e2a40c610087448fe.setContent(html_7448559fe0516482dd7b589310746917);
+            
+        
+
+        marker_b9b6f9810904834e69ff0f53c18d17cc.bindPopup(popup_3f60b7729a14908e2a40c610087448fe)
+        ;
+
+        
+    
+    
+            var marker_e2ce43ee70b4007b73e4d0da7a6bc002 = L.marker(
+                [0.842923, 73.18078],
+                {}
+            ).addTo(map_1872a0503f700bf94324b6d047ff6cdb);
+        
+    
+            var icon_16e4b16341c98e911eb165b853c96220 = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "info-sign", "iconColor": "white", "markerColor": "blue", "prefix": "glyphicon"}
+            );
+            marker_e2ce43ee70b4007b73e4d0da7a6bc002.setIcon(icon_16e4b16341c98e911eb165b853c96220);
+        
+    
+        var popup_b9c7855894d40cbd2c4456fa958731b1 = L.popup({"maxWidth": "100%"});
+
+        
+            
+                var html_9209479d9627642e8013cbbef4f78c20 = $(`<div id="html_9209479d9627642e8013cbbef4f78c20" style="width: 100.0%; height: 100.0%;">Kodagehutta CoastSat has not started downloading images yet</div>`)[0];
+                popup_b9c7855894d40cbd2c4456fa958731b1.setContent(html_9209479d9627642e8013cbbef4f78c20);
+            
+        
+
+        marker_e2ce43ee70b4007b73e4d0da7a6bc002.bindPopup(popup_b9c7855894d40cbd2c4456fa958731b1)
+        ;
+
+        
+    
+    
+            var marker_1cc6a07b3bd7c90f4220aae358141e7a = L.marker(
+                [0.83738595, 73.18397158103033],
+                {}
+            ).addTo(map_1872a0503f700bf94324b6d047ff6cdb);
+        
+    
+            var icon_0f27ad3d74631b30f98b74170ab03249 = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "info-sign", "iconColor": "white", "markerColor": "blue", "prefix": "glyphicon"}
+            );
+            marker_1cc6a07b3bd7c90f4220aae358141e7a.setIcon(icon_0f27ad3d74631b30f98b74170ab03249);
+        
+    
+        var popup_6afd9ad59fad79e981f09b657efdda0a = L.popup({"maxWidth": "100%"});
+
+        
+            
+                var html_8435fe7b49fb2ddaf30e4e701a21227b = $(`<div id="html_8435fe7b49fb2ddaf30e4e701a21227b" style="width: 100.0%; height: 100.0%;">Kolamaafushi CoastSat has not started downloading images yet</div>`)[0];
+                popup_6afd9ad59fad79e981f09b657efdda0a.setContent(html_8435fe7b49fb2ddaf30e4e701a21227b);
+            
+        
+
+        marker_1cc6a07b3bd7c90f4220aae358141e7a.bindPopup(popup_6afd9ad59fad79e981f09b657efdda0a)
+        ;
+
+        
+    
+    
+            var marker_93f1c3e7907b8427cea6141aef77b22d = L.marker(
+                [0.513544, 73.542295],
+                {}
+            ).addTo(map_1872a0503f700bf94324b6d047ff6cdb);
+        
+    
+            var icon_d5fcc747162819090750cedc92b38be4 = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "info-sign", "iconColor": "white", "markerColor": "green", "prefix": "glyphicon"}
+            );
+            marker_93f1c3e7907b8427cea6141aef77b22d.setIcon(icon_d5fcc747162819090750cedc92b38be4);
+        
+    
+        var popup_966e2efda8e569591eca50fcd3e6ff68 = L.popup({"maxWidth": "100%"});
+
+        
+            
+                var html_381d2e1e6840c18df59d7bb234dd6d26 = $(`<div id="html_381d2e1e6840c18df59d7bb234dd6d26" style="width: 100.0%; height: 100.0%;">Kondeyviligili CoastSat time series available</div>`)[0];
+                popup_966e2efda8e569591eca50fcd3e6ff68.setContent(html_381d2e1e6840c18df59d7bb234dd6d26);
+            
+        
+
+        marker_93f1c3e7907b8427cea6141aef77b22d.bindPopup(popup_966e2efda8e569591eca50fcd3e6ff68)
+        ;
+
+        
+    
+    
+            var marker_a6ba03d419f9d32352d4cc569d934ed0 = L.marker(
+                [0.4996788, 73.54837193495409],
+                {}
+            ).addTo(map_1872a0503f700bf94324b6d047ff6cdb);
+        
+    
+            var icon_9b166a1807768de2a8e11be0deeeca19 = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "info-sign", "iconColor": "white", "markerColor": "green", "prefix": "glyphicon"}
+            );
+            marker_a6ba03d419f9d32352d4cc569d934ed0.setIcon(icon_9b166a1807768de2a8e11be0deeeca19);
+        
+    
+        var popup_ee1b1302949132f443f6286c6556af6a = L.popup({"maxWidth": "100%"});
+
+        
+            
+                var html_a1e247dfb64337d3e0b4c57f86737885 = $(`<div id="html_a1e247dfb64337d3e0b4c57f86737885" style="width: 100.0%; height: 100.0%;">Kondey CoastSat time series available</div>`)[0];
+                popup_ee1b1302949132f443f6286c6556af6a.setContent(html_a1e247dfb64337d3e0b4c57f86737885);
+            
+        
+
+        marker_a6ba03d419f9d32352d4cc569d934ed0.bindPopup(popup_ee1b1302949132f443f6286c6556af6a)
+        ;
+
+        
+    
+    
+            var marker_0cc344bbcfbcc7eee58e0b289ce3e791 = L.marker(
+                [0.7336290999999999, 73.43314526464204],
+                {}
+            ).addTo(map_1872a0503f700bf94324b6d047ff6cdb);
+        
+    
+            var icon_cec05fea09d57c61f34cca573d958284 = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "info-sign", "iconColor": "white", "markerColor": "green", "prefix": "glyphicon"}
+            );
+            marker_0cc344bbcfbcc7eee58e0b289ce3e791.setIcon(icon_cec05fea09d57c61f34cca573d958284);
+        
+    
+        var popup_729611e85142c2c44e134033d45d80b4 = L.popup({"maxWidth": "100%"});
+
+        
+            
+                var html_1b76ecd9123c5abaee41007f00b1b2ef = $(`<div id="html_1b76ecd9123c5abaee41007f00b1b2ef" style="width: 100.0%; height: 100.0%;">Kooddoo CoastSat time series available</div>`)[0];
+                popup_729611e85142c2c44e134033d45d80b4.setContent(html_1b76ecd9123c5abaee41007f00b1b2ef);
+            
+        
+
+        marker_0cc344bbcfbcc7eee58e0b289ce3e791.bindPopup(popup_729611e85142c2c44e134033d45d80b4)
+        ;
+
+        
+    
+    
+            var marker_5ca85ccbb46ddaa8abeadda64c9c1105 = L.marker(
+                [0.896696, 73.349611],
+                {}
+            ).addTo(map_1872a0503f700bf94324b6d047ff6cdb);
+        
+    
+            var icon_a5e50fb99aacddcb9bdc775b8b45b220 = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "info-sign", "iconColor": "white", "markerColor": "green", "prefix": "glyphicon"}
+            );
+            marker_5ca85ccbb46ddaa8abeadda64c9c1105.setIcon(icon_a5e50fb99aacddcb9bdc775b8b45b220);
+        
+    
+        var popup_b5ee11ebdd790d95e3c7d574124ce582 = L.popup({"maxWidth": "100%"});
+
+        
+            
+                var html_5fe3c7ce94c0d97de593f4dfedc1a906 = $(`<div id="html_5fe3c7ce94c0d97de593f4dfedc1a906" style="width: 100.0%; height: 100.0%;">Kudalafari CoastSat time series available</div>`)[0];
+                popup_b5ee11ebdd790d95e3c7d574124ce582.setContent(html_5fe3c7ce94c0d97de593f4dfedc1a906);
+            
+        
+
+        marker_5ca85ccbb46ddaa8abeadda64c9c1105.bindPopup(popup_b5ee11ebdd790d95e3c7d574124ce582)
+        ;
+
+        
+    
+    
+            var marker_ef320f7a113f2e94c97457308fd0512b = L.marker(
+                [0.820119, 73.202015],
+                {}
+            ).addTo(map_1872a0503f700bf94324b6d047ff6cdb);
+        
+    
+            var icon_529227fb0189dad3dbd11d9158e3f4cd = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "info-sign", "iconColor": "white", "markerColor": "blue", "prefix": "glyphicon"}
+            );
+            marker_ef320f7a113f2e94c97457308fd0512b.setIcon(icon_529227fb0189dad3dbd11d9158e3f4cd);
+        
+    
+        var popup_f2fc450715d09d6bf2b161235062b911 = L.popup({"maxWidth": "100%"});
+
+        
+            
+                var html_f7334d5181ad09e92b457a6e10a8bc70 = $(`<div id="html_f7334d5181ad09e92b457a6e10a8bc70" style="width: 100.0%; height: 100.0%;">Lhossaa CoastSat has not started downloading images yet</div>`)[0];
+                popup_f2fc450715d09d6bf2b161235062b911.setContent(html_f7334d5181ad09e92b457a6e10a8bc70);
+            
+        
+
+        marker_ef320f7a113f2e94c97457308fd0512b.bindPopup(popup_f2fc450715d09d6bf2b161235062b911)
+        ;
+
+        
+    
+    
+            var marker_d5203aea8a6fe3bf6a3c87fde680331d = L.marker(
+                [0.845614, 73.179776],
+                {}
+            ).addTo(map_1872a0503f700bf94324b6d047ff6cdb);
+        
+    
+            var icon_1fb921ede36365e6225d4d06ffc2b6b0 = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "info-sign", "iconColor": "white", "markerColor": "green", "prefix": "glyphicon"}
+            );
+            marker_d5203aea8a6fe3bf6a3c87fde680331d.setIcon(icon_1fb921ede36365e6225d4d06ffc2b6b0);
+        
+    
+        var popup_eae78b4bb6f70823694341d2353fb2b9 = L.popup({"maxWidth": "100%"});
+
+        
+            
+                var html_dabefd2a6ad9421c132b0cd7b7b28503 = $(`<div id="html_dabefd2a6ad9421c132b0cd7b7b28503" style="width: 100.0%; height: 100.0%;">Maagihutta CoastSat time series available</div>`)[0];
+                popup_eae78b4bb6f70823694341d2353fb2b9.setContent(html_dabefd2a6ad9421c132b0cd7b7b28503);
+            
+        
+
+        marker_d5203aea8a6fe3bf6a3c87fde680331d.bindPopup(popup_eae78b4bb6f70823694341d2353fb2b9)
+        ;
+
+        
+    
+    
+            var marker_a3c6b48dfee9de50ecb5ba6c283b1821 = L.marker(
+                [0.812118, 73.207222],
+                {}
+            ).addTo(map_1872a0503f700bf94324b6d047ff6cdb);
+        
+    
+            var icon_a4290f21b34bae9fa48d8d77908bbc6e = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "info-sign", "iconColor": "white", "markerColor": "blue", "prefix": "glyphicon"}
+            );
+            marker_a3c6b48dfee9de50ecb5ba6c283b1821.setIcon(icon_a4290f21b34bae9fa48d8d77908bbc6e);
+        
+    
+        var popup_a8c9fa5ea536195e9681d626944008ac = L.popup({"maxWidth": "100%"});
+
+        
+            
+                var html_226a293c07b6395022b1760df339f3ec = $(`<div id="html_226a293c07b6395022b1760df339f3ec" style="width: 100.0%; height: 100.0%;">Maakanaarataa CoastSat has not started downloading images yet</div>`)[0];
+                popup_a8c9fa5ea536195e9681d626944008ac.setContent(html_226a293c07b6395022b1760df339f3ec);
+            
+        
+
+        marker_a3c6b48dfee9de50ecb5ba6c283b1821.bindPopup(popup_a8c9fa5ea536195e9681d626944008ac)
+        ;
+
+        
+    
+    
+            var marker_d6861c4cb69b81d460e7f5b6201a1e21 = L.marker(
+                [0.71333585, 73.43960058827733],
+                {}
+            ).addTo(map_1872a0503f700bf94324b6d047ff6cdb);
+        
+    
+            var icon_7ada252d6caecc3455b5bc565d680731 = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "info-sign", "iconColor": "white", "markerColor": "green", "prefix": "glyphicon"}
+            );
+            marker_d6861c4cb69b81d460e7f5b6201a1e21.setIcon(icon_7ada252d6caecc3455b5bc565d680731);
+        
+    
+        var popup_ed97b1b0b56a8e43f9eb504cd073e125 = L.popup({"maxWidth": "100%"});
+
+        
+            
+                var html_5ff37022b69bcbdd26065bc7dff61ef4 = $(`<div id="html_5ff37022b69bcbdd26065bc7dff61ef4" style="width: 100.0%; height: 100.0%;">Maamendhoo CoastSat time series available</div>`)[0];
+                popup_ed97b1b0b56a8e43f9eb504cd073e125.setContent(html_5ff37022b69bcbdd26065bc7dff61ef4);
+            
+        
+
+        marker_d6861c4cb69b81d460e7f5b6201a1e21.bindPopup(popup_ed97b1b0b56a8e43f9eb504cd073e125)
+        ;
+
+        
+    
+    
+            var marker_fbcfb852b453b7775eeeb69c381881d8 = L.marker(
+                [0.8461995, 73.4083314557327],
+                {}
+            ).addTo(map_1872a0503f700bf94324b6d047ff6cdb);
+        
+    
+            var icon_b7970cafb956ea5153fb2e20356112c3 = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "info-sign", "iconColor": "white", "markerColor": "green", "prefix": "glyphicon"}
+            );
+            marker_fbcfb852b453b7775eeeb69c381881d8.setIcon(icon_b7970cafb956ea5153fb2e20356112c3);
+        
+    
+        var popup_3515984c59a0cc9c7a37fd9a43b3369a = L.popup({"maxWidth": "100%"});
+
+        
+            
+                var html_e222cb2d94c89cd934d5bd09884aa4b3 = $(`<div id="html_e222cb2d94c89cd934d5bd09884aa4b3" style="width: 100.0%; height: 100.0%;">Maamutaa CoastSat time series available</div>`)[0];
+                popup_3515984c59a0cc9c7a37fd9a43b3369a.setContent(html_e222cb2d94c89cd934d5bd09884aa4b3);
+            
+        
+
+        marker_fbcfb852b453b7775eeeb69c381881d8.bindPopup(popup_3515984c59a0cc9c7a37fd9a43b3369a)
+        ;
+
+        
+    
+    
+            var marker_185acbefa9fad64c11c2ea50612c6972 = L.marker(
+                [0.461775, 73.563946],
+                {}
+            ).addTo(map_1872a0503f700bf94324b6d047ff6cdb);
+        
+    
+            var icon_9ffd878a88bc09ed252176c100c40086 = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "info-sign", "iconColor": "white", "markerColor": "green", "prefix": "glyphicon"}
+            );
+            marker_185acbefa9fad64c11c2ea50612c6972.setIcon(icon_9ffd878a88bc09ed252176c100c40086);
+        
+    
+        var popup_f6c56e290aee5fbcfa48416e86a15065 = L.popup({"maxWidth": "100%"});
+
+        
+            
+                var html_ebe98baf49c05900c22f8ad89592d39c = $(`<div id="html_ebe98baf49c05900c22f8ad89592d39c" style="width: 100.0%; height: 100.0%;">Maarehaa CoastSat time series available</div>`)[0];
+                popup_f6c56e290aee5fbcfa48416e86a15065.setContent(html_ebe98baf49c05900c22f8ad89592d39c);
+            
+        
+
+        marker_185acbefa9fad64c11c2ea50612c6972.bindPopup(popup_f6c56e290aee5fbcfa48416e86a15065)
+        ;
+
+        
+    
+    
+            var marker_21fb015e80d7dfa3f08e4d1b3fb4cd64 = L.marker(
+                [0.337652, 73.511709],
+                {}
+            ).addTo(map_1872a0503f700bf94324b6d047ff6cdb);
+        
+    
+            var icon_0193225e34a89b0c4e52e8331d515867 = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "info-sign", "iconColor": "white", "markerColor": "blue", "prefix": "glyphicon"}
+            );
+            marker_21fb015e80d7dfa3f08e4d1b3fb4cd64.setIcon(icon_0193225e34a89b0c4e52e8331d515867);
+        
+    
+        var popup_98e58e7ac34b0a0b171ff5eb84fd862f = L.popup({"maxWidth": "100%"});
+
+        
+            
+                var html_7b75b2533eaa2cdca6f3689b400ea3f8 = $(`<div id="html_7b75b2533eaa2cdca6f3689b400ea3f8" style="width: 100.0%; height: 100.0%;">Maavaarulu CoastSat has not started downloading images yet</div>`)[0];
+                popup_98e58e7ac34b0a0b171ff5eb84fd862f.setContent(html_7b75b2533eaa2cdca6f3689b400ea3f8);
+            
+        
+
+        marker_21fb015e80d7dfa3f08e4d1b3fb4cd64.bindPopup(popup_98e58e7ac34b0a0b171ff5eb84fd862f)
+        ;
+
+        
+    
+    
+            var marker_f4d104cebdc804b42b2a6b7e9e7cb809 = L.marker(
+                [0.4590651, 72.99825679729179],
+                {}
+            ).addTo(map_1872a0503f700bf94324b6d047ff6cdb);
+        
+    
+            var icon_34ade62c5f48517044403bd35dd36c37 = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "info-sign", "iconColor": "white", "markerColor": "green", "prefix": "glyphicon"}
+            );
+            marker_f4d104cebdc804b42b2a6b7e9e7cb809.setIcon(icon_34ade62c5f48517044403bd35dd36c37);
+        
+    
+        var popup_33a4cfccda2e512600d56183d6529cc1 = L.popup({"maxWidth": "100%"});
+
+        
+            
+                var html_1975501155392f246dabdcd3a5244567 = $(`<div id="html_1975501155392f246dabdcd3a5244567" style="width: 100.0%; height: 100.0%;">Madaveli CoastSat time series available</div>`)[0];
+                popup_33a4cfccda2e512600d56183d6529cc1.setContent(html_1975501155392f246dabdcd3a5244567);
+            
+        
+
+        marker_f4d104cebdc804b42b2a6b7e9e7cb809.bindPopup(popup_33a4cfccda2e512600d56183d6529cc1)
+        ;
+
+        
+    
+    
+            var marker_a83a0bbe023921fd5e2a32d6d640c03c = L.marker(
+                [0.583919, 73.513146],
+                {}
+            ).addTo(map_1872a0503f700bf94324b6d047ff6cdb);
+        
+    
+            var icon_446b8e16f4461e0faaa304020f316ac7 = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "info-sign", "iconColor": "white", "markerColor": "green", "prefix": "glyphicon"}
+            );
+            marker_a83a0bbe023921fd5e2a32d6d640c03c.setIcon(icon_446b8e16f4461e0faaa304020f316ac7);
+        
+    
+        var popup_b375e9bca7fc7a831c9cea56b6a3ce1d = L.popup({"maxWidth": "100%"});
+
+        
+            
+                var html_54926fdfbb0a5bc71b310d119be6491b = $(`<div id="html_54926fdfbb0a5bc71b310d119be6491b" style="width: 100.0%; height: 100.0%;">Mahadhdhoo CoastSat time series available</div>`)[0];
+                popup_b375e9bca7fc7a831c9cea56b6a3ce1d.setContent(html_54926fdfbb0a5bc71b310d119be6491b);
+            
+        
+
+        marker_a83a0bbe023921fd5e2a32d6d640c03c.bindPopup(popup_b375e9bca7fc7a831c9cea56b6a3ce1d)
+        ;
+
+        
+    
+    
+            var marker_c1cbce0dfebecfc3268959dbe3d38022 = L.marker(
+                [0.885402, 73.336451],
+                {}
+            ).addTo(map_1872a0503f700bf94324b6d047ff6cdb);
+        
+    
+            var icon_34c8ed4cc64930171db2b337d8c144c0 = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "info-sign", "iconColor": "white", "markerColor": "green", "prefix": "glyphicon"}
+            );
+            marker_c1cbce0dfebecfc3268959dbe3d38022.setIcon(icon_34c8ed4cc64930171db2b337d8c144c0);
+        
+    
+        var popup_a97b68ec50357fa7de92ae6a51e5c1e5 = L.popup({"maxWidth": "100%"});
+
+        
+            
+                var html_571da79ad7441519577ce9bd52e9afff = $(`<div id="html_571da79ad7441519577ce9bd52e9afff" style="width: 100.0%; height: 100.0%;">Matu CoastSat time series available</div>`)[0];
+                popup_a97b68ec50357fa7de92ae6a51e5c1e5.setContent(html_571da79ad7441519577ce9bd52e9afff);
+            
+        
+
+        marker_c1cbce0dfebecfc3268959dbe3d38022.bindPopup(popup_a97b68ec50357fa7de92ae6a51e5c1e5)
+        ;
+
+        
+    
+    
+            var marker_a8b58608ae367072f9d5d69d6f4343d2 = L.marker(
+                [0.466656, 73.562045],
+                {}
+            ).addTo(map_1872a0503f700bf94324b6d047ff6cdb);
+        
+    
+            var icon_dc0e6106b3589efa03cd7c1edcd97140 = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "info-sign", "iconColor": "white", "markerColor": "green", "prefix": "glyphicon"}
+            );
+            marker_a8b58608ae367072f9d5d69d6f4343d2.setIcon(icon_dc0e6106b3589efa03cd7c1edcd97140);
+        
+    
+        var popup_39c4a4b719726b3b69d9ebe6f32df003 = L.popup({"maxWidth": "100%"});
+
+        
+            
+                var html_381e310eca52849b3bd21ba8bd18b674 = $(`<div id="html_381e310eca52849b3bd21ba8bd18b674" style="width: 100.0%; height: 100.0%;">Medhehuttaa CoastSat time series available</div>`)[0];
+                popup_39c4a4b719726b3b69d9ebe6f32df003.setContent(html_381e310eca52849b3bd21ba8bd18b674);
+            
+        
+
+        marker_a8b58608ae367072f9d5d69d6f4343d2.bindPopup(popup_39c4a4b719726b3b69d9ebe6f32df003)
+        ;
+
+        
+    
+    
+            var marker_200494bba0a7921dd6a984c24daeeb3a = L.marker(
+                [0.857625, 73.179425],
+                {}
+            ).addTo(map_1872a0503f700bf94324b6d047ff6cdb);
+        
+    
+            var icon_5bd3528ebe6e066ac2a7305217d5c035 = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "info-sign", "iconColor": "white", "markerColor": "green", "prefix": "glyphicon"}
+            );
+            marker_200494bba0a7921dd6a984c24daeeb3a.setIcon(icon_5bd3528ebe6e066ac2a7305217d5c035);
+        
+    
+        var popup_d4fea74d608fb9cdccd4472927601469 = L.popup({"maxWidth": "100%"});
+
+        
+            
+                var html_e74413eb1717f7bdd722645cc3204e96 = $(`<div id="html_e74413eb1717f7bdd722645cc3204e96" style="width: 100.0%; height: 100.0%;">Melaimaa CoastSat time series available</div>`)[0];
+                popup_d4fea74d608fb9cdccd4472927601469.setContent(html_e74413eb1717f7bdd722645cc3204e96);
+            
+        
+
+        marker_200494bba0a7921dd6a984c24daeeb3a.bindPopup(popup_d4fea74d608fb9cdccd4472927601469)
+        ;
+
+        
+    
+    
+            var marker_8110f6dab90cb92f3bb755862a924372 = L.marker(
+                [0.595768, 73.500536],
+                {}
+            ).addTo(map_1872a0503f700bf94324b6d047ff6cdb);
+        
+    
+            var icon_c150568ef3a0a3e3031fae486e56fa79 = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "info-sign", "iconColor": "white", "markerColor": "green", "prefix": "glyphicon"}
+            );
+            marker_8110f6dab90cb92f3bb755862a924372.setIcon(icon_c150568ef3a0a3e3031fae486e56fa79);
+        
+    
+        var popup_d5f71ef335c3628359b69b998cf3533a = L.popup({"maxWidth": "100%"});
+
+        
+            
+                var html_b35fe19d47c0e9845171b6942eb967b1 = $(`<div id="html_b35fe19d47c0e9845171b6942eb967b1" style="width: 100.0%; height: 100.0%;">Munandhuvaa CoastSat time series available</div>`)[0];
+                popup_d5f71ef335c3628359b69b998cf3533a.setContent(html_b35fe19d47c0e9845171b6942eb967b1);
+            
+        
+
+        marker_8110f6dab90cb92f3bb755862a924372.bindPopup(popup_d5f71ef335c3628359b69b998cf3533a)
+        ;
+
+        
+    
+    
+            var marker_a5ebde4649ac89a93bf76a0fabe35f05 = L.marker(
+                [0.2940647, 73.04031703301584],
+                {}
+            ).addTo(map_1872a0503f700bf94324b6d047ff6cdb);
+        
+    
+            var icon_4019f03c86cae2f5ba2ab66f120d9fae = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "info-sign", "iconColor": "white", "markerColor": "green", "prefix": "glyphicon"}
+            );
+            marker_a5ebde4649ac89a93bf76a0fabe35f05.setIcon(icon_4019f03c86cae2f5ba2ab66f120d9fae);
+        
+    
+        var popup_615d13564396c1604d6b46f91d923399 = L.popup({"maxWidth": "100%"});
+
+        
+            
+                var html_65197ff4cca390fbe8e054c44de03876 = $(`<div id="html_65197ff4cca390fbe8e054c44de03876" style="width: 100.0%; height: 100.0%;">Nadellaa CoastSat time series available</div>`)[0];
+                popup_615d13564396c1604d6b46f91d923399.setContent(html_65197ff4cca390fbe8e054c44de03876);
+            
+        
+
+        marker_a5ebde4649ac89a93bf76a0fabe35f05.bindPopup(popup_615d13564396c1604d6b46f91d923399)
+        ;
+
+        
+    
+    
+            var marker_203950e35c8e42ed61250bcf08014599 = L.marker(
+                [0.6364925, 73.44654494275724],
+                {}
+            ).addTo(map_1872a0503f700bf94324b6d047ff6cdb);
+        
+    
+            var icon_6d9ab74625b0e1f8ed498105e529d351 = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "info-sign", "iconColor": "white", "markerColor": "green", "prefix": "glyphicon"}
+            );
+            marker_203950e35c8e42ed61250bcf08014599.setIcon(icon_6d9ab74625b0e1f8ed498105e529d351);
+        
+    
+        var popup_08cfe2963dad860400ff28d95225bea3 = L.popup({"maxWidth": "100%"});
+
+        
+            
+                var html_9fbafa4faf5266d61c09ce6750940d95 = $(`<div id="html_9fbafa4faf5266d61c09ce6750940d95" style="width: 100.0%; height: 100.0%;">Nilandhoo CoastSat time series available</div>`)[0];
+                popup_08cfe2963dad860400ff28d95225bea3.setContent(html_9fbafa4faf5266d61c09ce6750940d95);
+            
+        
+
+        marker_203950e35c8e42ed61250bcf08014599.bindPopup(popup_08cfe2963dad860400ff28d95225bea3)
+        ;
+
+        
+    
+    
+            var marker_1377276a8d377ad196a39ac01ddfc79b = L.marker(
+                [0.2526627, 73.10491116094646],
+                {}
+            ).addTo(map_1872a0503f700bf94324b6d047ff6cdb);
+        
+    
+            var icon_14ab16952f2e35b5bfe050c57cc9391c = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "info-sign", "iconColor": "white", "markerColor": "green", "prefix": "glyphicon"}
+            );
+            marker_1377276a8d377ad196a39ac01ddfc79b.setIcon(icon_14ab16952f2e35b5bfe050c57cc9391c);
+        
+    
+        var popup_1c98cbe31a955f81472eab64982aced4 = L.popup({"maxWidth": "100%"});
+
+        
+            
+                var html_e5c748fc74152e496ce28cbefc10157a = $(`<div id="html_e5c748fc74152e496ce28cbefc10157a" style="width: 100.0%; height: 100.0%;">Rathafandhoo CoastSat time series available</div>`)[0];
+                popup_1c98cbe31a955f81472eab64982aced4.setContent(html_e5c748fc74152e496ce28cbefc10157a);
+            
+        
+
+        marker_1377276a8d377ad196a39ac01ddfc79b.bindPopup(popup_1c98cbe31a955f81472eab64982aced4)
+        ;
+
+        
+    
+    
+            var marker_ac3150e4900a0149ada5528949f6a066 = L.marker(
+                [0.5326429, 72.99714160821568],
+                {}
+            ).addTo(map_1872a0503f700bf94324b6d047ff6cdb);
+        
+    
+            var icon_012edf205d878e50c69ab036560b2240 = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "info-sign", "iconColor": "white", "markerColor": "green", "prefix": "glyphicon"}
+            );
+            marker_ac3150e4900a0149ada5528949f6a066.setIcon(icon_012edf205d878e50c69ab036560b2240);
+        
+    
+        var popup_c95754e737ebfb7fa6781277f2845fe3 = L.popup({"maxWidth": "100%"});
+
+        
+            
+                var html_cd83e4a815dbd1896d2d9bf20127cd3a = $(`<div id="html_cd83e4a815dbd1896d2d9bf20127cd3a" style="width: 100.0%; height: 100.0%;">Thinadhoo CoastSat time series available</div>`)[0];
+                popup_c95754e737ebfb7fa6781277f2845fe3.setContent(html_cd83e4a815dbd1896d2d9bf20127cd3a);
+            
+        
+
+        marker_ac3150e4900a0149ada5528949f6a066.bindPopup(popup_c95754e737ebfb7fa6781277f2845fe3)
+        ;
+
+        
+    
+    
+            var marker_807cdb34c85d5954a410a9dd97564d7c = L.marker(
+                [0.22713719999999998, 73.27326276492343],
+                {}
+            ).addTo(map_1872a0503f700bf94324b6d047ff6cdb);
+        
+    
+            var icon_dcc0ab9c504d29597f8a241bd86fe10c = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "info-sign", "iconColor": "white", "markerColor": "blue", "prefix": "glyphicon"}
+            );
+            marker_807cdb34c85d5954a410a9dd97564d7c.setIcon(icon_dcc0ab9c504d29597f8a241bd86fe10c);
+        
+    
+        var popup_8226b5409329b380aca294246b6d4ebd = L.popup({"maxWidth": "100%"});
+
+        
+            
+                var html_ec59991b6b0de7694406d0684256189a = $(`<div id="html_ec59991b6b0de7694406d0684256189a" style="width: 100.0%; height: 100.0%;">Vaadhoo (Gaafu Dhaalu) CoastSat has not started downloading images yet</div>`)[0];
+                popup_8226b5409329b380aca294246b6d4ebd.setContent(html_ec59991b6b0de7694406d0684256189a);
+            
+        
+
+        marker_807cdb34c85d5954a410a9dd97564d7c.bindPopup(popup_8226b5409329b380aca294246b6d4ebd)
+        ;
+
+        
+    
+    
+            var marker_00f4aed4667dca4a59583c5e46b062d5 = L.marker(
+                [0.756172, 73.43585],
+                {}
+            ).addTo(map_1872a0503f700bf94324b6d047ff6cdb);
+        
+    
+            var icon_f3755d0f306c02061d4670a5a4500ed1 = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "info-sign", "iconColor": "white", "markerColor": "green", "prefix": "glyphicon"}
+            );
+            marker_00f4aed4667dca4a59583c5e46b062d5.setIcon(icon_f3755d0f306c02061d4670a5a4500ed1);
+        
+    
+        var popup_57787b9090602a729bf15f326ad21a5b = L.popup({"maxWidth": "100%"});
+
+        
+            
+                var html_02a11e6b9d5c6db54b70e663371b3785 = $(`<div id="html_02a11e6b9d5c6db54b70e663371b3785" style="width: 100.0%; height: 100.0%;">Viligili CoastSat time series available</div>`)[0];
+                popup_57787b9090602a729bf15f326ad21a5b.setContent(html_02a11e6b9d5c6db54b70e663371b3785);
+            
+        
+
+        marker_00f4aed4667dca4a59583c5e46b062d5.bindPopup(popup_57787b9090602a729bf15f326ad21a5b)
+        ;
+
+        
+    
+    
+            var marker_a9e52bf7a27a69a08809e2e53b8d61ef = L.marker(
+                [0.603859, 73.486465],
+                {}
+            ).addTo(map_1872a0503f700bf94324b6d047ff6cdb);
+        
+    
+            var icon_3007d600528d4af0df9ac3a3aba76d4f = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "info-sign", "iconColor": "white", "markerColor": "green", "prefix": "glyphicon"}
+            );
+            marker_a9e52bf7a27a69a08809e2e53b8d61ef.setIcon(icon_3007d600528d4af0df9ac3a3aba76d4f);
+        
+    
+        var popup_34273a36d5dcff1cbcb2b61e4ae0ecd1 = L.popup({"maxWidth": "100%"});
+
+        
+            
+                var html_fad1e0864424bbcb400504afe054bace = $(`<div id="html_fad1e0864424bbcb400504afe054bace" style="width: 100.0%; height: 100.0%;">Vodamulaa CoastSat time series available</div>`)[0];
+                popup_34273a36d5dcff1cbcb2b61e4ae0ecd1.setContent(html_fad1e0864424bbcb400504afe054bace);
+            
+        
+
+        marker_a9e52bf7a27a69a08809e2e53b8d61ef.bindPopup(popup_34273a36d5dcff1cbcb2b61e4ae0ecd1)
+        ;
+
+        
+    
+</script>
+</html>
