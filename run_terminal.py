@@ -11,8 +11,8 @@ except:
     ee.Initialize()
 
 def process_task(argument):
-    if argument == 'Vaadhoo (Gaafu Dhaalu)':
-        date_range = ['2019-02-02', '2022-12-31']
+    if argument == 'Kuramati':
+        date_range = ['2020-07-06', '2022-12-31']
     elif argument == 'Hoandeddhoo':
         date_range = ['2021-02-06', '2022-12-31']
     elif argument == 'Fares Maathodaa':
@@ -23,16 +23,14 @@ def process_task(argument):
     # Process satellites in parallel
     with concurrent.futures.ThreadPoolExecutor() as executor:
         executor.submit(
-            IslandTime.TimeSeriesCoastSat(argument, 'Maldives', 
-                                         overwrite=True, re_download=True, 
-                                         sat_list=['S2'], date_range=date_range).main()
+            IslandTime.TimeSeriesCoastSat(argument, 'Maldives').main()
         )
 
     island_info = IslandTime.run_all(argument, 'Maldives')
     return f"Processed argument: {argument}"
 
 if __name__ == '__main__':
-    arguments = ['Vaadhoo (Gaafu Dhaalu)', 'Hoandeddhoo', 'Fares Maathodaa', 'Kanduhulhudhoo']  # Replace 'OtherIsland' with actual island names
+    arguments = ['Kuramati', 'Kudhelifadhoo', 'Lifadhoo', 'Kautihulhudhoo-Karuna', 'Hulhedhdhoo', 'Kudhehulhahdhoo']
     num_cores = 16  # Adjust based on your system capabilities
 
     with multiprocessing.Pool(processes=num_cores) as pool:

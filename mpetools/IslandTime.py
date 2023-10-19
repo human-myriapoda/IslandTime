@@ -324,7 +324,7 @@ class PreTimeSeries:
             lon_close = np.allclose(np.array(lon_w, dtype=float), np.array(lon_gk, dtype=float), atol=1e-1)
 
             if not (lat_close and lon_close):
-                ver = input('Is this {}, {} [y/n\wiki]? {}, {} - Please verify those coordinates on Google Maps: '.format(self.island, self.country, lat_gk, lon_gk))
+                ver = input('Is this {}, {} [y/n/wiki]? {}, {} - Please verify those coordinates on Google Maps: '.format(self.island, self.country, lat_gk, lon_gk))
 
                 if ver == 'n':
                     lat, lon = input('Please enter the latitude/longitude: ').replace(', ', ' ').split(' ')
@@ -391,8 +391,9 @@ class PreTimeSeries:
         - np.ndarray: An array of NDVI values.
         """
         # Get arrays from GEE image
-        arr_band1 = np.array(image.sampleRectangle(geo_polygon).get(band1).getInfo())
-        arr_band2 = np.array(image.sampleRectangle(geo_polygon).get(band2).getInfo())
+        sample_rectangle = image.sampleRectangle(geo_polygon, defaultValue=1., defaultArrayValue=1.)
+        arr_band1 = np.array(sample_rectangle.get(band1).getInfo())
+        arr_band2 = np.array(sample_rectangle.get(band2).getInfo())
 
         # Equation for NDVI
         arr_ndvi = (arr_band1 - arr_band2)/(arr_band1 + arr_band2)
@@ -468,7 +469,7 @@ class PreTimeSeries:
         point = ee.Geometry.Point([lon, lat])
 
         # Availability – Sentinel-2
-        collection_S2 = ee.ImageCollection('COPERNICUS/S2_SR_HARMONIZED').filterBounds(point)
+        collection_S2 = ee.ImageCollection('COPERNICUS/S2_SR').filterBounds(point)
 
         # Pick cloud-free image
         image = collection_S2.sort('CLOUDY_PIXEL_PERCENTAGE').first()
@@ -2078,7 +2079,7 @@ class TimeSeriesCoastSat(IslandTimeBase):
         # Settings for shoreline extraction
         settings = { 
             # general parameters:
-            'cloud_thresh': 0.5,        # threshold on maximum cloud cover
+            'cloud_thresh': 0.3,        # threshold on maximum cloud cover
             'dist_clouds': 100,         # distance around clouds where shoreline can't be mapped
             'output_epsg': 3857,       # epsg code of spatial reference system desired for the output
 
@@ -2102,7 +2103,7 @@ class TimeSeriesCoastSat(IslandTimeBase):
         if not self.reference_shoreline_transects_only:
 
             # Save .jpg of the preprocessed RGB images
-            if not os.path.exists(os.path.join(filepath_data, sitename, 'jpg_files')) and not self.overwrite:
+            if not os.path.exists(os.path.join(filepath_data, sitename, 'jpg_files', 'preprocessed')) and not self.overwrite:
                 SDS_preprocess.save_jpg(metadata, settings, use_matplotlib=True)
 
         # Get reference shoreline
@@ -2625,6 +2626,7 @@ class TimeSeriesVegetation(IslandTimeBase):
 
         # Create an empty mask array with the same shape as the meshgrid
         mask_total_vegetation, mask_coastal_vegetation = np.zeros(xx_img.shape, dtype=bool), np.zeros(xx_img.shape, dtype=bool)
+        mask_shoreline_buffer = np.zeros(xx_img.shape, dtype=bool)
 
         # Create dictionary for transect masks
         '''
@@ -2637,6 +2639,10 @@ class TimeSeriesVegetation(IslandTimeBase):
         for i in tqdm(range(xx_img.shape[0])):
             for j in range(xx_img.shape[1]):
                 point = shapely.geometry.Point(xx_img[i, j], yy_img[i, j])
+
+                # Shoreline buffer
+                if point.distance(linestring_reference_shoreline) < 100:
+                    mask_shoreline_buffer[i, j] = True
 
                 # Total vegetation
                 if polygon_reference_shoreline.contains(point):
@@ -2657,6 +2663,8 @@ class TimeSeriesVegetation(IslandTimeBase):
         # Save masks in dictionary
         self.island_info['timeseries_{}'.format(self.acronym)]['mask_total_vegetation_{}'.format(sat)] = mask_total_vegetation
         self.island_info['timeseries_{}'.format(self.acronym)]['mask_coastal_vegetation_{}'.format(sat)] = mask_coastal_vegetation
+        ('hi!')
+        self.island_info['spatial_reference']['reference_shoreline_buffer_{}'.format(sat)] = mask_shoreline_buffer
         #self.island_info['timeseries_{}'.format(self.acronym)]['mask_transects_vegetation_{}'.format(sat)] = mask_transects_vegetation
 
         return mask_total_vegetation, mask_coastal_vegetation #, mask_transects_vegetation
@@ -3010,5 +3018,17 @@ def run_all(island, country, verbose_init=True, overwrite=False):
 
     # Retrieve the dictionary with currently available information about the island
     island_info = retrieve_island_info(island, country, verbose=verbose_init)
+
+    return island_info
+
+def save_new_island_info(island_info):
+
+    island_info_path = os.path.join(os.getcwd(), 'data', 'info_islands')
+    island = island_info['general_info']['island']
+    country = island_info['general_info']['country']
+
+    # Save dictionary
+    with open(os.path.join(island_info_path, 'info_{}_{}.data'.format(island, country)), 'wb') as f:
+        pickle.dump(island_info, f)
 
     return island_info
