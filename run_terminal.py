@@ -33,14 +33,14 @@ def process_task(argument):
     # Process satellites in parallel
     with concurrent.futures.ThreadPoolExecutor() as executor:
         executor.submit(
-            IslandTime.TimeSeriesCoastSat(argument, 'Maldives', overwrite=True, re_download=True, sat_list=sat_list, date_range=date_range).main()
+            IslandTime.TimeSeriesCoastSat(argument, 'Maldives').main()
         )
 
     island_info = IslandTime.run_all(argument, 'Maldives')
     return f"Processed argument: {argument}"
 
 if __name__ == '__main__':
-    arguments = ['Lhossaa']
+    arguments = ['Dhoonirehaa', 'Menthandhoo', 'Golhaallaa', 'Fulu', 'Gadhdhoo', 'Gan (Gaafu Dhaalu)', 'Gaazeeraa']
     num_cores = 16  # Adjust based on your system capabilities
 
     with multiprocessing.Pool(processes=num_cores) as pool:
