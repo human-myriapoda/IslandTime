@@ -11,26 +11,36 @@ except:
     ee.Initialize()
 
 def process_task(argument):
-    if argument == 'Kuramati':
-        date_range = ['2020-07-06', '2022-12-31']
-    elif argument == 'Hoandeddhoo':
-        date_range = ['2021-02-06', '2022-12-31']
-    elif argument == 'Fares Maathodaa':
-        date_range = ['2021-07-21', '2022-12-31']
+    if argument == 'Faruhulhudhoo':
+        date_range = ['2022-10-24', '2022-12-31']
+        sat_list = ['S2']
+    elif argument == 'Faruhulhedhoo':
+        date_range = ['2022-04-02', '2022-12-31']
+        sat_list = ['S2']
+    elif argument == 'Kodagehutta':
+        date_range = ['2020-05-12', '2022-12-31']
+        sat_list = ['S2']
+    elif argument == 'Kolamaafushi':
+        date_range = ['2020-09-30', '2022-12-31']
+        sat_list = ['S2']
+    elif argument == 'Lhossaa':
+        date_range = ['2019-02-12', '2022-12-31']
+        sat_list = ['S2']
     else:
-        date_range = ['2019-12-09', '2022-12-31']
+        sat_list = ['S2']
+        date_range = ['2021-09-09', '2022-12-31']
 
     # Process satellites in parallel
     with concurrent.futures.ThreadPoolExecutor() as executor:
         executor.submit(
-            IslandTime.TimeSeriesCoastSat(argument, 'Maldives').main()
+            IslandTime.TimeSeriesCoastSat(argument, 'Maldives', overwrite=True, re_download=True, sat_list=sat_list, date_range=date_range).main()
         )
 
     island_info = IslandTime.run_all(argument, 'Maldives')
     return f"Processed argument: {argument}"
 
 if __name__ == '__main__':
-    arguments = ['Kuramati', 'Kudhelifadhoo', 'Lifadhoo', 'Kautihulhudhoo-Karuna', 'Hulhedhdhoo', 'Kudhehulhahdhoo']
+    arguments = ['Faruhulhudhoo', 'Faruhulhedhoo', 'Kodagehutta', 'Kolamaafushi', 'Lhossaa', 'Maakanaarataa']
     num_cores = 16  # Adjust based on your system capabilities
 
     with multiprocessing.Pool(processes=num_cores) as pool:
@@ -38,41 +48,6 @@ if __name__ == '__main__':
 
     for result in results:
         print(result)
-
-'''
-arguments = ['Vaadhoo (Gaafu Dhaalu)']#,
-            #'Hoandeddhoo',
-            #'Fares Maathodaa', 'Kanduhulhudhoo']
-
-def process_task(argument):
-    if argument == 'Vaadhoo (Gaafu Dhaalu)':
-        IslandTime.TimeSeriesCoastSat(argument, 'Maldives', overwrite=True, re_download=True, sat_list=['S2'], date_range=['2019-02-02', '2022-12-31']).main()
-    
-    elif argument == 'Hoandeddhoo':
-        IslandTime.TimeSeriesCoastSat(argument, 'Maldives', overwrite=True, re_download=True, sat_list=['S2'], date_range=['2016-10-20', '2022-12-31']).main()
-
-    elif argument == 'Fares Maathodaa':
-        IslandTime.TimeSeriesCoastSat(argument, 'Maldives', overwrite=True, re_download=True, sat_list=['S2'], date_range=['2016-08-11', '2022-12-31']).main()
-    
-    else:
-        IslandTime.TimeSeriesCoastSat(argument, 'Maldives', overwrite=True, re_download=True, sat_list=['S2'], date_range=['2021-03-26', '2022-12-31']).main()
-    island_info = IslandTime.run_all(argument, 'Maldives')
-    return f"Processed argument: {argument}"
-
-if __name__ == '__main__':
-    # Number of CPU cores to use (32 in this case)
-    num_cores = 16
-
-    # Create a pool of processes
-    with multiprocessing.Pool(processes=num_cores) as pool:
-        # Use the pool to map the process_task function to the list of arguments
-        results = pool.map(process_task, arguments)
-
-    # Print the results
-    for result in results:
-        print(result)
-
-        '''
 
 '''
 parser = argparse.ArgumentParser()
