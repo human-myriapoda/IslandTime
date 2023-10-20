@@ -2663,7 +2663,6 @@ class TimeSeriesVegetation(IslandTimeBase):
         # Save masks in dictionary
         self.island_info['timeseries_{}'.format(self.acronym)]['mask_total_vegetation_{}'.format(sat)] = mask_total_vegetation
         self.island_info['timeseries_{}'.format(self.acronym)]['mask_coastal_vegetation_{}'.format(sat)] = mask_coastal_vegetation
-        ('hi!')
         self.island_info['spatial_reference']['reference_shoreline_buffer_{}'.format(sat)] = mask_shoreline_buffer
         #self.island_info['timeseries_{}'.format(self.acronym)]['mask_transects_vegetation_{}'.format(sat)] = mask_transects_vegetation
 
@@ -3032,3 +3031,20 @@ def save_new_island_info(island_info):
         pickle.dump(island_info, f)
 
     return island_info
+
+def plot_shoreline_transects(island_info):
+    # Get reference shoreline and transects
+    reference_shoreline = island_info['spatial_reference']['reference_shoreline']
+    transects = island_info['spatial_reference']['transects']
+
+    # Plot reference shoreline
+    plt.figure()
+    plt.plot(reference_shoreline[:, 0], reference_shoreline[:, 1], 'k-')
+    
+    # Plot transects
+    for t in transects:
+        plt.plot(transects[t][:, 0], transects[t][:, 1], 'r-')
+        plt.text(transects[t][-1, 0], transects[t][-1, 1], t, fontsize=12)
+
+    plt.axis('equal')
+    plt.show()

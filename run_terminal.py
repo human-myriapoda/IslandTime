@@ -24,7 +24,7 @@ def process_task(argument):
         date_range = ['2020-09-30', '2022-12-31']
         sat_list = ['S2']
     elif argument == 'Lhossaa':
-        date_range = ['2019-02-12', '2022-12-31']
+        date_range = ['2020-11-28', '2022-12-31']
         sat_list = ['S2']
     else:
         sat_list = ['S2']
@@ -40,7 +40,7 @@ def process_task(argument):
     return f"Processed argument: {argument}"
 
 if __name__ == '__main__':
-    arguments = ['Faruhulhudhoo', 'Faruhulhedhoo', 'Kodagehutta', 'Kolamaafushi', 'Lhossaa', 'Maakanaarataa']
+    arguments = ['Lhossaa']
     num_cores = 16  # Adjust based on your system capabilities
 
     with multiprocessing.Pool(processes=num_cores) as pool:
