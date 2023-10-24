@@ -1718,7 +1718,7 @@ class TimeSeriesCoastSat(IslandTimeBase):
     """
 
     def __init__(self, island, country, verbose_init=True, overwrite=False, date_range=['2010-01-01', '2022-12-31'], sat_list=['L8', 'L9', 'S2'], \
-                 collection='C02', plot_results=True, distance_between_transects=50, length_transect=250, reference_shoreline_transects_only=False, \
+                 collection='C02', plot_results=False, distance_between_transects=50, length_transect=250, reference_shoreline_transects_only=False, \
                  extract_shorelines=True, re_download=False):
         super().__init__(island, country, verbose_init, overwrite)
         self.date_range = date_range
@@ -2068,19 +2068,19 @@ class TimeSeriesCoastSat(IslandTimeBase):
                     metadata = SDS_download.retrieve_images(inputs)
 
         else:
-                # Check if data is available
-                if os.path.exists(os.path.join(filepath_data, sitename)) and not self.re_download:
-                    metadata = SDS_download.get_metadata(inputs)
-                
-                # If data is not available
-                else:
-                    metadata = SDS_download.retrieve_images(inputs)            
-
+            # Check if data is available
+            if os.path.exists(os.path.join(filepath_data, sitename)) and not self.re_download:
+                metadata = SDS_download.get_metadata(inputs)
+            
+            # If data is not available
+            else:
+                metadata = SDS_download.retrieve_images(inputs)            
+        
         # Settings for shoreline extraction
         settings = { 
             # general parameters:
-            'cloud_thresh': 0.3,        # threshold on maximum cloud cover
-            'dist_clouds': 100,         # distance around clouds where shoreline can't be mapped
+            'cloud_thresh': 0.5,        # threshold on maximum cloud cover
+            'dist_clouds': 20,         # distance around clouds where shoreline can't be mapped
             'output_epsg': 3857,       # epsg code of spatial reference system desired for the output
 
             # quality control:
@@ -2094,7 +2094,7 @@ class TimeSeriesCoastSat(IslandTimeBase):
             'cloud_mask_issue': False,  # switch this parameter to True if sand pixels are masked (in black) on many images  
             'sand_color': 'default',    # 'default', 'latest', 'dark' (for grey/black sand beaches) or 'bright' (for white sand beaches)
             'pan_off': False,           # True to switch pansharpening off for Landsat 7/8/9 imagery
-            'max_dist_ref': 15,         # maximum distance (in pixels) between a valid shoreline and the reference shoreline
+            'max_dist_ref': 25,         # maximum distance (in pixels) between a valid shoreline and the reference shoreline
 
             # add the inputs defined previously
             'inputs': inputs,
@@ -2141,8 +2141,8 @@ class TimeSeriesCoastSat(IslandTimeBase):
                 fig = plt.figure(figsize=[15, 8])
 
                 # Plot every shoreline
-                for i in range(len(output['shorelines'])):
-                    sl = output['shorelines'][i]
+                for i in range(len(output['shorelines_0'])):
+                    sl = output['shorelines_0'][i]
                     date = output['dates'][i]
                     plt.plot(sl[:, 0], sl[:, 1], '.', label=date.strftime('%d-%m-%Y'))
 
@@ -2173,7 +2173,7 @@ class TimeSeriesCoastSat(IslandTimeBase):
                                 'otsu_threshold': [-0.5, 0],        # min and max intensity threshold use for contouring the shoreline
                                 'plot_fig': False}           # whether to plot the intermediate steps
                                 
-            cross_distance = SDS_transects.reject_outliers(cross_distance, output, settings_outliers)        
+            cross_distance_no_outliers = SDS_transects.reject_outliers(cross_distance, output, settings_outliers)        
 
             # Create a dictionary with results
             dict_timeseries = {'datetime': output['dates']}
@@ -2181,6 +2181,9 @@ class TimeSeriesCoastSat(IslandTimeBase):
             # Loop over transects
             for key in cross_distance.keys():
                 dict_timeseries['coastline_position_transect_{}'.format(key)] = cross_distance[key]
+
+            for key in cross_distance_no_outliers.keys():    
+                dict_timeseries['coastline_position_transect_{}_no_outliers'.format(key)] = cross_distance_no_outliers[key]
 
             # Create and save DataFrame
             df_timeseries = pd.DataFrame(dict_timeseries).set_index('datetime')
@@ -2641,7 +2644,7 @@ class TimeSeriesVegetation(IslandTimeBase):
                 point = shapely.geometry.Point(xx_img[i, j], yy_img[i, j])
 
                 # Shoreline buffer
-                if point.distance(linestring_reference_shoreline) < 100:
+                if point.distance(linestring_reference_shoreline) < 75:
                     mask_shoreline_buffer[i, j] = True
 
                 # Total vegetation
