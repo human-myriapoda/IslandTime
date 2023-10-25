@@ -2089,12 +2089,12 @@ class TimeSeriesCoastSat(IslandTimeBase):
             'save_figure': True,        # if True, saves a figure showing the mapped shoreline for each image
 
             # [ONLY FOR ADVANCED USERS] shoreline detection parameters:
-            'min_beach_area': 1,     # minimum area (in metres^2) for an object to be labelled as a beach
-            'min_length_sl': 1,       # minimum length (in metres) of shoreline perimeter to be valid
+            'min_beach_area': 50,     # minimum area (in metres^2) for an object to be labelled as a beach
+            'min_length_sl': 50,       # minimum length (in metres) of shoreline perimeter to be valid
             'cloud_mask_issue': False,  # switch this parameter to True if sand pixels are masked (in black) on many images  
             'sand_color': 'default',    # 'default', 'latest', 'dark' (for grey/black sand beaches) or 'bright' (for white sand beaches)
             'pan_off': False,           # True to switch pansharpening off for Landsat 7/8/9 imagery
-            'max_dist_ref': 25,         # maximum distance (in pixels) between a valid shoreline and the reference shoreline
+            'max_dist_ref': 30,         # maximum distance (in pixels) between a valid shoreline and the reference shoreline
 
             # add the inputs defined previously
             'inputs': inputs,
@@ -2129,7 +2129,8 @@ class TimeSeriesCoastSat(IslandTimeBase):
                 output = SDS_shoreline.extract_shorelines(metadata, settings)
 
             # Removes duplicates (images taken on the same date by the same satellite)
-            output = SDS_tools.remove_duplicates(output) 
+            output = SDS_tools.remove_duplicates(output, label='shorelines_waterline')
+            output = SDS_tools.remove_duplicates(output, label='shorelines_vegline')
 
             # Remove inaccurate georeferencing (set threshold to 10 m)
             output = SDS_tools.remove_inaccurate_georef(output, 10) 
@@ -2166,24 +2167,32 @@ class TimeSeriesCoastSat(IslandTimeBase):
             
             # Along-shore distance over which to consider shoreline points to compute the median intersection
             settings_transects = {'along_dist': 25}
-            cross_distance = SDS_transects.compute_intersection(output, transects, settings_transects) 
+            cross_distance_waterline = SDS_transects.compute_intersection(output, transects, settings_transects, label='shorelines_waterline') 
+            cross_distance_vegline = SDS_transects.compute_intersection(output, transects, settings_transects, label='shorelines_vegline')
 
             # Remove outliers
             settings_outliers = {'max_cross_change': 40,             # maximum cross-shore change observable between consecutive timesteps
-                                'otsu_threshold': [-0.5, 0],        # min and max intensity threshold use for contouring the shoreline
+                                'otsu_threshold': [-1.1, 0.5],        # min and max intensity threshold use for contouring the shoreline
                                 'plot_fig': False}           # whether to plot the intermediate steps
                                 
-            cross_distance_no_outliers = SDS_transects.reject_outliers(cross_distance, output, settings_outliers)        
+            cross_distance_waterline_no_outliers = SDS_transects.reject_outliers(cross_distance_waterline, output, settings_outliers, label='waterline') 
+            cross_distance_vegline_no_outliers = SDS_transects.reject_outliers(cross_distance_vegline, output, settings_outliers, label='vegline')       
 
             # Create a dictionary with results
             dict_timeseries = {'datetime': output['dates']}
 
             # Loop over transects
-            for key in cross_distance.keys():
-                dict_timeseries['coastline_position_transect_{}'.format(key)] = cross_distance[key]
+            for key in cross_distance_waterline.keys():
+                dict_timeseries['coastline_position_transect_{}_waterline'.format(key)] = cross_distance_waterline[key]
 
-            for key in cross_distance_no_outliers.keys():    
-                dict_timeseries['coastline_position_transect_{}_no_outliers'.format(key)] = cross_distance_no_outliers[key]
+            for key in cross_distance_waterline_no_outliers.keys():    
+                dict_timeseries['coastline_position_transect_{}_waterline_no_outliers'.format(key)] = cross_distance_waterline_no_outliers[key]
+
+            for key in cross_distance_vegline.keys():
+                dict_timeseries['coastline_position_transect_{}_vegline'.format(key)] = cross_distance_vegline[key]
+            
+            for key in cross_distance_vegline_no_outliers.keys():
+                dict_timeseries['coastline_position_transect_{}_vegline_no_outliers'.format(key)] = cross_distance_vegline_no_outliers[key]
 
             # Create and save DataFrame
             df_timeseries = pd.DataFrame(dict_timeseries).set_index('datetime')
