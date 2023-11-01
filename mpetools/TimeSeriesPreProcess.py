@@ -363,6 +363,8 @@ class TimeSeriesPreProcess:
         # Return pre-processed time series
 
         # Save information to dictionary
+        self.island_info['timeseries_preprocessing']['df_coastline_timeseries'] = df_coastline_timeseries
+    
         self.island_info['timeseries_preprocessing']['raw'] = {'df_timeseries_environment': df_timeseries,
                                                               'df_timeseries_socioeconomics': df_timeseries_socioeconomics,
                                                               'df_confounders': df_confounders,

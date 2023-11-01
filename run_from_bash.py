@@ -92,7 +92,7 @@ country = 'Maldives'
 batch_partially_downloaded = False
 
 # Prioritise islands that have been partially downloaded
-if len(partially_downloaded) > 1:
+if len(partially_downloaded) > 0:
     batch_partially_downloaded = True
 
     if len(partially_downloaded) < batch_size:
