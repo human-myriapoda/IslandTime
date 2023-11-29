@@ -1,6 +1,7 @@
 #!/bin/bash
 
-source C:/Users/mp222/AppData/Local/anaconda3/etc/profile.d/conda.sh
+source C:/ProgramData/Anaconda3/etc/profile.d/conda.sh
+# source C:/Users/mp222/AppData/Local/anaconda3/etc/profile.d/conda.sh
 eval "$(conda shell.bash hook)"
 conda activate IslandTime
 #echo "Current Conda environment: $CONDA_PREFIX"

@@ -37,7 +37,15 @@ def get_last_ms_date(path):
             i -= 1
         last_ms_file = last_ms_file.split('.')[0]
         date_last_file = last_ms_file.split('-')[:3]
-        return datetime.datetime(int(date_last_file[0]), int(date_last_file[1]), int(date_last_file[2])+1)
+
+        if int(date_last_file[1]) == 12 and int(date_last_file[2]) == 31:
+            return datetime.datetime(int(date_last_file[0])+1, 1, 1)
+        elif int(date_last_file[2]) == 31 or int(date_last_file[2]) == 30:
+            return datetime.datetime(int(date_last_file[0]), int(date_last_file[1])+1, 1)
+        elif int(date_last_file[1]) == 2 and int(date_last_file[2]) == 28:
+            return datetime.datetime(int(date_last_file[0]), int(date_last_file[1])+1, 1)
+        else:
+            datetime.datetime(int(date_last_file[0]), int(date_last_file[1]), int(date_last_file[2])+1)
     return None
 
 def check_and_update_dict(island, country, satellite, dict_batch):
@@ -86,13 +94,13 @@ for file in os.listdir(path_to_data):
             not_downloaded.append(island)
 
 # Create batch of islands to download
-batch_size = 8
+batch_size = 4
 dict_batch = {}
 country = 'Maldives'
 batch_partially_downloaded = False
 
 # Prioritise islands that have been partially downloaded
-if len(partially_downloaded) > 5:
+if len(partially_downloaded) > 15:
     batch_partially_downloaded = True
 
     if len(partially_downloaded) < batch_size:
@@ -155,7 +163,7 @@ else:
 
 # Main function
 if __name__ == '__main__':
-    num_cores = 16  # Adjust based on your system capabilities
+    num_cores = 8  # Adjust based on your system capabilities
 
     if batch_partially_downloaded:
         with multiprocessing.Pool(processes=num_cores) as pool:
