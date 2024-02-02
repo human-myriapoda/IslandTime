@@ -1,7 +1,8 @@
-from IslandTime import run_all, retrieve_island_info, save_island_info, PreProcessing, Segmentation, TimeSeriesAnalysis
+from IslandTime import run_all, retrieve_island_info, save_island_info, update_results_map, update_data_map, PreProcessing, Segmentation, TimeSeriesAnalysis
+import os
 
 class Workflow:
-    def __init__(self, island, country, run_all=False, overwrite_extract=False, overwrite_preprocess=True, overwrite_analysis=True, execute_segmentation=False, execute_preprocess=False, execute_analysis=True):
+    def __init__(self, island, country, run_all=False, overwrite_extract=False, overwrite_preprocess=True, overwrite_analysis=True, execute_segmentation=False, execute_preprocess=False, execute_analysis=False, update_maps=True, small_island=True):
         self.island = island
         self.country = country
         self.run_all = run_all
@@ -11,6 +12,9 @@ class Workflow:
         self.execute_segmentation = execute_segmentation
         self.execute_preprocess = execute_preprocess
         self.execute_analysis = execute_analysis
+        self.update_maps = update_maps
+        self.small_island = small_island
+        self.path_to_data = os.path.join(os.getcwd(), 'data', 'info_islands')
 
     def extract_time_series(self, verbose=True):
 
@@ -31,7 +35,7 @@ class Workflow:
             self.island_info = self.extract_time_series(verbose=False)
 
         # Extract coastline time series data using Segmentation
-        self.island_info = Segmentation(self.island_info).main()
+        self.island_info = Segmentation(self.island_info, find_polygons=self.small_island, plot_all=False).main()
 
         # Save island_info
         save_island_info(self.island_info)
@@ -59,7 +63,7 @@ class Workflow:
             self.island_info = self.extract_time_series(verbose=False)
 
         # Time series analysis
-        self.island_info = TimeSeriesAnalysis(self.island_info, overwrite=self.overwrite_analysis).main()
+        self.island_info = TimeSeriesAnalysis(self.island_info, overwrite=self.overwrite_analysis, plot_results_transect=False).main()
 
         # Save island_info
         save_island_info(self.island_info)
@@ -82,11 +86,13 @@ class Workflow:
         # Time series analysis
         if self.execute_analysis:
             self.analysis()
-        
-        # Update availability map (all islands)
-        #self.update_availability_map()
-        
-        # Update result map (all islands)
-        #self.update_result_map()
+
+        # Update maps
+        if self.update_maps:
+            # Update result map (all islands)
+            update_results_map(self.country, self.path_to_data) 
+                    
+            # Update availability map (all islands)
+            update_data_map(self.path_to_data)
         
         return self.island_info

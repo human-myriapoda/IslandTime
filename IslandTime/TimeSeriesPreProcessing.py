@@ -312,7 +312,7 @@ class PreProcessing:
                 # Find corresponding row in `df_optimal_time_period_coastline`
                 row_coastline = self.df_optimal_time_period_coastline[(self.df_optimal_time_period_coastline.index == transect) & \
                                                                 (self.df_optimal_time_period_coastline.frequency == timeframe)]
-                
+
                 # Retrieve start and end dates from `df_optimal_time_period_coastline`
                 start_coastline = datetime.datetime.utcfromtimestamp(row_coastline['start_date'].values[0].astype(datetime.datetime)/1e9).replace(tzinfo=pytz.UTC)
                 end_coastline = datetime.datetime.utcfromtimestamp(row_coastline['end_date'].values[0].astype(datetime.datetime)/1e9).replace(tzinfo=pytz.UTC)
@@ -352,6 +352,9 @@ class PreProcessing:
                 n_dp_max = df_optimal_time_period_other['number of data points'].max()
                 n_dp = df_optimal_time_period_other['number of data points']
 
+                if df_optimal_time_period_other.empty:
+                    continue
+
                 # Sea level anomaly must be included
                 if 'sea_level_anomaly' in df_optimal_time_period_other['variable'].values:
                     int_min_var = df_optimal_time_period_other[df_optimal_time_period_other['variable'] == 'sea_level_anomaly']
@@ -359,7 +362,7 @@ class PreProcessing:
                 else:
                     cutoff_df_optimal_time_period_other = df_optimal_time_period_other[(abs((n_dp_max - n_dp) / ((n_dp_max + n_dp) / 2)) * 100) < 25.]
                     int_min_var = cutoff_df_optimal_time_period_other[cutoff_df_optimal_time_period_other['number of data points'] == cutoff_df_optimal_time_period_other['number of data points'].min()]
-
+                
                 # Final optimal time period
                 final_start = datetime.datetime.utcfromtimestamp(int_min_var['start_date'].values[0].astype(datetime.datetime)/1e9).replace(tzinfo=pytz.UTC)
                 final_end = datetime.datetime.utcfromtimestamp(int_min_var['end_date'].values[0].astype(datetime.datetime)/1e9).replace(tzinfo=pytz.UTC)

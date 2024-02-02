@@ -43,8 +43,8 @@ from matplotlib.ticker import (MultipleLocator, FormatStrFormatter,
                                AutoMinorLocator)
 import matplotlib.style
 import matplotlib
-from IslandTime import retrieve_island_info
-
+import folium
+import webbrowser
 
 matplotlib.rcParams['mathtext.fontset'] = 'stix'
 matplotlib.rcParams['font.family'] = 'STIXGeneral'
@@ -1717,7 +1717,7 @@ class TimeSeriesCoastSat(IslandTimeBase):
         country (str): The name of the country.
         verbose_init (bool, optional): Whether to display verbose initialisation messages. Default is True.
         overwrite (bool, optional): Whether to overwrite existing data. Default is False.
-        date_range (list, optional): The date range for data retrieval. Default is ['1984-01-01', '2022-12-31'].
+        date_range (list, optional): The date range for data retrieval. Default is ['1984-01-01', '2023-12-31'].
         sat_list (list, optional): The list of satellites to use. Default is ['L5', 'L7', 'L8', 'L9', 'S2'].
         collection (str, optional): The data collection to use. Default is 'C02'.
         plot_results (bool, optional): Whether to plot the results. Default is True.
@@ -1726,7 +1726,7 @@ class TimeSeriesCoastSat(IslandTimeBase):
         reference_shoreline_transects_only (bool, optional): Whether to use reference shoreline for transects only. Default is True.
     """
 
-    def __init__(self, island, country, verbose_init=True, overwrite=False, date_range=['2010-01-01', '2022-12-31'], sat_list=['L8', 'L9', 'S2'], \
+    def __init__(self, island, country, verbose_init=True, overwrite=False, date_range=['2010-01-01', '2023-12-31'], sat_list=['L8', 'L9', 'S2'], \
                  collection='C02', plot_results=False, distance_between_transects=50, length_transect=250, reference_shoreline_transects_only=False, \
                  extract_shorelines=True, re_download=False):
         super().__init__(island, country, verbose_init, overwrite)
@@ -1759,7 +1759,7 @@ class TimeSeriesCoastSat(IslandTimeBase):
         """
         print('~ Retrieving reference shoreline from OpenStreetMap or manually. ~')
         
-        # Check if OSM data is available
+
         try:
             gdf_coastline = ox.features_from_place(', '.join([self.island, self.country]), {'natural': 'coastline'})
             print('OSM coastline data available for this island.')
@@ -2068,7 +2068,7 @@ class TimeSeriesCoastSat(IslandTimeBase):
             
             except:
                 # Check if data is available
-                if os.path.exists(os.path.join(filepath_data, sitename)) and not self.overwrite:
+                if os.path.exists(os.path.join(filepath_data, sitename)):# and not self.overwrite:
                     metadata = SDS_download.get_metadata(inputs)
                 
                 # If data is not available
@@ -2078,7 +2078,8 @@ class TimeSeriesCoastSat(IslandTimeBase):
 
         else:
             # Check if data is available
-            if os.path.exists(os.path.join(filepath_data, sitename)) and not self.re_download:
+            path_coastsat_data = os.path.join(filepath_data, sitename)
+            if os.path.exists(path_coastsat_data) and not self.re_download:
                 metadata = SDS_download.get_metadata(inputs)
             
             # If data is not available
@@ -2110,7 +2111,6 @@ class TimeSeriesCoastSat(IslandTimeBase):
         }
 
         if not self.reference_shoreline_transects_only:
-
             # Save .jpg of the preprocessed RGB images
             if not os.path.exists(os.path.join(filepath_data, sitename, 'jpg_files', 'preprocessed')) and not self.overwrite:
                 SDS_preprocess.save_jpg(metadata, settings, use_matplotlib=True)
@@ -2358,7 +2358,7 @@ class TimeSeriesERA5(IslandTimeBase):
                     '2013', '2014', '2015',
                     '2016', '2017', '2018',
                     '2019', '2020', '2021',
-                    '2022',
+                    '2022', '2023',
                 ],
                 'month': [
                     '01', '02', '03',
@@ -2387,7 +2387,7 @@ class TimeSeriesERA5(IslandTimeBase):
                     '2013', '2014', '2015',
                     '2016', '2017', '2018',
                     '2019', '2020', '2021',
-                    '2022',
+                    '2022', '2023'
                 ],
                 'month': [
                     '01', '02', '03',
@@ -2905,7 +2905,6 @@ class TimeSeriesClimateIndices(IslandTimeBase):
                     data_climate_index = str(web_climate_index.read())
 
                 except:
-                    print('Climate index not available.')
                     continue
 
             # Split into a list and retrieve metadata
@@ -2962,3 +2961,369 @@ class TimeSeriesClimateIndices(IslandTimeBase):
         # Save information in dictionary
         df_timeseries_climate_indices = df_timeseries_climate_indices.apply(pd.to_numeric)
         self.island_info['timeseries_{}'.format(self.acronym)]['timeseries'] = df_timeseries_climate_indices
+
+# --------------------------------------------------------------------------------------------------------------------------------------------------------
+def retrieve_island_info(island, country, island_info_path=os.path.join(os.getcwd(), 'data', 'info_islands'), run_pre_timeseries_steps=True, verbose=True):
+    """
+    Retrieve information about an island and its timeseries data.
+
+    Args:
+        island (str): The name of the island.
+        country (str): The name of the country.
+        island_info_path (str, optional): The path where island information is stored. Default is 'data/info_islands'.
+        run_pre_timeseries_steps (bool, optional): Whether to run preprocessing steps before retrieving information. Default is True.
+        verbose (bool, optional): Whether to display verbose messages. Default is True.
+
+    Returns:
+        dict: A dictionary containing information about the island.
+    """
+    if verbose: 
+        print('\n-------------------------------------------------------------------')
+        print('Retrieving all information available for the island')
+        print('Island:', ', '.join([island, country]))
+        print('-------------------------------------------------------------------\n')
+
+    # If the path in which the data will be stored doesn't exist, we create it
+    if not os.path.exists(island_info_path): 
+        os.makedirs(island_info_path)
+
+    # Check what information is already available
+    file_island_info = os.path.join(island_info_path, 'info_{}_{}.data'.format(island, country))
+
+    if os.path.isfile(file_island_info):
+        # Load the .data file with pickle
+        with open(file_island_info, 'rb') as f:
+            island_info = pd.read_pickle(f)
+
+        if verbose:
+            print('~ The following information is available: ~\n')
+            for info in island_info.keys(): 
+                print(info)
+                if type(island_info[info]) == dict:
+                    for info_sd in island_info[info].keys(): 
+                        print('              ', info_sd)
+    
+    # No file exists
+    else:
+        if run_pre_timeseries_steps:
+            if verbose: 
+                print('~ No file exists. Will run `pre_timeseries_steps.py`. ~\n')
+
+            island_info = PreTimeSeries(island, country).main()
+
+        else:
+            if verbose: 
+                print('~ No file exists. ~\n')
+    
+    return island_info
+
+def run_all(island, country, verbose_init=True, overwrite=False):
+    """
+    Run all data retrieval and processing steps for an island.
+
+    Args:
+        island (str): The name of the island.
+        country (str): The name of the country.
+        verbose_init (bool, optional): Whether to display verbose initialisation messages. Default is True.
+        overwrite (bool, optional): Whether to overwrite existing data. Default is False.
+
+    Returns:
+        dict: A dictionary containing information about the island.
+    """
+    PreTimeSeries(island, country).main()
+
+    for timeseries_class in IslandTimeBase.__subclasses__():
+        timeseries_class(island, country, verbose_init=False, overwrite=overwrite).main()
+
+    # Retrieve the dictionary with currently available information about the island
+    island_info = retrieve_island_info(island, country, verbose=verbose_init)
+
+    return island_info
+
+def save_island_info(island_info):
+
+    island_info_path = os.path.join(os.getcwd(), 'data', 'info_islands')
+    island = island_info['general_info']['island']
+    country = island_info['general_info']['country']
+
+    # Save dictionary
+    with open(os.path.join(island_info_path, 'info_{}_{}.data'.format(island, country)), 'wb') as f:
+        pickle.dump(island_info, f)
+
+    return island_info
+
+def plot_shoreline_transects(island_info, transect_plot=None, ax=None):
+    if ax is None:
+        plt.figure()
+        ax_plot = plt
+    
+    else:
+        ax_plot = ax
+
+    # Get reference shoreline and transects
+    reference_shoreline = island_info['spatial_reference']['reference_shoreline']
+    transects = island_info['spatial_reference']['transects']
+
+    # Plot reference shoreline
+    ax_plot.plot(reference_shoreline[:, 0], reference_shoreline[:, 1], 'k-')
+    
+    # Plot transects
+    for t in transects:
+        if transect_plot is None:
+            ax_plot.plot(transects[t][:, 0], transects[t][:, 1], 'r-')
+            ax_plot.text(transects[t][-1, 0], transects[t][-1, 1], t, fontsize=20)
+
+        else:
+            if t == transect_plot:
+                ax_plot.plot(transects[t][:, 0], transects[t][:, 1], 'r-', label='Transect {}'.format(t))
+
+            else:
+                ax_plot.plot(transects[t][:, 0], transects[t][:, 1], 'k-', alpha=0.3)
+
+    if transect_plot is not None:
+        ax_plot.legend(fontsize=10)
+    
+    if ax is None:
+        ax_plot.xlabel('Longitude', fontsize=20)
+        ax_plot.ylabel('Latitude', fontsize=20)
+
+    ax_plot.axis('equal')
+
+    if ax is None:
+        plt.show()
+
+def update_results_map(country, path_to_data):
+
+    # Get latitude and longitude of the whole country
+    area = ox.geocode_to_gdf(country)
+    latitude_country = area['geometry'].centroid.y[0]
+    longitude_country = area['geometry'].centroid.x[0]
+    
+    # Create maps
+    map_trend_results = folium.Map(location=[latitude_country, longitude_country], zoom_start=5)
+    map_seasonality_amplitude = folium.Map(location=[latitude_country, longitude_country], zoom_start=5)
+    map_seasonality_peaks = folium.Map(location=[latitude_country, longitude_country], zoom_start=5)
+    map_seasonality_minima = folium.Map(location=[latitude_country, longitude_country], zoom_start=5)
+
+    for file in os.listdir(path_to_data):
+        island = file.split('_')[1] 
+        country = file.split('_')[2].split('.')[0]
+        island_info = retrieve_island_info(island, country, verbose=False)
+
+        if 'timeseries_analysis' in island_info.keys():
+            if island_info['timeseries_analysis'] != {}:
+                
+                # Extract reference shoreline and transects
+                reference_shoreline = island_info['spatial_reference']['reference_shoreline']
+                transects = island_info['spatial_reference']['transects']
+
+                # Create a polygon from the reference shoreline
+                polygon_reference_shoreline = shapely.geometry.Polygon(reference_shoreline)
+
+                # Short cut for the time series analysis results
+                ts_analysis_results = island_info['timeseries_analysis']
+
+                # Extract the key of the transects
+                key_transects = [int((key).split('_')[3]) for key in ts_analysis_results.keys()]
+
+                # Extract the intersection between the reference shoreline and the transects
+                x_intersections, y_intersections = [], []
+                intersections = [polygon_reference_shoreline.exterior.intersection(shapely.geometry.LineString(transects[key_transect])) for key_transect in key_transects]
+                for intersection in intersections:
+                    if type(intersection) == shapely.geometry.MultiPoint:
+                        # Take the first point of the MultiPoint
+                        x_intersections.append(intersection.geoms[0].x)
+                        y_intersections.append(intersection.geoms[0].y)
+
+                    elif type(intersection) == shapely.geometry.LineString:
+                        x_intersections.append(0.)
+                        y_intersections.append(0.)
+
+                    else:
+                        x_intersections.append(intersection.x)
+                        y_intersections.append(intersection.y)
+
+                # Reproject the coordinates to the Web Mercator projection
+                # Source and target coordinate reference systems
+                tgt_crs = pyproj.CRS('EPSG:4326')
+                src_crs = pyproj.CRS('EPSG:3857')
+
+                # Define transformer
+                transformer = pyproj.Transformer.from_crs(src_crs, tgt_crs, always_xy=True)
+
+                # Transform latitude and longitude to x and y
+                x_intersections, y_intersections = transformer.transform(x_intersections, y_intersections)
+
+                # Transform reference shoreline to x and y
+                x_reference_shoreline, y_reference_shoreline = transformer.transform(polygon_reference_shoreline.exterior.coords.xy[0], polygon_reference_shoreline.exterior.coords.xy[1])
+
+                # Trend splot and results (colorbar = trend slope and symbol = trend result)
+                c_trend = [ts_analysis_results[val]['trend']['trend_slope'] for val in ts_analysis_results.keys()]
+                symbols_trend = [ts_analysis_results[val]['trend']['trend_result'] for val in ts_analysis_results.keys()]
+
+                # Seasonality amplitude results (colorbar = seasonality amplitude)
+                c_seasonality_amplitude = [ts_analysis_results[val]['seasonality']['amplitude_seasonal_STL'] for val in ts_analysis_results.keys()]
+
+                # Seasonality peaks and minima results
+                c_seasonality_peaks = [ts_analysis_results[val]['seasonality']['seasonality_indian_monsoon_peaks'] for val in ts_analysis_results.keys()]
+                c_seasonality_minima = [ts_analysis_results[val]['seasonality']['seasonality_indian_monsoon_minima'] for val in ts_analysis_results.keys()]
+
+                # TREND - Add markers for each point with different shapes
+                for lat, lon, symbol in zip(y_intersections, x_intersections, symbols_trend):
+                    if symbol == "increasing":
+                        icon = folium.Icon(color='green', icon='arrow-up')
+                    elif symbol == "decreasing":
+                        icon = folium.Icon(color='red', icon='arrow-down')
+                    elif symbol == "no trend":
+                        icon = folium.Icon(color='orange', icon='minus')
+                    else:
+                        icon = folium.Icon(color='black', icon='question-sign')
+
+                    folium.Marker(
+                        location=[lat, lon],
+                        icon=icon
+                    ).add_to(map_trend_results)
+                
+                # # SEASONALITY AMPLITUDE - Add markers for each point with different colors
+                # for lat, lon, color in zip(y_intersections, x_intersections, c_seasonality_amplitude):
+                #     if color > 0.5:
+                #         icon = folium.Icon(color='green', icon='arrow-up')
+                #     elif color < 0.5:
+                #         icon = folium.Icon(color='red', icon='arrow-down')
+                #     else:
+                #         icon = folium.Icon(color='orange', icon='minus')
+
+                #     folium.Marker(
+                #         location=[lat, lon],
+                #         icon=icon
+                #     ).add_to(map_seasonality_amplitude)
+                
+                # SEASONALITY PEAKS - Add markers for each point with different colors
+                for lat, lon, color in zip(y_intersections, x_intersections, c_seasonality_peaks):
+                    if color == 'transition_sw_ne':
+                        icon = folium.Icon(color='green', icon='fa-solid fa-cloud-sun', prefix='fa')
+                        popup = 'Transition from SW Monsoon to NE Monsoon'
+                    elif color == 'transition_ne_sw':
+                        icon = folium.Icon(color='red', icon='fa-solid fa-cloud-sun-rain', prefix='fa')
+                        popup='Transition from NE Monsoon to SW Monsoon'
+                    elif color == 'ne_monsoon':
+                        icon = folium.Icon(color='orange', icon='fa-solid fa-sun', prefix='fa')
+                        popup='NE Monsoon'
+                    elif color == 'sw_monsoon':
+                        icon = folium.Icon(color='blue', icon='fa-droplet', prefix='fa')
+                        popup='SW Monsoon'
+                    else:
+                        icon = folium.Icon(color='black', icon='question-sign', prefix='fa')
+                        popup='Undetermined'
+
+                    folium.Marker(
+                        location=[lat, lon],
+                        icon=icon,
+                        popup=popup
+                    ).add_to(map_seasonality_peaks)
+
+                # SEASONALITY MINIMA - Add markers for each point with different colors
+                for lat, lon, color in zip(y_intersections, x_intersections, c_seasonality_minima):
+                    if color == 'transition_sw_ne':
+                        icon = folium.Icon(color='green', icon='fa-solid fa-cloud-sun', prefix='fa')
+                        popup = 'Transition from SW Monsoon to NE Monsoon'
+                    elif color == 'transition_ne_sw':
+                        icon = folium.Icon(color='red', icon='fa-solid fa-cloud-sun-rain', prefix='fa')
+                        popup='Transition from NE Monsoon to SW Monsoon'
+                    elif color == 'ne_monsoon':
+                        icon = folium.Icon(color='orange', icon='fa-solid fa-sun', prefix='fa')
+                        popup='NE Monsoon'
+                    elif color == 'sw_monsoon':
+                        icon = folium.Icon(color='blue', icon='fa-droplet', prefix='fa')
+                        popup='SW Monsoon'
+                    else:
+                        icon = folium.Icon(color='black', icon='question-sign', prefix='fa')
+                        popup='Undetermined'
+
+                    folium.Marker(
+                        location=[lat, lon],
+                        icon=icon,
+                        popup=popup
+                    ).add_to(map_seasonality_minima)
+
+                # Add shoreline
+                folium.PolyLine(np.dstack((y_reference_shoreline, x_reference_shoreline)), tooltip="Coast", color='black').add_to(map_trend_results)
+                folium.PolyLine(np.dstack((y_reference_shoreline, x_reference_shoreline)), tooltip="Coast", color='black').add_to(map_seasonality_amplitude)
+                folium.PolyLine(np.dstack((y_reference_shoreline, x_reference_shoreline)), tooltip="Coast", color='black').add_to(map_seasonality_peaks)
+                folium.PolyLine(np.dstack((y_reference_shoreline, x_reference_shoreline)), tooltip="Coast", color='black').add_to(map_seasonality_minima)
+
+            else:
+                continue
+        
+        else:
+            continue
+
+    # Save the maps to HTML files
+    map_trend_results.save(os.path.join(os.getcwd(), 'maps', 'results_islands_trend_result.html'))
+    map_seasonality_amplitude.save(os.path.join(os.getcwd(), 'maps', 'results_islands_seasonality_amplitude.html'))
+    map_seasonality_peaks.save(os.path.join(os.getcwd(), 'maps', 'results_islands_seasonality_peaks.html'))
+    map_seasonality_minima.save(os.path.join(os.getcwd(), 'maps', 'results_islands_seasonality_minima.html'))
+
+    # Open maps in a web browser
+    webbrowser.open(os.path.join(os.getcwd(), 'maps', 'results_islands_trend_result.html'))
+    #webbrowser.open(os.path.join(os.getcwd(), 'maps', 'results_islands_seasonality_amplitude.html'))
+    webbrowser.open(os.path.join(os.getcwd(), 'maps', 'results_islands_seasonality_peaks.html'))
+    webbrowser.open(os.path.join(os.getcwd(), 'maps', 'results_islands_seasonality_minima.html'))
+
+def update_data_map(path_to_data):
+
+    # Create empty lists
+    latitude, longitude, colors, names, desc = [], [], [], [], []
+
+    # Loop through all files
+    for file in os.listdir(path_to_data):
+        # Obtain island and country names
+        island = file.split('_')[1] 
+        country = file.split('_')[2].split('.')[0]
+
+        # Retrieve information about the island
+        island_info = retrieve_island_info(island, country, verbose=False)
+
+        # Extract latitude and longitude
+        latitude.append(island_info['spatial_reference']['latitude'])
+        longitude.append(island_info['spatial_reference']['longitude'])
+
+        # Extract name of the island
+        names.append(island_info['general_info']['island'])
+
+        if 'timeseries_analysis' in island_info.keys():
+            colors.append('blue')
+            desc.append('Results available')
+        
+        else:
+            if 'timeseries_coastsat' in island_info.keys():
+                if 'timeseries' in island_info['timeseries_coastsat'].keys():
+                    colors.append('green')
+                    desc.append('Satellite images available')
+                
+                else:
+                    if os.path.exists(os.path.join(os.getcwd(), 'data', 'coastsat_data', island+'_'+country)):
+                        colors.append('orange')
+                        desc.append('Satellite images are being downloaded')
+            
+            else:
+                if os.path.exists(os.path.join(os.getcwd(), 'data', 'coastsat_data', island+'_'+country)):
+                    colors.append('orange')
+                    desc.append('Satellite images are being downloaded')
+                
+                else:
+                    colors.append('red')
+                    desc.append('No satellite images')
+
+    # Create a base map
+    m = folium.Map(location=[sum(latitude) / len(latitude), sum(longitude) / len(longitude)], zoom_start=5)
+
+    # Add markers for each point
+    for lat, lon, color, name, des in zip(latitude, longitude, colors, names, desc):
+        folium.Marker([lat, lon], popup=str(name)+'\n'+str(des), icon=folium.Icon(color=color)).add_to(m)
+
+    # Save the map to an HTML file
+    m.save(os.path.join(os.getcwd(), 'maps', 'progress_island_mapping.html'))
+
+    # Open the map in a web browser
+    #webbrowser.open(os.path.join(os.getcwd(), 'maps', 'progress_island_mapping.html'))
