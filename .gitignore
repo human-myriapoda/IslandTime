@@ -1,4 +1,4 @@
-data
+data/
 excel
 bash
 info_islands
@@ -14,8 +14,8 @@ archives
 info_copernicus
 gif
 geojson
-*.png
 old_jupyter_notebooks
+*.png
 *.nc
 *.xlsx
 *.csv
