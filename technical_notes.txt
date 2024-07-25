@@ -1,9 +1,10 @@
 conda list --explicit > requirements.txt
 conda env export > requirements.yml
 conda env update --file requirements.yml --prune
+conda list --export > requirements.txt
 
 # GitHub Authentification problem
 git remote set-url origin https://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1~@github.com/human-myriapoda/IslandTime.git
 
 # environment.yml
-conda list --explicit > environment.yml
+conda env export > environment.yml
