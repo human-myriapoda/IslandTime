@@ -1,12 +1,16 @@
+data
+figures
 coastsat_data
 cache
+maps
+tests
+shp
 coastsatmaster
 coastsat
 archives
 info_copernicus
 gif
 geojson
-data
 *.png
 old_jupyter_notebooks
 *.nc
