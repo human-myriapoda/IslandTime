@@ -4,6 +4,9 @@ coastsatmaster
 coastsat
 archives
 info_copernicus
+gif
+geojson
+data
 *.png
 old_jupyter_notebooks
 *.nc
@@ -24,3 +27,5 @@ old_jupyter_notebooks
 *.json
 *.kmz
 *.pyc
+*.gif
+*.data
