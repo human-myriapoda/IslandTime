@@ -1,9 +1,9 @@
-from IslandTime import run_all, retrieve_island_info, save_island_info, update_results_map, update_data_map, PreProcessing, Segmentation, TimeSeriesAnalysis
+from IslandTime import run_all, retrieve_island_info, save_island_info, update_results_map, update_data_map, PreProcessing, Segmentation, TimeSeriesAnalysis, Metrics
 import os
 os.environ['PYDEVD_WARN_SLOW_RESOLVE_TIMEOUT'] = '1000'
 
 class Workflow:
-    def __init__(self, island, country, run_all=False, overwrite_extract=False, overwrite_preprocess=True, overwrite_analysis=True, execute_segmentation=False, execute_preprocess=False, execute_analysis=False, update_maps=True, small_island=True):
+    def __init__(self, island, country, run_all=False, overwrite_extract=False, overwrite_preprocess=True, overwrite_analysis=True, execute_segmentation=False, execute_preprocess=False, execute_analysis=False, update_maps=False, small_island=True):
         self.island = island
         self.country = country
         self.run_all = run_all
@@ -26,6 +26,13 @@ class Workflow:
         # Extract island info
         else:
             self.island_info = retrieve_island_info(self.island, self.country, verbose=verbose)
+
+        return self.island_info
+
+    def island_metrics(self, gdf_all_islands=False, overwrite=False):
+
+        # Extract island features
+        self.island_info = Metrics(self.island, self.country, gdf_all_islands=gdf_all_islands, overwrite=overwrite).main()
 
         return self.island_info
     
@@ -75,6 +82,9 @@ class Workflow:
         
         # Extract time series data
         self.extract_time_series()
+
+        # Extract island metrics
+        self.island_metrics()
 
         # Extract coastline time series data using Segmentation
         if self.execute_segmentation:
