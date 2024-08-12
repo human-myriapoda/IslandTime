@@ -8,12 +8,14 @@ import matplotlib.pyplot as plt
 from statsmodels.tsa.stattools import ccf, grangercausalitytests, coint, adfuller
 import statsmodels.api as sm
 from statsmodels.tsa.vector_ar.vecm import coint_johansen
+import seaborn as sns
 
 class TimeSeriesConnections:
     def __init__(self, dict_time_series: dict):
         self.dict_time_series = dict_time_series
 
-    def evaluate_granger_causality(self, ts1, ts2, ax):
+    def evaluate_granger_causality(self, ts_df_subset, ax):
+        return
         print('--- Evaluating Granger causality ---')
 
         # Perform Granger causality test
@@ -39,7 +41,8 @@ class TimeSeriesConnections:
 
         return ax
 
-    def evaluate_cross_correlation(self, ts1, ts2, ax):
+    def evaluate_cross_correlation(self, ts_df_subset, ax):
+        return
         print('--- Evaluating cross-correlation ---')
 
         # Perform cross-correlation
@@ -47,33 +50,62 @@ class TimeSeriesConnections:
         forwards = ccf(ts1, ts2, adjusted=False, nlags=24)
         ccf_output = np.r_[backwards[:-1], forwards]
 
+        # Identify the lag with the maximum cross-correlation
+        max_lag = np.argmax(ccf_output) - len(ccf_output)//2
+        print('Maximum cross-correlation at lag: ', max_lag)
+
         # Plot cross-correlation
         ax.plot(range(-len(ccf_output)//2, len(ccf_output)//2), ccf_output, color='green')
+        ax.axvline(max_lag, color='red', linestyle='--')
         ax.set_xlabel('Lag')
         ax.set_ylabel('Cross-correlation')
         ax.set_title('Cross-correlation between time series 1 and time series 2')
 
         return ax
 
-    def evaluate_correlation(self, ts1, ts2, ax, test_correlation='pearson'):
-        print('--- Evaluating correlation ---')
+    def evaluate_correlation(self, ts_df_subset, ax):
+        print('--- Evaluating correlation at lag 0 ---')
 
-        if test_correlation == 'pearson':
-            corr = stats.pearsonr(ts1, ts2)
-            print('Pearson correlation coefficient: ', corr[0])
+        # Extract time series
+        columns = list(ts_df_subset.columns)
+        ts1 = ts_df_subset[columns[0]]
+        ts2 = ts_df_subset[columns[1]]
 
-        elif test_correlation == 'spearman':
-            corr = stats.spearmanr(ts1, ts2)
-            print('Spearman correlation: ', corr[0])
+        # Pearson correlation
+        corr_pearson, pvalue_pearson = stats.pearsonr(ts1, ts2)
+
+        # Spearman correlation
+        corr_spearman, pvalue_spearman = stats.spearmanr(ts1, ts2)
+
+        # Kendall correlation
+        corr_kendall, pvalue_kendall = stats.kendalltau(ts1, ts2)
+        
+        # Store results in dictionary
+        dict_results_eval = {
+            'pearson': {'correlation': corr_pearson, 'p-value': pvalue_pearson},
+            'spearman': {'correlation': corr_spearman, 'p-value': pvalue_spearman},
+            'kendall': {'correlation': corr_kendall, 'p-value': pvalue_kendall}
+        }
+
+        # Add interpretation
+        if pvalue_pearson < 0.05:
+            label_pearson = 'Significant Pearson correlation'
+        
+        else:
+            label_pearson = 'No significant Pearson correlation'
 
         # Plot correlation
-        ax.scatter(ts1, ts2, color='blue')
-        ax.set_xlabel('Time series 1')
-        ax.set_ylabel('Time series 2')
-        ax.set_title('Correlation between time series 1 and time series 2')
-        return ax
+        sns.regplot(x=columns[0], y=columns[1], data=ts_df_subset, ci=95, ax=ax, scatter_kws={"s": 50, "color": "grey"}, line_kws={"color": "red"}, label=label_pearson)
 
-    def evaluate_cointegration(self, ts1, ts2, ax):
+        # Add aesthetics
+        ax.set_title('Correlation at lag 0')
+        ax.legend(loc='upper left')
+        ax.tick_params(axis='both', which='major', labelsize=15)
+        
+        return ax, dict_results_eval
+
+    def evaluate_cointegration(self, ts_df_subset, ax):
+        return
         print('--- Evaluating cointegration ---')
 
         t_statistic, p_val, critical_p_val = coint(ts2, ts1, trend='ct', autolag='BIC')
@@ -137,31 +169,42 @@ class TimeSeriesConnections:
         print('Evaluating time series connections')
         print('-------------------------------------------------------------------\n')
 
+        # Create DataFrame with time series
+        ts_df = pd.DataFrame(self.dict_time_series)
+
         # Create all possible combinations of time series
         combinations = list(itertools.combinations(self.dict_time_series.keys(), 2))
-        print(combinations)
+
+        # Create dictionary to store results
+        dict_results = {}
 
         # Loop through all combinations
         for idx_comb in range(len(combinations)):
+
+            print('Evaluating connections between time series: {} & {}'.format(combinations[idx_comb][0], combinations[idx_comb][1]))
+            dict_results_temp = {}
 
             # Create panel of plots
             fig, ax = plt.subplots(3, 3, figsize=(15, 15))
             axs = ax.ravel()
             
-            ts1 = self.dict_time_series[combinations[idx_comb][0]]
-            ts2 = self.dict_time_series[combinations[idx_comb][1]]
+            # ts1 = self.dict_time_series[combinations[idx_comb][0]]
+            # ts2 = self.dict_time_series[combinations[idx_comb][1]]
+
+            # Subset of DataFrame
+            ts_df_subset = ts_df[[combinations[idx_comb][0], combinations[idx_comb][1]]]
 
             # Evaluate Granger causality
-            axs[0] = self.evaluate_granger_causality(ts1, ts2, axs[0])
+            axs[0] = self.evaluate_granger_causality(ts_df_subset, axs[0])
 
             # Evaluate cross-correlation
-            axs[1] = self.evaluate_cross_correlation(ts1, ts2, axs[1])
+            axs[1] = self.evaluate_cross_correlation(ts_df_subset, axs[1])
 
             # Evaluate correlation
-            axs[2] = self.evaluate_correlation(ts1, ts2, axs[2])
+            axs[2], dict_results_temp['correlation_lag_0'] = self.evaluate_correlation(ts_df_subset, axs[2])
 
             # Evaluate cointegration
-            axs[3] = self.evaluate_cointegration(ts1, ts2, axs[3])
+            axs[3] = self.evaluate_cointegration(ts_df_subset, axs[3])
 
             # Evaluate transfer entropy
             self.evaluate_transfer_entropy()
@@ -180,5 +223,13 @@ class TimeSeriesConnections:
 
             # Evaluate lagged regression
             self.evaluate_lagged_regression()
+
+            # Save results 
+            dict_results['{}___{}'.format(combinations[idx_comb][0], combinations[idx_comb][1])] = dict_results_temp
+
+            # Add suptitle
+            fig.suptitle('Connections between time series: {} & {}'.format(combinations[idx_comb][0], combinations[idx_comb][1]), fontsize=16)
+        
+        print(dict_results)
 
         return 
