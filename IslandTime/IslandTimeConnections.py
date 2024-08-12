@@ -3,7 +3,7 @@ import numpy as np
 import pandas as pd
 import itertools
 import os
-from scipy import stats
+from scipy import stats, signal
 import matplotlib.pyplot as plt
 from statsmodels.tsa.stattools import ccf, grangercausalitytests, coint, adfuller
 import statsmodels.api as sm
@@ -41,35 +41,109 @@ class TimeSeriesConnections:
 
         return ax
 
+    def _ccf_values(self, ts1, ts2):
+        p = (ts1 - np.mean(ts1)) / (np.std(ts1) * len(ts1))
+        q = (ts2 - np.mean(ts2)) / (np.std(ts2))  
+        c = np.correlate(p, q, 'full')
+        return c
+
     def evaluate_cross_correlation(self, ts_df_subset, ax):
-        return
         print('--- Evaluating cross-correlation ---')
-
-        # Perform cross-correlation
-        backwards = ccf(ts1[::-1], ts2[::-1], adjusted=False, nlags=24)[::-1]
-        forwards = ccf(ts1, ts2, adjusted=False, nlags=24)
-        ccf_output = np.r_[backwards[:-1], forwards]
-
-        # Identify the lag with the maximum cross-correlation
-        max_lag = np.argmax(ccf_output) - len(ccf_output)//2
-        print('Maximum cross-correlation at lag: ', max_lag)
-
-        # Plot cross-correlation
-        ax.plot(range(-len(ccf_output)//2, len(ccf_output)//2), ccf_output, color='green')
-        ax.axvline(max_lag, color='red', linestyle='--')
-        ax.set_xlabel('Lag')
-        ax.set_ylabel('Cross-correlation')
-        ax.set_title('Cross-correlation between time series 1 and time series 2')
-
-        return ax
-
-    def evaluate_correlation(self, ts_df_subset, ax):
-        print('--- Evaluating correlation at lag 0 ---')
 
         # Extract time series
         columns = list(ts_df_subset.columns)
         ts1 = ts_df_subset[columns[0]]
         ts2 = ts_df_subset[columns[1]]
+
+        # Calculate cross-correlation
+        ccf = self._ccf_values(ts1, ts2)
+
+        # Lag values
+        lags_ccf = signal.correlation_lags(len(ts1), len(ts2))
+
+        # Find peaks and minima in cross-correlation
+        peaks = signal.find_peaks(ccf)[0]
+        minima = signal.find_peaks(-ccf)[0]
+        lags_peaks = lags_ccf[peaks]
+        lags_minima = lags_ccf[minima]
+
+        # Lags greater than 5% confidence interval
+        lags_significant = lags_ccf[np.where(np.abs(ccf) > 2/np.sqrt(23))[0]]
+        ccf_significant = ccf[np.where(np.abs(ccf) > 2/np.sqrt(23))[0]]
+
+        # Remove lags that are not in lags_peak or lags_minima
+        mask = np.isin(lags_significant, lags_peaks) | np.isin(lags_significant, lags_minima)
+        lags_significant = lags_significant[mask]
+        ccf_significant = ccf_significant[mask]
+
+        # Significant positive correlations
+        lags_significant_pos = lags_significant[ccf_significant > 0]
+        ccf_significant_pos = ccf_significant[ccf_significant > 0]
+
+        # Significant negative correlations
+        lags_significant_neg = lags_significant[ccf_significant < 0]
+        ccf_significant_neg = ccf_significant[ccf_significant < 0]
+
+        # First significant positive and negative lags
+        first_lag_significant_pos = lags_significant_pos[np.argmin(np.abs(lags_significant_pos))]
+        first_lag_significant_neg = lags_significant_neg[np.argmin(np.abs(lags_significant_neg))]
+        first_ccf_significant_pos = ccf_significant_pos[np.argmin(np.abs(lags_significant_pos))]
+        first_ccf_significant_neg = ccf_significant_neg[np.argmin(np.abs(lags_significant_neg))]
+        
+        # Save results in dictionary
+        dict_results_ccf = {
+            'lags_ccf': lags_ccf,
+            'ccf': ccf,
+            'lags_significant': lags_significant,
+            'ccf_significant': ccf_significant,
+            'lags_significant_pos': lags_significant_pos,
+            'lags_significant_neg': lags_significant_neg,
+            'ccf_significant_pos': ccf_significant_pos,
+            'ccf_significant_neg': ccf_significant_neg,
+            'first_significant_pos': first_lag_significant_pos,
+            'first_significant_neg': first_lag_significant_neg,
+            'first_ccf_significant_pos': first_ccf_significant_pos,
+            'first_ccf_significant_neg': first_ccf_significant_neg
+        }
+
+        # Plot cross-correlation
+        ax.plot(lags_ccf, ccf, color='k')
+        ax.axhline(-2/np.sqrt(23), color='red', label='5% Confidence Interval')
+        ax.axhline(2/np.sqrt(23), color='red')
+        ax.axvline(x = 0, color = 'grey', lw = 1)
+        ax.axhline(y = 0, color = 'grey', lw = 1)
+        ax.axhline(y = np.max(ccf), color = 'blue', lw = 1, linestyle='--', label = 'Highest +/- Correlation')
+        ax.axhline(y = np.min(ccf), color = 'blue', lw = 1, linestyle='--')
+        ax.axvline(x = first_lag_significant_pos, color = 'gold', lw = 1, linestyle='--', label = 'First + Correlation: Lag {}'.format(first_lag_significant_pos))
+        ax.axvline(x = first_lag_significant_neg, color = 'green', lw = 1, linestyle='--', label = 'First - Correlation: Lag {}'.format(first_lag_significant_neg))
+        ax.set(xlim = [-24, 24], ylim = [-1, 1])
+        ax.set_title('Cross Correlation')
+        ax.set_ylabel('Correlation Coefficients')
+        ax.set_xlabel('Lag (months)')
+        ax.tick_params(axis='both', which='major', labelsize=15)
+        ax.legend(loc='upper left')
+
+        return ax, dict_results_ccf
+
+    def evaluate_correlation(self, ts_df_subset, ax, lag=0):
+        print('--- Evaluating correlation at lag {} ---'.format(lag))
+
+        # Extract time series
+        columns = list(ts_df_subset.columns)
+        ts1 = ts_df_subset[columns[0]]
+        ts2 = ts_df_subset[columns[1]]
+
+        # If lag is not 0, shift time series
+        if lag != 0:
+            ts2 = ts2.shift(lag)
+
+        # Handle NaN values introduced by shifting
+        valid_indices = ts1.dropna().index.intersection(ts2.dropna().index)
+        ts1 = ts1.loc[valid_indices]
+        ts2 = ts2.loc[valid_indices]
+
+        # Shifted time series
+        ts_df_subset = pd.DataFrame({columns[0]: ts1, columns[1]: ts2})
 
         # Pearson correlation
         corr_pearson, pvalue_pearson = stats.pearsonr(ts1, ts2)
@@ -89,16 +163,16 @@ class TimeSeriesConnections:
 
         # Add interpretation
         if pvalue_pearson < 0.05:
-            label_pearson = 'Significant Pearson correlation'
+            label_pearson = r'Significant Pearson correlation ($R = {}$)'.format(np.round(corr_pearson, 2))
         
         else:
-            label_pearson = 'No significant Pearson correlation'
+            label_pearson = r'No significant Pearson correlation ($R = {}$)'.format(np.round(corr_pearson, 2))
 
         # Plot correlation
         sns.regplot(x=columns[0], y=columns[1], data=ts_df_subset, ci=95, ax=ax, scatter_kws={"s": 50, "color": "grey"}, line_kws={"color": "red"}, label=label_pearson)
 
         # Add aesthetics
-        ax.set_title('Correlation at lag 0')
+        ax.set_title('Correlation at Lag {}'.format(lag))
         ax.legend(loc='upper left')
         ax.tick_params(axis='both', which='major', labelsize=15)
         
@@ -194,35 +268,41 @@ class TimeSeriesConnections:
             # Subset of DataFrame
             ts_df_subset = ts_df[[combinations[idx_comb][0], combinations[idx_comb][1]]]
 
-            # Evaluate Granger causality
-            axs[0] = self.evaluate_granger_causality(ts_df_subset, axs[0])
+            # Evaluate correlation
+            axs[0], dict_results_temp['correlation_lag_0'] = self.evaluate_correlation(ts_df_subset, axs[0], lag=0)
 
             # Evaluate cross-correlation
-            axs[1] = self.evaluate_cross_correlation(ts_df_subset, axs[1])
+            axs[1], dict_results_temp['cross_correlation'] = self.evaluate_cross_correlation(ts_df_subset, axs[1])
 
-            # Evaluate correlation
-            axs[2], dict_results_temp['correlation_lag_0'] = self.evaluate_correlation(ts_df_subset, axs[2])
+            # Plot lagged correlation using ccf
+            lag_pos = dict_results_temp['cross_correlation']['first_significant_pos']
+            lag_neg = dict_results_temp['cross_correlation']['first_significant_neg']
+            axs[2], dict_results_temp['correlation_lag_{}'.format(lag_pos)] = self.evaluate_correlation(ts_df_subset, axs[2], lag=lag_pos)
+            axs[3], dict_results_temp['correlation_lag_{}'.format(lag_neg)] = self.evaluate_correlation(ts_df_subset, axs[3], lag=lag_neg)
 
-            # Evaluate cointegration
-            axs[3] = self.evaluate_cointegration(ts_df_subset, axs[3])
+            # # Evaluate Granger causality
+            # axs[2] = self.evaluate_granger_causality(ts_df_subset, axs[2])
 
-            # Evaluate transfer entropy
-            self.evaluate_transfer_entropy()
+            # # Evaluate cointegration
+            # axs[3] = self.evaluate_cointegration(ts_df_subset, axs[3])
 
-            # Evaluate mutual information
-            self.evaluate_mutual_information()
+            # # Evaluate transfer entropy
+            # self.evaluate_transfer_entropy()
 
-            # Evaluate dynamic time warping
-            self.evaluate_dynamic_time_warping()
+            # # Evaluate mutual information
+            # self.evaluate_mutual_information()
 
-            # Evaluate spatial correlation
-            self.evaluate_spatial_correlation()
+            # # Evaluate dynamic time warping
+            # self.evaluate_dynamic_time_warping()
 
-            # Evaluate spectral similarity
-            self.evaluate_spectral_similarity()
+            # # Evaluate spatial correlation
+            # self.evaluate_spatial_correlation()
 
-            # Evaluate lagged regression
-            self.evaluate_lagged_regression()
+            # # Evaluate spectral similarity
+            # self.evaluate_spectral_similarity()
+
+            # # Evaluate lagged regression
+            # self.evaluate_lagged_regression()
 
             # Save results 
             dict_results['{}___{}'.format(combinations[idx_comb][0], combinations[idx_comb][1])] = dict_results_temp
@@ -230,6 +310,6 @@ class TimeSeriesConnections:
             # Add suptitle
             fig.suptitle('Connections between time series: {} & {}'.format(combinations[idx_comb][0], combinations[idx_comb][1]), fontsize=16)
         
-        print(dict_results)
+        print(dict_results.keys())
 
         return 
