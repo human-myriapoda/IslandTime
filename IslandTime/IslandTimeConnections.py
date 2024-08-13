@@ -85,10 +85,19 @@ class TimeSeriesConnections:
         ccf_significant_neg = ccf_significant[ccf_significant < 0]
 
         # First significant positive and negative lags
-        first_lag_significant_pos = lags_significant_pos[np.argmin(np.abs(lags_significant_pos))]
-        first_lag_significant_neg = lags_significant_neg[np.argmin(np.abs(lags_significant_neg))]
-        first_ccf_significant_pos = ccf_significant_pos[np.argmin(np.abs(lags_significant_pos))]
-        first_ccf_significant_neg = ccf_significant_neg[np.argmin(np.abs(lags_significant_neg))]
+        if len(lags_significant_pos) == 0:
+            first_lag_significant_pos = np.nan
+            first_ccf_significant_pos = np.nan
+        
+        if len(lags_significant_neg) == 0:
+            first_lag_significant_neg = np.nan
+            first_ccf_significant_neg = np.nan
+        
+        else:
+            first_lag_significant_pos = lags_significant_pos[np.argmin(np.abs(lags_significant_pos))]
+            first_lag_significant_neg = lags_significant_neg[np.argmin(np.abs(lags_significant_neg))]
+            first_ccf_significant_pos = ccf_significant_pos[np.argmin(np.abs(lags_significant_pos))]
+            first_ccf_significant_neg = ccf_significant_neg[np.argmin(np.abs(lags_significant_neg))]
         
         # Save results in dictionary
         dict_results_ccf = {
@@ -179,11 +188,40 @@ class TimeSeriesConnections:
         return ax, dict_results_eval
 
     def evaluate_cointegration(self, ts_df_subset, ax):
-        return
         print('--- Evaluating cointegration ---')
 
-        t_statistic, p_val, critical_p_val = coint(ts2, ts1, trend='ct', autolag='BIC')
-        print(f' t statistic: {np.round(t_statistic, 2)} \n p value: {np.round(p_val,2)} \n critical p values [1%, 5%, 10%] {critical_p_val}')
+        # Extract time series
+        columns = list(ts_df_subset.columns)
+        ts1 = ts_df_subset[columns[0]]
+        ts2 = ts_df_subset[columns[1]]
+
+        # Co-integration test (Engle-Granger Test)
+        # Null hypothesis: there is no cointegration
+        t_statistic, p_val, critical_p_val = coint(ts2, ts1, trend='n', autolag='BIC')
+        if p_val < 0.05:
+            print('Cointegration exists between time series')
+
+        else:
+            print('No cointegration exists between time series')
+
+
+        # # Create OLS model
+        # model = sm.OLS(ts2, sm.add_constant(ts1)).fit()
+
+        # print(model.params[0])
+
+        # # ax.plot(ts2, label='Time Series 2')
+        # # ax.plot(model.params[0] + model.params[1] * ts1, label='Time Series 1')
+
+        # # Get the model residuals
+        # residuals = model.resid
+
+        # # ax.plot(residuals, label='Residuals')
+
+        # X_new = residuals[:-1].copy().reshape(-1,1)
+        # Y_new = residuals[1:] - residuals[:-1]
+
+        # ax.plot(Y_new)
         
         # X, Y = ts1, ts2
         # X_train = sm.add_constant(X)
@@ -219,6 +257,8 @@ class TimeSeriesConnections:
 
         # Test 3: are seasonal components co-integrated?
 
+        return ax
+
     def evaluate_transfer_entropy(self):
         pass
 
@@ -236,6 +276,9 @@ class TimeSeriesConnections:
 
     def evaluate_lagged_regression(self):
         pass
+
+    def _normalise_data_plotting(self, data):
+        return (data - np.min(data)) / (np.max(data) - np.min(data))
 
     def main(self):
         
@@ -268,23 +311,36 @@ class TimeSeriesConnections:
             # Subset of DataFrame
             ts_df_subset = ts_df[[combinations[idx_comb][0], combinations[idx_comb][1]]]
 
+            # Plot time series
+            axs[0].plot(ts_df_subset.index, self._normalise_data_plotting(ts_df_subset[combinations[idx_comb][0]]), label=combinations[idx_comb][0], color='red') 
+            axs[0].plot(ts_df_subset.index, self._normalise_data_plotting(ts_df_subset[combinations[idx_comb][1]]), label=combinations[idx_comb][1], color='blue')
+            axs[0].set_title('Time Series')
+            axs[0].set_xlabel('Time')
+            axs[0].set_ylabel('Normalised Value')
+            axs[0].legend()
+
             # Evaluate correlation
-            axs[0], dict_results_temp['correlation_lag_0'] = self.evaluate_correlation(ts_df_subset, axs[0], lag=0)
+            index_fig = 1
+            axs[index_fig ], dict_results_temp['correlation_lag_0'] = self.evaluate_correlation(ts_df_subset, axs[index_fig], lag=0)
+            index_fig += 1
 
             # Evaluate cross-correlation
-            axs[1], dict_results_temp['cross_correlation'] = self.evaluate_cross_correlation(ts_df_subset, axs[1])
+            axs[index_fig], dict_results_temp['cross_correlation'] = self.evaluate_cross_correlation(ts_df_subset, axs[index_fig])
+            index_fig += 1
 
             # Plot lagged correlation using ccf
-            lag_pos = dict_results_temp['cross_correlation']['first_significant_pos']
-            lag_neg = dict_results_temp['cross_correlation']['first_significant_neg']
-            axs[2], dict_results_temp['correlation_lag_{}'.format(lag_pos)] = self.evaluate_correlation(ts_df_subset, axs[2], lag=lag_pos)
-            axs[3], dict_results_temp['correlation_lag_{}'.format(lag_neg)] = self.evaluate_correlation(ts_df_subset, axs[3], lag=lag_neg)
+            if dict_results_temp['cross_correlation']['first_significant_pos'] is not np.nan:
+                axs[index_fig], dict_results_temp['correlation_lag_{}'.format(dict_results_temp['cross_correlation']['first_significant_pos'])] = self.evaluate_correlation(ts_df_subset, axs[index_fig], lag=dict_results_temp['cross_correlation']['first_significant_pos'])
+            index_fig += 1
+            if dict_results_temp['cross_correlation']['first_significant_neg'] is not np.nan:
+                axs[index_fig], dict_results_temp['correlation_lag_{}'.format(dict_results_temp['cross_correlation']['first_significant_neg'])] = self.evaluate_correlation(ts_df_subset, axs[index_fig], lag=dict_results_temp['cross_correlation']['first_significant_neg'])
+            index_fig += 1
 
             # # Evaluate Granger causality
             # axs[2] = self.evaluate_granger_causality(ts_df_subset, axs[2])
 
             # # Evaluate cointegration
-            # axs[3] = self.evaluate_cointegration(ts_df_subset, axs[3])
+            axs[index_fig] = self.evaluate_cointegration(ts_df_subset, axs[index_fig])
 
             # # Evaluate transfer entropy
             # self.evaluate_transfer_entropy()
