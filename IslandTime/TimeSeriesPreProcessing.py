@@ -378,6 +378,11 @@ class PreProcessing:
 
                 # Select time period to match optimal time period (other variables)
                 df_optimal_period_other = df_timeframe[((df_timeframe.index + MonthEnd(0)).to_numpy() >= final_start) & ((df_timeframe.index + MonthEnd(0)).to_numpy() <= final_end)]
+
+                # Fill NaN for 2-metre temperature
+                df_optimal_period_other['2_metre_temperature'] = df_optimal_period_other['2_metre_temperature'].interpolate(method='linear')
+
+                # Drop columns with remaining NaN values
                 df_optimal_period_other = df_optimal_period_other.dropna(axis=1, how='any')
 
                 # Select time period to match optimal time period (coastline position)
