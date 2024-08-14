@@ -9,6 +9,7 @@ from statsmodels.tsa.stattools import ccf, grangercausalitytests, coint, adfulle
 import statsmodels.api as sm
 from statsmodels.tsa.vector_ar.vecm import coint_johansen
 import seaborn as sns
+import Rbeast as rb
 
 class TimeSeriesConnections:
     def __init__(self, dict_time_series: dict):
@@ -187,77 +188,38 @@ class TimeSeriesConnections:
         
         return ax, dict_results_eval
 
-    def evaluate_cointegration(self, ts_df_subset, ax):
-        print('--- Evaluating cointegration ---')
+    def evaluate_cointegration(self, ts_df_subset_trend, ax):
+        print('--- Evaluating cointegration on trend components ---')
 
         # Extract time series
-        columns = list(ts_df_subset.columns)
-        ts1 = ts_df_subset[columns[0]]
-        ts2 = ts_df_subset[columns[1]]
+        columns = list(ts_df_subset_trend.columns)
+        ts1 = ts_df_subset_trend[columns[0]]
+        ts2 = ts_df_subset_trend[columns[1]]
 
         # Co-integration test (Engle-Granger Test)
         # Null hypothesis: there is no cointegration
-        t_statistic, p_val, critical_p_val = coint(ts2, ts1, trend='n', autolag='BIC')
-        if p_val < 0.05:
-            print('Cointegration exists between time series')
+        t_statistic, p_val, critical_p_val = coint(ts1, ts2, trend='c', autolag='BIC')
 
-        else:
-            print('No cointegration exists between time series')
+        # Get OLS regression
+        model = sm.OLS(ts1, sm.add_constant(ts2)).fit()
 
+        # Plot time series and OLS regression
+        ax.plot(ts1.index, self._normalise_data_plotting(ts1), label=columns[0], color='red')
+        ax.plot(ts2.index, self._normalise_data_plotting(ts2), label=columns[1], color='blue')
+        ax.plot(ts1.index, self._normalise_data_plotting(model.predict(sm.add_constant(ts2))), '--', color='black', label=f'OLS Regression (Co-int: pval={p_val:.3f}), t-stat={t_statistic:.3f}')
+        ax.set_title('Cointegration Test on Trend Components')
+        ax.set_xlabel('Time')
+        ax.set_ylabel('Normalised Value')
+        ax.legend()
 
-        # # Create OLS model
-        # model = sm.OLS(ts2, sm.add_constant(ts1)).fit()
+        # Store results in dictionary
+        dict_results_coint = {
+            't_statistic': t_statistic,
+            'p_val': p_val,
+            'critical_p_val': critical_p_val
+        }
 
-        # print(model.params[0])
-
-        # # ax.plot(ts2, label='Time Series 2')
-        # # ax.plot(model.params[0] + model.params[1] * ts1, label='Time Series 1')
-
-        # # Get the model residuals
-        # residuals = model.resid
-
-        # # ax.plot(residuals, label='Residuals')
-
-        # X_new = residuals[:-1].copy().reshape(-1,1)
-        # Y_new = residuals[1:] - residuals[:-1]
-
-        # ax.plot(Y_new)
-        
-        # X, Y = ts1, ts2
-        # X_train = sm.add_constant(X)
-        # model = sm.OLS(Y, X_train).fit()
-
-        # # Get the model residuals
-        # residuals = model.resid
-
-        # # Plot residuals
-        # ax.plot(residuals, label='Residuals')
-
-
-        # # Perform Johansen cointegration test
-        # ccj = coint_johansen(np.column_stack((ts1, ts2)), det_order=1, k_ar_diff=12)
-        # print('Trace statistic: ', ccj.lr1)
-        # print('Critical values (90%, 95%, 99%): ', ccj.cvt)
-
-        # # Extract the co-integrating vectors
-        # coint_vector = ccj.evec[:, 0]
-
-        # # Calculate the co-integrating relationship
-        # coint_relationship = np.dot(np.column_stack((ts1, ts2)), coint_vector)
-
-        # # Plot cointegration (residuals of the co-integrating relationship)
-        # ax.plot(coint_relationship, label='Co-integrating Relationship')
-        # ax.axhline(0, color='black', linestyle='--')
-        # ax.legend()
-        # ax.set_title('Co-integrating Relationship (Johansen Test)')
-
-        # Test 1: are trends co-integrated?
-
-        # Test 2: are residuals co-integrated?
-
-        # Test 3: are seasonal components co-integrated?
-
-        return ax
+        return ax, dict_results_coint
 
     def evaluate_transfer_entropy(self):
         pass
@@ -280,6 +242,30 @@ class TimeSeriesConnections:
     def _normalise_data_plotting(self, data):
         return (data - np.min(data)) / (np.max(data) - np.min(data))
 
+    def time_series_decomposition_BEAST(self, ts_df_subset):
+        
+        # Empty dictionary to store results
+        ts_df_trend, ts_df_seasonal, ts_df_residual = {}, {}, {}
+
+        # Loop through all time series
+        for idx_ts in range(len(ts_df_subset.columns)):
+            ts = ts_df_subset[ts_df_subset.columns[idx_ts]]
+
+            # Run BEAST
+            o = rb.beast(ts, start=[ts.index[0].year, ts.index[0].month, ts.index[0].day], season='harmonic', deltat='1/12 year', period='1 year', quiet=True, print_progress=False)
+            
+            # Extract trend, seasonal and residual components
+            trend = o.trend.Y
+            seasonal = o.season.Y
+            residual = ts - trend - seasonal
+
+            # Store results in dictionary
+            ts_df_trend[ts_df_subset.columns[idx_ts]] = trend
+            ts_df_seasonal[ts_df_subset.columns[idx_ts]] = seasonal
+            ts_df_residual[ts_df_subset.columns[idx_ts]] = residual
+
+        return pd.DataFrame(ts_df_trend), pd.DataFrame(ts_df_seasonal), pd.DataFrame(ts_df_residual)
+
     def main(self):
         
         print('\n-------------------------------------------------------------------')
@@ -288,6 +274,7 @@ class TimeSeriesConnections:
 
         # Create DataFrame with time series
         ts_df = pd.DataFrame(self.dict_time_series)
+        ts_df_trend, ts_df_seasonal, ts_df_residual = self.time_series_decomposition_BEAST(ts_df)
 
         # Create all possible combinations of time series
         combinations = list(itertools.combinations(self.dict_time_series.keys(), 2))
@@ -310,6 +297,9 @@ class TimeSeriesConnections:
 
             # Subset of DataFrame
             ts_df_subset = ts_df[[combinations[idx_comb][0], combinations[idx_comb][1]]]
+            ts_df_trend_subset = ts_df_trend[[combinations[idx_comb][0], combinations[idx_comb][1]]]
+            ts_df_seasonal_subset = ts_df_seasonal[[combinations[idx_comb][0], combinations[idx_comb][1]]]
+            ts_df_residual_subset = ts_df_residual[[combinations[idx_comb][0], combinations[idx_comb][1]]]
 
             # Plot time series
             axs[0].plot(ts_df_subset.index, self._normalise_data_plotting(ts_df_subset[combinations[idx_comb][0]]), label=combinations[idx_comb][0], color='red') 
@@ -339,8 +329,8 @@ class TimeSeriesConnections:
             # # Evaluate Granger causality
             # axs[2] = self.evaluate_granger_causality(ts_df_subset, axs[2])
 
-            # # Evaluate cointegration
-            axs[index_fig] = self.evaluate_cointegration(ts_df_subset, axs[index_fig])
+            # Evaluate cointegration
+            axs[index_fig], dict_results_temp['cointegration_trends'] = self.evaluate_cointegration(ts_df_trend_subset, axs[index_fig])
 
             # # Evaluate transfer entropy
             # self.evaluate_transfer_entropy()
