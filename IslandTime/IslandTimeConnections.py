@@ -14,12 +14,14 @@ from sklearn.metrics.pairwise import cosine_similarity
 import pyinform
 from fastdtw import fastdtw
 from scipy.spatial.distance import euclidean
+import matplotlib
+matplotlib.rcParams['mathtext.fontset'] = 'stix'
+matplotlib.rcParams['font.family'] = 'STIXGeneral'
 # from PyIF import te_compute as te
 
 # TODO
 # - Spatial correlation for nearby transects or islands
 # - Fix Transfer Entropy
-
 
 class TimeSeriesConnections:
     def __init__(self, dict_time_series: dict):
@@ -56,12 +58,12 @@ class TimeSeriesConnections:
         f_statistics = [round(results[i+1][0]['ssr_ftest'][0], 4) for i in range(max_lag)]
 
         # Plot p-values and F-statistics on twin axes
-        ax.plot(range(1, max_lag+1), p_values, color='blue', label='P-value')
+        ax.plot(range(1, max_lag+1), p_values, color='darkorange', label='p-value')
         ax.set_xlabel('Lag (months)')
-        ax.set_ylabel('P-value')
+        ax.set_ylabel('p-value')
 
         ax2 = ax.twinx()
-        ax2.plot(range(1, max_lag+1), f_statistics, color='red', label='F-statistic')
+        ax2.plot(range(1, max_lag+1), f_statistics, color='darkviolet', label='F-statistic')
         ax2.set_ylabel('F-statistic')
 
         ax.axhline(0.05, color='grey', linestyle='--', label='5% Significance Level')
@@ -70,14 +72,14 @@ class TimeSeriesConnections:
         if len(p_values_significant) > 0:
             for idx_pvals, pvals in enumerate(p_values_significant):
                 if idx_pvals == 0:
-                    ax.axvline(pvals + 1, color='green', linestyle='--', label='Significant Lag')
+                    ax.axvline(pvals + 1, color='k', linestyle='-', label='Significant Lag', alpha=0.5)
                 else:
-                    ax.axvline(pvals + 1, color='green', linestyle='--')
+                    ax.axvline(pvals + 1, color='k', linestyle='-', alpha=0.5)
         if invert:
             ax.set_title('Granger Causality {} -> {}'.format(columns[0], columns[1]))
         else:
             ax.set_title('Granger Causality {} -> {}'.format(columns[1], columns[0]))
-        ax.legend(loc='upper right')
+        ax.legend()
 
         # Save results in dictionary
         dict_results_granger = {
@@ -176,7 +178,7 @@ class TimeSeriesConnections:
         ax.set_title('Cross Correlation')
         ax.set_ylabel('Correlation Coefficients')
         ax.set_xlabel('Lag (months)')
-        ax.tick_params(axis='both', which='major', labelsize=15)
+        # ax.tick_params(axis='both', which='major', labelsize=15)
         ax.legend(loc='upper left')
 
         return ax, dict_results_ccf
@@ -225,12 +227,12 @@ class TimeSeriesConnections:
             label_pearson = r'No significant Pearson correlation ($R = {}$)'.format(np.round(corr_pearson, 2))
 
         # Plot correlation
-        sns.regplot(x=columns[0], y=columns[1], data=ts_df_subset, ci=95, ax=ax, scatter_kws={"s": 50, "color": "grey"}, line_kws={"color": "red"}, label=label_pearson)
+        sns.regplot(x=columns[0], y=columns[1], data=ts_df_subset, ci=95, ax=ax, scatter_kws={"s": 50, "color": "grey"}, line_kws={"color": "forestgreen"}, label=label_pearson)
 
         # Add aesthetics
         ax.set_title('Correlation at Lag {}'.format(lag))
         ax.legend(loc='upper left')
-        ax.tick_params(axis='both', which='major', labelsize=15)
+        # ax.tick_params(axis='both', which='major', labelsize=15)
         
         return ax, dict_results_eval
 
@@ -247,12 +249,17 @@ class TimeSeriesConnections:
         t_statistic, p_val, critical_p_val = coint(ts1, ts2, trend='c', autolag='BIC')
 
         # Get OLS regression
-        model = sm.OLS(ts1, sm.add_constant(ts2)).fit()
+        X = sm.add_constant(ts2)  # Add intercept
+        model = sm.OLS(ts1, X).fit()
+
+        # Predictions and residuals
+        predictions = model.predict(X)
+        residuals = ts1 - predictions
 
         # Plot time series and OLS regression
-        ax.plot(ts_df_subset_trend.index, self._normalise_data_plotting(ts1), label=columns[0], color='red')
-        ax.plot(ts_df_subset_trend.index, self._normalise_data_plotting(ts2), label=columns[1], color='blue')
-        ax.plot(ts_df_subset_trend.index, self._normalise_data_plotting(model.predict(sm.add_constant(ts2))), '--', color='black', label=f'OLS Regression (Co-int: pval={p_val:.3f}, t-stat={t_statistic:.3f})')
+        ax.plot(ts_df_subset_trend.index, self._normalise_data_plotting(ts1), label=columns[0], color='firebrick')
+        ax.plot(ts_df_subset_trend.index, self._normalise_data_plotting(ts2), label=columns[1], color='c')
+        ax.plot(ts_df_subset_trend.index, self._normalise_data_plotting(predictions), '--', color='black', label=f'OLS Regression (Co-int: pval={p_val:.3f}, t-stat={t_statistic:.3f})')
         ax.set_title('Cointegration Test on Trend Components')
         ax.set_xlabel('Time')
         ax.set_ylabel('Normalised Value')
@@ -303,8 +310,8 @@ class TimeSeriesConnections:
             res_TE_ts2_to_ts1[lag] = te_ts2_to_ts1
         
         # Plot transfer entropy
-        ax.plot(lags, list(res_TE_ts1_to_ts2.values()), label=f'{columns[0]} -> {columns[1]}', color='red')
-        ax.plot(lags, list(res_TE_ts2_to_ts1.values()), label=f'{columns[1]} -> {columns[0]}', color='blue')
+        ax.plot(lags, list(res_TE_ts1_to_ts2.values()), label=f'{columns[0]} -> {columns[1]}', color='firebrick')
+        ax.plot(lags, list(res_TE_ts2_to_ts1.values()), label=f'{columns[1]} -> {columns[0]}', color='c')
         ax.set_title('Transfer Entropy')
         ax.set_xlabel('Lag (months)')
         ax.set_ylabel('Transfer Entropy')
@@ -357,10 +364,10 @@ class TimeSeriesConnections:
         print('Similarity score: {}'.format(dtw / len(path_s)))
 
         # Plot DTW
-        ax.plot(ts_df_subset.index, self._normalise_data_plotting(ts1.values), label=columns[0], color='red')
-        ax.plot(ts_df_subset.index, self._normalise_data_plotting(ts2.values), label=columns[1], color='blue')
+        ax.plot(ts_df_subset.index, self._normalise_data_plotting(ts1.values), label=columns[0], color='firebrick')
+        ax.plot(ts_df_subset.index, self._normalise_data_plotting(ts2.values), label=columns[1], color='c')
         for point in path:
-            ax.plot([ts_df_subset.index[point[0]], ts_df_subset.index[point[1]]], [self._normalise_data_plotting(ts1.values)[point[0]], self._normalise_data_plotting(ts2.values)[point[1]]], color='black', alpha=0.5)
+            ax.plot([ts_df_subset.index[point[0]], ts_df_subset.index[point[1]]], [self._normalise_data_plotting(ts1.values)[point[0]], self._normalise_data_plotting(ts2.values)[point[1]]], color='black', linestyle='--', alpha=0.5)
         ax.set_xlabel('Time')
         if seasonal:
             ax.set_ylabel('Normalised Seasonal Component')
@@ -413,8 +420,8 @@ class TimeSeriesConnections:
         cosine_similarity_res = cosine_similarity(Pxx1.reshape(1, -1), Pxx2.reshape(1, -1))[0][0]
 
         # Plot power spectral densities
-        ax.plot(f1, self._normalise_data_plotting(Pxx1), label=columns[0], color='red')
-        ax.plot(f2, self._normalise_data_plotting(Pxx2), label=columns[1], color='blue')
+        ax.plot(f1, self._normalise_data_plotting(Pxx1), label=columns[0], color='firebrick')
+        ax.plot(f2, self._normalise_data_plotting(Pxx2), label=columns[1], color='c')
         ax.set_title('Spectral Similarity')
         ax.set_xlabel('Frequency (cycles/year)')
         ax.set_ylabel('Power Spectral Density (normalised)')
@@ -482,7 +489,7 @@ class TimeSeriesConnections:
             dict_results_temp = {}
 
             # Create panel of plots
-            fig, ax = plt.subplots(3, 4, figsize=(20, 15))
+            fig, ax = plt.subplots(4, 3, figsize=(20, 15))
             axs = ax.ravel()
 
             # Subset of DataFrame
@@ -490,17 +497,11 @@ class TimeSeriesConnections:
             ts_df_trend_subset = ts_df_trend[[combinations[idx_comb][0], combinations[idx_comb][1]]]
             ts_df_seasonal_subset = ts_df_seasonal[[combinations[idx_comb][0], combinations[idx_comb][1]]]
             ts_df_residual_subset = ts_df_residual[[combinations[idx_comb][0], combinations[idx_comb][1]]]
-            ts_df_diff_subset = ts_df_diff[[combinations[idx_comb][0], combinations[idx_comb][1]]]
-
-            # plt.figure()
-            # plt.plot(ts_df_diff_subset.index, ts_df_diff_subset[combinations[idx_comb][0]], label=combinations[idx_comb][0], color='red')
-            # plt.plot(ts_df_diff_subset.index, ts_df_diff_subset[combinations[idx_comb][1]], label=combinations[idx_comb][1], color='blue')
-            # plt.plot(ts_df_residual_subset.index, ts_df_residual_subset[combinations[idx_comb][0]], label=combinations[idx_comb][0], color='red', alpha=0.5)
-            # plt.plot(ts_df_residual_subset.index, ts_df_residual_subset[combinations[idx_comb][1]], label=combinations[idx_comb][1], color='blue', alpha=0.5)            
+            ts_df_diff_subset = ts_df_diff[[combinations[idx_comb][0], combinations[idx_comb][1]]]          
 
             # Plot time series
-            axs[0].plot(ts_df_subset.index, self._normalise_data_plotting(ts_df_subset[combinations[idx_comb][0]]), label=combinations[idx_comb][0], color='red') 
-            axs[0].plot(ts_df_subset.index, self._normalise_data_plotting(ts_df_subset[combinations[idx_comb][1]]), label=combinations[idx_comb][1], color='blue')
+            axs[0].plot(ts_df_subset.index, self._normalise_data_plotting(ts_df_subset[combinations[idx_comb][0]]), label=combinations[idx_comb][0], color='firebrick') 
+            axs[0].plot(ts_df_subset.index, self._normalise_data_plotting(ts_df_subset[combinations[idx_comb][1]]), label=combinations[idx_comb][1], color='c')
             axs[0].set_title('Time Series')
             axs[0].set_xlabel('Time')
             axs[0].set_ylabel('Normalised Value')
@@ -519,6 +520,7 @@ class TimeSeriesConnections:
             if dict_results_temp['cross_correlation']['first_significant_pos'] is not np.nan:
                 axs[index_fig], dict_results_temp['correlation_lag_{}'.format(dict_results_temp['cross_correlation']['first_significant_pos'])] = self.evaluate_correlation(ts_df_subset, axs[index_fig], lag=dict_results_temp['cross_correlation']['first_significant_pos'])
             index_fig += 1
+
             if dict_results_temp['cross_correlation']['first_significant_neg'] is not np.nan:
                 axs[index_fig], dict_results_temp['correlation_lag_{}'.format(dict_results_temp['cross_correlation']['first_significant_neg'])] = self.evaluate_correlation(ts_df_subset, axs[index_fig], lag=dict_results_temp['cross_correlation']['first_significant_neg'])
             index_fig += 1
@@ -554,15 +556,17 @@ class TimeSeriesConnections:
             # Evaluate dynamic time warping (raw)
             axs[index_fig], dict_results_temp['dynamic_time_warping'] = self.evaluate_dynamic_time_warping(ts_df_subset, axs[index_fig], seasonal=False)
 
-            # # Evaluate lagged regression
-            # self.evaluate_lagged_regression()
-
             # Save results 
             dict_results['{}___{}'.format(combinations[idx_comb][0], combinations[idx_comb][1])] = dict_results_temp
 
             # Add suptitle
             fig.suptitle('Connections between time series: {} & {}'.format(combinations[idx_comb][0], combinations[idx_comb][1]), fontsize=16)
+
+            # Tight layout
+            plt.tight_layout()
         
         print(dict_results.keys())
+
+
 
         return ts_df_diff, ts_df_residual, ts_df
