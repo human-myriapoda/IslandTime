@@ -2283,7 +2283,9 @@ class TimeSeriesERA5(IslandTimeBase):
         # Create DataFrame
         df_ERA5_winds = pd.DataFrame({'wind_speed_10m': timeseries_wind_speed.values,
                                       'wind_direction_10m': timeseries_wind_direction.values,
-                                      'wind_direction_true_10m': timeseries_wind_direction_true.values},
+                                      'wind_direction_true_10m': timeseries_wind_direction_true.values,
+                                      'wind_u10': timeseries_u10.values,
+                                      'wind_v10': timeseries_v10.values},
                                       index=data_ERA5['time'])
         
         # Create time series specific to each transect -> wind speed in the direction of the transect
