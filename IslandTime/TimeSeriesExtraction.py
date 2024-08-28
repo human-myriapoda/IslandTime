@@ -1733,7 +1733,7 @@ class TimeSeriesCoastSat(IslandTimeBase):
     """
 
     def __init__(self, island, country, verbose_init=True, overwrite=False, date_range=['2010-01-01', '2023-12-31'], sat_list=['L8', 'L9', 'S2'], \
-                 collection='C02', plot_results=False, distance_between_transects=5, length_transect=250, reference_shoreline_transects_only=True, \
+                 collection='C02', plot_results=False, distance_between_transects=5, length_transect=250, reference_shoreline_transects_only=False, \
                  extract_shorelines=True, re_download=False, retrieve_reference_shoreline_manually=False):
         super().__init__(island, country, verbose_init, overwrite)
         self.date_range = date_range
@@ -2949,10 +2949,14 @@ class TimeSeriesClimateIndices(IslandTimeBase):
                 # String -> array
                 row_cleaned = np.fromstring(actual_data_climate_index[row], dtype=float, sep=' ')
 
+                # Ensure the row has the correct number of columns (13)
+                if row_cleaned.size != 13:  # 1 year + 12 months
+                    continue  # Skip rows with dimension mismatch
+                
                 # Store data
-                if row == 0: 
+                if row == 0:
                     arr_data_climate_index = row_cleaned
-                else: 
+                else:
                     arr_data_climate_index = np.row_stack((arr_data_climate_index, row_cleaned))
 
             # Array -> DataFrame

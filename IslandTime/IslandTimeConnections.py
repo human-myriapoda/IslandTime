@@ -22,7 +22,7 @@ from tigramite import plotting as tp
 from tigramite.pcmci import PCMCI
 from tigramite.independence_tests.parcorr import ParCorr
 from tigramite.independence_tests.robust_parcorr import RobustParCorr
-from copy import deepcopy
+from tigramite.independence_tests.cmiknn import CMIknn
 
 matplotlib.rcParams['mathtext.fontset'] = 'stix'
 matplotlib.rcParams['font.family'] = 'STIXGeneral'
@@ -178,14 +178,16 @@ class TimeSeriesConnections:
             first_lag_significant_pos = np.nan
             first_ccf_significant_pos = np.nan
         
+        else:
+            first_lag_significant_pos = lags_significant_pos[np.argmin(np.abs(lags_significant_pos))]
+            first_ccf_significant_pos = ccf_significant_pos[np.argmin(np.abs(lags_significant_pos))]
+        
         if len(lags_significant_neg) == 0:
             first_lag_significant_neg = np.nan
             first_ccf_significant_neg = np.nan
         
         else:
-            first_lag_significant_pos = lags_significant_pos[np.argmin(np.abs(lags_significant_pos))]
             first_lag_significant_neg = lags_significant_neg[np.argmin(np.abs(lags_significant_neg))]
-            first_ccf_significant_pos = ccf_significant_pos[np.argmin(np.abs(lags_significant_pos))]
             first_ccf_significant_neg = ccf_significant_neg[np.argmin(np.abs(lags_significant_neg))]
         
         # Save results in dictionary
@@ -489,8 +491,26 @@ class TimeSeriesConnections:
 
     def _standardise_data(self, data):
         return (data - np.mean(data)) / np.std(data)
+
+    def _get_causal_graph_results(self, results, tau_range, var):
+        arr_results = np.array(['causal link', 'tau', 'val_matrix', 'frequency'], dtype=object)
+        for tau in tau_range:
+            idx_non_empty = np.argwhere(results['graph'][:, :, tau] != '')
+
+            if np.shape(idx_non_empty)[0] > 0:
+                for idx in range(len(idx_non_empty)):
+                    result_link = ' '.join(np.array([var[idx_non_empty[idx][0]], results['graph'][idx_non_empty[idx][0], idx_non_empty[idx][1], tau], var[idx_non_empty[idx][1]]]))
+                    result_val_matrix = results['val_matrix'][idx_non_empty[idx][0], idx_non_empty[idx][1], tau]
+                    arr_results = np.row_stack((arr_results, np.array([result_link, tau, result_val_matrix, 1])))
+
+        df_results = pd.DataFrame(arr_results[1:], columns=arr_results[0])
+        df_results = df_results.set_index('causal link')
+        df_results['frequency'] = df_results['frequency'].astype(int)
+        df_results['val_matrix'] = df_results['val_matrix'].astype(float)
+
+        return df_results
     
-    def causal_graph_discovery(self, ts_df, model='PCMCIplus', condind_test='RobustParCorr', tau_max=12, alpha=0.05, plot_intermediate_steps=True, plot_results=True, correct_pvalues=False):
+    def causal_graph_discovery(self, ts_df, model='PCMCIplus', condind_test='RobustParCorr', tau_max=12, alpha=0.05, plot_intermediate_steps=False, plot_results=False, correct_pvalues=False):
         print('--- Causal Graph Discovery ---')
 
         # Initialise dataframe object, specify time axis and variable names
@@ -510,6 +530,9 @@ class TimeSeriesConnections:
         
         elif condind_test == 'ParCorr':
             cond_ind_test = ParCorr(significance='analytic')
+        
+        elif condind_test == 'CMIknn':
+            cond_ind_test = CMIknn(significance='shuffle_test')
 
         # Initialise PCMCI class
         pcmci = PCMCI(dataframe=dataframe, cond_ind_test=cond_ind_test, verbosity=1)
@@ -552,6 +575,8 @@ class TimeSeriesConnections:
                 link_colorbar_label='cross-MCI (edges)',
                 node_colorbar_label='auto-MCI (nodes)',
                 ); plt.show()        
+        
+        return results
 
     def _normalise_data_plotting(self, data):
         return (data - np.min(data)) / (np.max(data) - np.min(data))
@@ -668,7 +693,10 @@ class TimeSeriesConnections:
                 index_fig += 1
 
                 # Evaluate mutual information
-                dict_results_temp['mutual_information'] = self.evaluate_mutual_information(ts_subset_dict['raw'])
+                try:
+                    dict_results_temp['mutual_information'] = self.evaluate_mutual_information(ts_subset_dict['raw'])
+                except:
+                    dict_results_temp['mutual_information'] = {'mutual_information': np.nan}
 
                 # Evaluate dynamic time warping
                 axs[index_fig], dict_results_temp['dynamic_time_warping_seasonal'] = self.evaluate_dynamic_time_warping(ts_subset_dict['seasonal'], axs[index_fig])
@@ -684,9 +712,30 @@ class TimeSeriesConnections:
                 # Tight layout
                 plt.tight_layout()
 
-        if self.run_causal_inference_discovery:
-            # for t in range(8, 13):
-                
-            self.causal_graph_discovery(ts_df_detrended, tau_max=12)
+                # Save figure
+                plt.savefig(f'figures//time_series_comparison//connections_{ts1}___{ts2}.png', dpi=300)
 
-        return 
+        if self.run_causal_inference_discovery:
+
+            # Loop through lag values for stability analysis
+            for idx_lag, lag in enumerate(range(8, 13)):
+                
+                print('Lag: {}'.format(lag))
+
+                # Causal graph discovery
+                results = self.causal_graph_discovery(ts_df, tau_max=lag)
+                
+                # Get DataFrame with results
+                df_results = self._get_causal_graph_results(results, range(1, lag+1), ts_df.columns)
+
+                # Concatenate results
+                if idx_lag == 0:
+                    df_results_total = df_results
+    
+                else:
+                    df_results_total = pd.concat([df_results_total, df_results], axis=0)
+
+            # Aggregate results
+            df_results_total_agg = df_results_total.groupby([df_results_total.index, 'tau']).agg({'val_matrix': 'mean', 'frequency': 'sum'})
+
+        return df_results_total_agg
