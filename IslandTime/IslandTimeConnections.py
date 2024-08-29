@@ -23,6 +23,7 @@ from tigramite.pcmci import PCMCI
 from tigramite.independence_tests.parcorr import ParCorr
 from tigramite.independence_tests.robust_parcorr import RobustParCorr
 from tigramite.independence_tests.cmiknn import CMIknn
+from tigramite.lpcmci import LPCMCI
 
 matplotlib.rcParams['mathtext.fontset'] = 'stix'
 matplotlib.rcParams['font.family'] = 'STIXGeneral'
@@ -32,7 +33,7 @@ matplotlib.rcParams['font.family'] = 'STIXGeneral'
 # - Fix Transfer Entropy
 
 class TimeSeriesConnections:
-    def __init__(self, dict_time_series: dict, run_combinations=True, run_causal_inference_discovery=False):
+    def __init__(self, dict_time_series: dict, run_combinations=True, run_causal_inference_discovery=False, model_causal_discovery='PCMCIplus', data_causal_discovery='detrended'):
         """
         Initialise the class with a dictionary of time series.
 
@@ -41,6 +42,8 @@ class TimeSeriesConnections:
         self.dict_time_series = dict_time_series
         self.run_combinations = run_combinations
         self.run_causal_inference_discovery = run_causal_inference_discovery
+        self.model_causal_discovery = model_causal_discovery
+        self.data_causal_discovery = data_causal_discovery
 
     def _plot_granger_causality(self, ax, p_values, f_statistics, p_values_significant, columns, invert, max_lag):
 
@@ -509,6 +512,60 @@ class TimeSeriesConnections:
         df_results['val_matrix'] = df_results['val_matrix'].astype(float)
 
         return df_results
+
+    def _plot_causal_graph(self, df_results_total_agg, var_names, max_n_sigma=1):
+
+        # Loop through all sigma values
+        for n_sigma in range(1, max_n_sigma+1):
+
+            # Extract results with frequency greater than n_sigma
+            idxx = np.where(df_results_total_agg.frequency.values >= n_sigma)
+            df = df_results_total_agg.iloc[idxx[0]]
+            df = df.reset_index()
+
+            # Get maximum tau value
+            tau_max = max((df.tau.values).astype(int))
+
+            # Get number of variables
+            n_var = len(var_names)
+
+            # Define variable of interest
+            var_of_interest = 'coastline_position'
+            idx_var_of_interest = np.where(np.array(var_names) == var_of_interest)[0][0]
+
+            # Create empty arrays
+            graph_mean = np.full((n_var, n_var, tau_max+1), '', dtype=object)
+            val_matrix_mean = np.zeros((n_var, n_var, tau_max+1))
+            set_of_interest = []
+
+            # Loop through all results
+            for idx, row in df.iterrows():
+                # Extract variables and edge
+                fvar, edge, svar = row['causal link'].split(' ')
+
+                # Get indices of variables
+                i_fvar, i_svar = np.where(np.array(var_names) == fvar)[0][0], np.where(np.array(var_names) == svar)[0][0]
+                
+                # Skip if not directed links
+                if (fvar == var_of_interest and edge == '-->') or (svar == var_of_interest and edge == '<--'):
+                    continue
+                
+                # Skip if tau is greater than 12
+                if int(row['tau']) > 12:
+                    continue
+                
+                # Add edge to graph
+                if edge == '-->' or edge == '<--':
+                    graph_mean[i_fvar, i_svar, int(row['tau'])] = edge
+                    val_matrix_mean[i_fvar, i_svar, int(row['tau'])] = row['val_matrix']
+                    val_matrix_mean[i_svar, i_fvar, int(row['tau'])] = row['val_matrix']
+
+                if (fvar == var_of_interest) or (svar == var_of_interest):
+                    set_of_interest.append([i_fvar, int(row['tau']), i_svar])
+
+            # Plot average causal graph
+            tp.plot_graph(graph=graph_mean, val_matrix=val_matrix_mean, var_names=var_names, show_autodependency_lags=False)
+            plt.show()
     
     def causal_graph_discovery(self, ts_df, model='PCMCIplus', condind_test='RobustParCorr', tau_max=12, alpha=0.05, plot_intermediate_steps=False, plot_results=False, correct_pvalues=False):
         print('--- Causal Graph Discovery ---')
@@ -535,35 +592,42 @@ class TimeSeriesConnections:
             cond_ind_test = CMIknn(significance='shuffle_test')
 
         # Initialise PCMCI class
-        pcmci = PCMCI(dataframe=dataframe, cond_ind_test=cond_ind_test, verbosity=1)
+        if model == 'PCMCI' or model == 'PCMCIplus':
+            model_cd = PCMCI(dataframe=dataframe, cond_ind_test=cond_ind_test, verbosity=1)
+
+            # Evaluate correlations
+            correlations = model_cd.get_lagged_dependencies(tau_max=tau_max, val_only=True)['val_matrix']
+
+            # Extract matrix of lags
+            matrix_lags = np.argmax(np.abs(correlations), axis=2)
+
+            # Plot intermediate steps
+            if plot_intermediate_steps:
+                tp.plot_timeseries(dataframe)
+                tp.plot_scatterplots(dataframe=dataframe, add_scatterplot_args={'matrix_lags':matrix_lags}); plt.show()
+                tp.plot_densityplots(dataframe=dataframe, add_densityplot_args={'matrix_lags':matrix_lags}); plt.show()
+                lag_func_matrix = tp.plot_lagfuncs(val_matrix=correlations, setup_args={'var_names':var_names, 'x_base':5, 'y_base':.5}); plt.show()
         
-        # Evaluate correlations
-        correlations = pcmci.get_lagged_dependencies(tau_max=tau_max, val_only=True)['val_matrix']
-
-        # Extract matrix of lags
-        matrix_lags = np.argmax(np.abs(correlations), axis=2)
-
-        # Plot intermediate steps
-        if plot_intermediate_steps:
-            tp.plot_timeseries(dataframe)
-            tp.plot_scatterplots(dataframe=dataframe, add_scatterplot_args={'matrix_lags':matrix_lags}); plt.show()
-            tp.plot_densityplots(dataframe=dataframe, add_densityplot_args={'matrix_lags':matrix_lags}); plt.show()
-            lag_func_matrix = tp.plot_lagfuncs(val_matrix=correlations, setup_args={'var_names':var_names, 'x_base':5, 'y_base':.5}); plt.show()
+        elif model == 'LPCMCI':
+            model_cd = LPCMCI(dataframe=dataframe, cond_ind_test=cond_ind_test, verbosity=1)
 
         # Run model
         if model == 'PCMCI':
-            results = pcmci.run_pcmci(tau_max=tau_max, pc_alpha=None, alpha_level=alpha)
+            results = model_cd.run_pcmci(tau_max=tau_max, pc_alpha=None, alpha_level=alpha)
         
         elif model == 'PCMCIplus':
-            results = pcmci.run_pcmciplus(tau_min=0, tau_max=tau_max, pc_alpha=alpha)
+            results = model_cd.run_pcmciplus(tau_min=0, tau_max=tau_max, pc_alpha=alpha)
+        
+        elif model == 'LPCMCI':
+            results = model_cd.run_lpcmci(tau_max=tau_max, pc_alpha=alpha)
         
         else:
             raise ValueError('Model not recognised. Please choose either PCMCI or PCMCIplus.')
         
         # Correct p-values
         if correct_pvalues:
-            q_matrix = pcmci.get_corrected_pvalues(p_matrix=results['p_matrix'], tau_max=tau_max, fdr_method='fdr_bh')
-            graph = pcmci.get_graph_from_pmatrix(p_matrix=q_matrix, alpha_level=alpha, tau_min=0, tau_max=tau_max, link_assumptions=None)
+            q_matrix = model_cd.get_corrected_pvalues(p_matrix=results['p_matrix'], tau_max=tau_max, fdr_method='fdr_bh')
+            graph = model_cd.get_graph_from_pmatrix(p_matrix=q_matrix, alpha_level=alpha, tau_min=0, tau_max=tau_max, link_assumptions=None)
             results['graph'] = graph
         
         # Plot results
@@ -715,15 +779,29 @@ class TimeSeriesConnections:
                 # Save figure
                 plt.savefig(f'figures//time_series_comparison//connections_{ts1}___{ts2}.png', dpi=300)
 
+            return
+
         if self.run_causal_inference_discovery:
 
+            if self.data_causal_discovery == 'raw':
+                ts_df_cd = ts_df
+            
+            elif self.data_causal_discovery == 'detrended':
+                ts_df_cd = ts_df_detrended
+
+            elif self.data_causal_discovery == 'residual':
+                ts_df_cd = ts_df_residual
+
+            elif self.data_causal_discovery == 'diff':
+                ts_df_cd = ts_df_diff
+
             # Loop through lag values for stability analysis
-            for idx_lag, lag in enumerate(range(8, 13)):
+            for idx_lag, lag in enumerate(range(1, 13)):
                 
                 print('Lag: {}'.format(lag))
 
                 # Causal graph discovery
-                results = self.causal_graph_discovery(ts_df, tau_max=lag)
+                results = self.causal_graph_discovery(ts_df_cd, tau_max=lag, plot_results=False, model=self.model_causal_discovery)
                 
                 # Get DataFrame with results
                 df_results = self._get_causal_graph_results(results, range(1, lag+1), ts_df.columns)
@@ -737,5 +815,8 @@ class TimeSeriesConnections:
 
             # Aggregate results
             df_results_total_agg = df_results_total.groupby([df_results_total.index, 'tau']).agg({'val_matrix': 'mean', 'frequency': 'sum'})
+
+            # Plot average causal graph
+            self._plot_causal_graph(df_results_total_agg, list(ts_df.columns))
 
         return df_results_total_agg

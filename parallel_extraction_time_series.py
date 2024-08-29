@@ -71,6 +71,9 @@ downloaded, partially_downloaded, not_downloaded = [], [], []
 for file in os.listdir(path_to_data):
     island = file.split('_')[1]
     country = file.split('_')[2].split('.')[0]
+    if island not in ['Maarikilu', 'Kihavah huravalhi', 'Gemendhoo', 'Milaidhoo']:
+        continue
+
     try:
         island_info = retrieve_island_info(island, country, verbose=False)
     
@@ -97,7 +100,7 @@ for file in os.listdir(path_to_data):
             not_downloaded.append(island)
 
 # Create batch of islands to download
-batch_size = 8
+batch_size = 4
 dict_batch = {}
 country = 'Maldives'
 batch_partially_downloaded = False
