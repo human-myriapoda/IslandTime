@@ -71,8 +71,8 @@ downloaded, partially_downloaded, not_downloaded = [], [], []
 for file in os.listdir(path_to_data):
     island = file.split('_')[1]
     country = file.split('_')[2].split('.')[0]
-    if island not in ['Maarikilu', 'Kihavah huravalhi', 'Gemendhoo', 'Milaidhoo']:
-        continue
+    # if island not in ['Bodu', 'Kanufusheegaathufinolhu', 'Ufuligiri', 'B.Kudadhoo']:
+    #     continue
 
     try:
         island_info = retrieve_island_info(island, country, verbose=False)
@@ -81,6 +81,9 @@ for file in os.listdir(path_to_data):
         continue
 
     # Check if island has been downloaded
+    if 'timeseries_analysis' in island_info.keys():
+        continue
+
     if 'timeseries_coastsat' in island_info.keys():
         if 'timeseries' in island_info['timeseries_coastsat'].keys():
             if all([sat in os.listdir(os.path.join(os.getcwd(), 'data', 'coastsat_data', '{}_{}'.format(island, country))) for sat in ['S2', 'L8', 'L9']]):
@@ -100,7 +103,7 @@ for file in os.listdir(path_to_data):
             not_downloaded.append(island)
 
 # Create batch of islands to download
-batch_size = 4
+batch_size = 3
 dict_batch = {}
 country = 'Maldives'
 batch_partially_downloaded = False

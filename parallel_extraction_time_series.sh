@@ -7,7 +7,7 @@ conda activate IslandTimeEnv
 #echo "Current Conda environment: $CONDA_PREFIX"
 
 # Set the number of times to run the script
-num_runs=30
+num_runs=15
 
 # Set the Python script you want to run
 python_script='./parallel_extraction_time_series.py'

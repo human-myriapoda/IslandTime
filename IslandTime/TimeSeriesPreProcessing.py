@@ -302,12 +302,13 @@ class PreProcessing:
 
         # Create empty dictionary
         dict_combined_dataframes_optimal_time_period = {}
+        dict_coastline_timeseries = {}
 
         # Loop through transects
         for transect in df_coastline_timeseries.columns:
             # Create empty dictionary for that transect
             dict_combined_dataframes_optimal_time_period[transect] = {}
-
+            
             # Loop through time frames
             for timeframe in self.list_timeframes:
 
@@ -329,11 +330,19 @@ class PreProcessing:
                 # Retrieve DataFrame for time frame (other time series)
                 df_timeframe = self.dict_timeframes['other_timeseries'][timeframe]
 
+                # Retrieve time series for that transect
+                df_coastline = df_coastline_timeseries
+
                 # Fix date index
                 index_date = (df_timeframe.index + MonthEnd(0)).to_numpy()
+                index_date_coastline = (df_coastline.index + MonthEnd(0)).to_numpy()
 
                 # Select time period to match coastline time period
                 df_timeframe_aligned_period = df_timeframe[(index_date >= start_coastline) & (index_date <= end_coastline)]
+                df_timeframe_aligned_period_coastline = df_coastline[(index_date_coastline >= start_coastline) & (index_date_coastline <= end_coastline)]
+
+                if timeframe == 'monthly':
+                    dict_coastline_timeseries[transect] = df_timeframe_aligned_period_coastline[transect]
                 
                 for other_variable in df_timeframe_aligned_period.columns:
                     # Retrieve time series
@@ -396,8 +405,8 @@ class PreProcessing:
                 # Save in information to dictionary
                 dict_combined_dataframes_optimal_time_period[transect][timeframe] = df_optimal_time_period
 
-        return dict_combined_dataframes_optimal_time_period
-
+        return dict_combined_dataframes_optimal_time_period, dict_coastline_timeseries
+    
     def main(self):
 
         if 'timeseries_preprocessing' in self.island_info.keys() and not self.overwrite:
@@ -457,7 +466,7 @@ class PreProcessing:
 
         # Find optimal time period for each time frame for each other time series
         # This is done within the coastline position time frame
-        self.dict_combined_dataframes_optimal_time_period = self.find_optimal_time_period_other(df_coastline_timeseries)
+        dict_combined_dataframes_optimal_time_period, dict_coastline_timeseries = self.find_optimal_time_period_other(df_coastline_timeseries)
 
         # Save information to dictionary
         self.island_info['timeseries_preprocessing']['df_coastline_timeseries'] = df_coastline_timeseries
@@ -467,7 +476,8 @@ class PreProcessing:
                                                               'df_confounders': df_confounders,
                                                               'df_timeseries_climate_indices': df_timeseries_climate_indices}
         self.island_info['timeseries_preprocessing']['optimal time period'] = {'list_timeframes': self.list_timeframes,
-                                                                              'dict_timeseries': self.dict_combined_dataframes_optimal_time_period}
+                                                                              'dict_timeseries': dict_combined_dataframes_optimal_time_period,
+                                                                              'dict_coastline_timeseries': dict_coastline_timeseries}
         
         # Save dictionary
         with open(os.path.join(self.island_info_path, 'info_{}_{}.data'.format(self.island, self.country)), 'wb') as f:

@@ -43,7 +43,7 @@ class Workflow:
             self.island_info = self.extract_time_series(verbose=False)
 
         # Extract coastline time series data using Segmentation
-        self.island_info = Segmentation(self.island_info, find_polygons=self.small_island, plot_all=False, time_series_only=True, animation_polygons=True).main()
+        self.island_info = Segmentation(self.island_info, find_polygons=self.small_island, plot_all=False, time_series_only=False, animation_polygons=False).main()
 
         # Save island_info
         save_island_info(self.island_info)

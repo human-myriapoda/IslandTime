@@ -506,6 +506,10 @@ class TimeSeriesConnections:
                     result_val_matrix = results['val_matrix'][idx_non_empty[idx][0], idx_non_empty[idx][1], tau]
                     arr_results = np.row_stack((arr_results, np.array([result_link, tau, result_val_matrix, 1])))
 
+        if arr_results.shape[0] == 1:
+            # return empty dataframe
+            return pd.DataFrame(columns=['causal link', 'tau', 'val_matrix', 'frequency'])
+
         df_results = pd.DataFrame(arr_results[1:], columns=arr_results[0])
         df_results = df_results.set_index('causal link')
         df_results['frequency'] = df_results['frequency'].astype(int)
@@ -593,7 +597,7 @@ class TimeSeriesConnections:
 
         # Initialise PCMCI class
         if model == 'PCMCI' or model == 'PCMCIplus':
-            model_cd = PCMCI(dataframe=dataframe, cond_ind_test=cond_ind_test, verbosity=1)
+            model_cd = PCMCI(dataframe=dataframe, cond_ind_test=cond_ind_test, verbosity=0)
 
             # Evaluate correlations
             correlations = model_cd.get_lagged_dependencies(tau_max=tau_max, val_only=True)['val_matrix']
@@ -609,7 +613,7 @@ class TimeSeriesConnections:
                 lag_func_matrix = tp.plot_lagfuncs(val_matrix=correlations, setup_args={'var_names':var_names, 'x_base':5, 'y_base':.5}); plt.show()
         
         elif model == 'LPCMCI':
-            model_cd = LPCMCI(dataframe=dataframe, cond_ind_test=cond_ind_test, verbosity=1)
+            model_cd = LPCMCI(dataframe=dataframe, cond_ind_test=cond_ind_test, verbosity=0)
 
         # Run model
         if model == 'PCMCI':
@@ -693,7 +697,7 @@ class TimeSeriesConnections:
 
         # Create DataFrame with time series
         ts_df = pd.DataFrame(self.dict_time_series)
-        ts_df_trend, ts_df_seasonal, ts_df_residual, ts_df_diff, ts_df_detrended = self.time_series_decomposition_BEAST(ts_df)
+        # ts_df_trend, ts_df_seasonal, ts_df_residual, ts_df_diff, ts_df_detrended = self.time_series_decomposition_BEAST(ts_df)
 
         # Create all possible combinations of time series
         combinations = list(itertools.combinations(self.dict_time_series.keys(), 2))
@@ -804,7 +808,7 @@ class TimeSeriesConnections:
                 results = self.causal_graph_discovery(ts_df_cd, tau_max=lag, plot_results=False, model=self.model_causal_discovery)
                 
                 # Get DataFrame with results
-                df_results = self._get_causal_graph_results(results, range(1, lag+1), ts_df.columns)
+                df_results = self._get_causal_graph_results(results, range(1, lag+1), ts_df_cd.columns)
 
                 # Concatenate results
                 if idx_lag == 0:
@@ -817,6 +821,6 @@ class TimeSeriesConnections:
             df_results_total_agg = df_results_total.groupby([df_results_total.index, 'tau']).agg({'val_matrix': 'mean', 'frequency': 'sum'})
 
             # Plot average causal graph
-            self._plot_causal_graph(df_results_total_agg, list(ts_df.columns))
+            self._plot_causal_graph(df_results_total_agg, var_names=list(ts_df.columns), max_n_sigma=3)
 
         return df_results_total_agg

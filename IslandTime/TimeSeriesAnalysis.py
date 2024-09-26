@@ -38,6 +38,7 @@ import inspect
 import warnings
 from functools import lru_cache
 import os
+import pickle
 os.environ['PYDEVD_WARN_SLOW_RESOLVE_TIMEOUT'] = '1000'
 
 warnings.filterwarnings('ignore')
@@ -392,16 +393,20 @@ class TimeSeriesAnalysis:
         line_BEAST = trend_slope_BEAST * numeric_dates + intercept_BEAST
 
         # Save in island_info
-        self.island_info['timeseries_analysis'][time_series_name]['trend'] = {'trend_result': trend_result,
-                                                                              'trend_component_STL': trend,
-                                                                              'trend_slope': trend_slope,
-                                                                              'trend_fitted_line': line,
-                                                                              'trend_bkp_dates': result_bkp_dates,
-                                                                              'trend_bkp_dates_significant': result_bkp_dates_significant,
-                                                                              'trend_mk_significant': result_mk_significant,
-                                                                              'trend_component_BEAST': trend_BEAST,
-                                                                              'trend_slope_BEAST': trend_slope_BEAST,
-                                                                              'trend_fitted_line_BEAST': line_BEAST}
+        results_trend_dict = {'trend_result': trend_result,
+                                'trend_component_STL': trend,
+                                'trend_slope': trend_slope,
+                                'trend_fitted_line': line,
+                                'trend_bkp_dates': result_bkp_dates,
+                                'trend_bkp_dates_significant': result_bkp_dates_significant,
+                                'trend_mk_significant': result_mk_significant,
+                                'trend_component_BEAST': trend_BEAST,
+                                'trend_slope_BEAST': trend_slope_BEAST,
+                                'trend_fitted_line_BEAST': line_BEAST}
+        
+        self.island_info['timeseries_analysis'][time_series_name]['trend'] = results_trend_dict
+
+        return results_trend_dict
 
     def _relation_indian_monsoon(self, time_series, time_series_name):
         
@@ -669,7 +674,6 @@ class TimeSeriesAnalysis:
         # try:
         res_BEAST = rb.beast(time_series.values, start=[time_series.index[0].year, time_series.index[0].month, time_series.index[0].day], season='harmonic', deltat='1/12 year', period='1 year', quiet=True, print_progress=False)
         seasonal_BEAST =  res_BEAST.season.Y
-
 
         # Iterate over tests
         for test in tests:
@@ -960,48 +964,53 @@ class TimeSeriesAnalysis:
             behaviour_indian_monsoon_BEAST, most_common_label_peaks_BEAST, most_common_label_minima_BEAST = self._behaviour_indian_monsoon(time_series, time_series_name, peaks_seasonal_BEAST, seasonal_fit_BEAST, k=k_BEAST)
         
         # Save in island_info
-        self.island_info['timeseries_analysis'][time_series_name]['seasonality'] = {'lags_acf': lags_acf,
-                                                                                    'range_lags_acf': range_lags_acf,
-                                                                                    'first_peak_acf': first_peak_acf,
-                                                                                    'filtered_data_fourier': filtered_data_fourier,
-                                                                                    'peaks_fourier': peaks_fourier,
-                                                                                    'period_fourier': period_fourier,
-                                                                                    'seasonal_component_STL': seasonal_STL,
-                                                                                    'seasonal_component_STL_fourier': seasonal_STL_fourier,
-                                                                                    'trend_fourier': trend_fourier,
-                                                                                    'amplitude_seasonal_STL': amplitude_seasonal_STL,
-                                                                                    'amplitude_seasonal_STL_absrange': amplitude_seasonal_STL_absrange,
-                                                                                    'seasonal_fit_STL': seasonal_fit_STL,
-                                                                                    'peaks_seasonal_STL': peaks_seasonal_STL,
-                                                                                    'peaks_seasonal_STL_fourier': peaks_seasonal_STL_fourier,
-                                                                                    'minima_seasonal_STL': minima_seasonal_STL,
-                                                                                    'minima_seasonal_STL_fourier': minima_seasonal_STL_fourier,
-                                                                                    'period_seasonal_STL': period_seasonal_STL,
-                                                                                    'period_seasonal_STL_fourier': period_seasonal_STL_fourier,
-                                                                                    'relation_indian_monsoon': relation_indian_monsoon,
-                                                                                    'behaviour_indian_monsoon': behaviour_indian_monsoon,
-                                                                                    'seasonality_indian_monsoon_peaks': most_common_label_peaks,
-                                                                                    'seasonality_indian_monsoon_minima': most_common_label_minima,
-                                                                                    'fit_params_STL': {'A': A_fit, 'k': k_fit, 's': s_fit, 'period': period_fit, 'phi': phi_fit, 'offset': offset_fit},
-                                                                                    'seasonal_component_BEAST': seasonal_BEAST,
-                                                                                    'seasonal_component_BEAST_fourier': seasonal_BEAST_fourier,
-                                                                                    'amplitude_seasonal_BEAST': amplitude_seasonal_BEAST,
-                                                                                    'amplitude_seasonal_BEAST_absrange': amplitude_seasonal_BEAST_absrange,
-                                                                                    'seasonal_fit_BEAST': seasonal_fit_BEAST,
-                                                                                    'peaks_seasonal_BEAST': peaks_seasonal_BEAST,
-                                                                                    'peaks_seasonal_BEAST_fourier': peaks_seasonal_BEAST_fourier,
-                                                                                    'minima_seasonal_BEAST': minima_seasonal_BEAST,
-                                                                                    'minima_seasonal_BEAST_fourier': minima_seasonal_BEAST_fourier,
-                                                                                    'period_seasonal_BEAST': period_seasonal_BEAST,
-                                                                                    'period_seasonal_BEAST_fourier': period_seasonal_BEAST_fourier,
-                                                                                    'relation_indian_monsoon_BEAST': relation_indian_monsoon_BEAST,
-                                                                                    'behaviour_indian_monsoon_BEAST': behaviour_indian_monsoon_BEAST,
-                                                                                    'seasonality_indian_monsoon_peaks_BEAST': most_common_label_peaks_BEAST,
-                                                                                    'seasonality_indian_monsoon_minima_BEAST': most_common_label_minima_BEAST,
-                                                                                    'conditions_seasonality': {'condition_1': condition_1, 'condition_2': condition_2, 'condition_3': condition_3}, 
-                                                                                    'fit_curve_acf': {'x_new': x_new_acf, 'y_new': y_new_acf, 'rsquared': rsquared_, 'pvalue': pvalue_},                                                                             
-                                                                                    'fit_params_BEAST': {'A': A_fit_BEAST, 'k': k_fit_BEAST, 's': s_fit_BEAST, 'period': period_fit_BEAST, 'phi': phi_fit_BEAST, 'offset': offset_fit_BEAST}}
+        results_seasonality_dict = {'lags_acf': lags_acf,
+                                    'range_lags_acf': range_lags_acf,
+                                    'first_peak_acf': first_peak_acf,
+                                    'filtered_data_fourier': filtered_data_fourier,
+                                    'peaks_fourier': peaks_fourier,
+                                    'period_fourier': period_fourier,
+                                    'seasonal_component_STL': seasonal_STL,
+                                    'seasonal_component_STL_fourier': seasonal_STL_fourier,
+                                    'trend_fourier': trend_fourier,
+                                    'amplitude_seasonal_STL': amplitude_seasonal_STL,
+                                    'amplitude_seasonal_STL_absrange': amplitude_seasonal_STL_absrange,
+                                    'seasonal_fit_STL': seasonal_fit_STL,
+                                    'peaks_seasonal_STL': peaks_seasonal_STL,
+                                    'peaks_seasonal_STL_fourier': peaks_seasonal_STL_fourier,
+                                    'minima_seasonal_STL': minima_seasonal_STL,
+                                    'minima_seasonal_STL_fourier': minima_seasonal_STL_fourier,
+                                    'period_seasonal_STL': period_seasonal_STL,
+                                    'period_seasonal_STL_fourier': period_seasonal_STL_fourier,
+                                    'relation_indian_monsoon': relation_indian_monsoon,
+                                    'behaviour_indian_monsoon': behaviour_indian_monsoon,
+                                    'seasonality_indian_monsoon_peaks': most_common_label_peaks,
+                                    'seasonality_indian_monsoon_minima': most_common_label_minima,
+                                    'fit_params_STL': {'A': A_fit, 'k': k_fit, 's': s_fit, 'period': period_fit, 'phi': phi_fit, 'offset': offset_fit},
+                                    'seasonal_component_BEAST': seasonal_BEAST,
+                                    'seasonal_component_BEAST_fourier': seasonal_BEAST_fourier,
+                                    'amplitude_seasonal_BEAST': amplitude_seasonal_BEAST,
+                                    'amplitude_seasonal_BEAST_absrange': amplitude_seasonal_BEAST_absrange,
+                                    'seasonal_fit_BEAST': seasonal_fit_BEAST,
+                                    'peaks_seasonal_BEAST': peaks_seasonal_BEAST,
+                                    'peaks_seasonal_BEAST_fourier': peaks_seasonal_BEAST_fourier,
+                                    'minima_seasonal_BEAST': minima_seasonal_BEAST,
+                                    'minima_seasonal_BEAST_fourier': minima_seasonal_BEAST_fourier,
+                                    'period_seasonal_BEAST': period_seasonal_BEAST,
+                                    'period_seasonal_BEAST_fourier': period_seasonal_BEAST_fourier,
+                                    'relation_indian_monsoon_BEAST': relation_indian_monsoon_BEAST,
+                                    'behaviour_indian_monsoon_BEAST': behaviour_indian_monsoon_BEAST,
+                                    'seasonality_indian_monsoon_peaks_BEAST': most_common_label_peaks_BEAST,
+                                    'seasonality_indian_monsoon_minima_BEAST': most_common_label_minima_BEAST,
+                                    'conditions_seasonality': {'condition_1': condition_1, 'condition_2': condition_2, 'condition_3': condition_3}, 
+                                    'fit_curve_acf': {'x_new': x_new_acf, 'y_new': y_new_acf, 'rsquared': rsquared_, 'pvalue': pvalue_},                                                                             
+                                    'fit_params_BEAST': {'A': A_fit_BEAST, 'k': k_fit_BEAST, 's': s_fit_BEAST, 'period': period_fit_BEAST, 'phi': phi_fit_BEAST, 'offset': offset_fit_BEAST},
+                                    'full_results_BEAST': res_BEAST}
+
+        self.island_info['timeseries_analysis'][time_series_name]['seasonality'] = results_seasonality_dict
         
+        return results_seasonality_dict
+
     def test_stationarity(self, time_series, time_series_name):
 
         if self.verbose:
@@ -1051,9 +1060,10 @@ class TimeSeriesAnalysis:
         stationarity_result = result_consistent
 
         # Save in island_info
-        self.island_info['timeseries_analysis'][time_series_name]['stationarity'] = {'stationarity_result': stationarity_result}
+        results_stationarity_dict = {'stationarity_result': stationarity_result}
+        self.island_info['timeseries_analysis'][time_series_name]['stationarity'] = results_stationarity_dict
 
-        return stationarity_result
+        return results_stationarity_dict
 
     def plot_characterisation(self, time_series, time_series_name, transect):
         
@@ -1596,21 +1606,26 @@ class TimeSeriesAnalysis:
     def characterisation(self, time_series, time_series_name, transect):
 
         # Presence of trend
-        self.test_presence_of_trend(time_series, time_series_name)
+        results_trend_dict = self.test_presence_of_trend(time_series, time_series_name)
         # self.test_presence_of_trend.cache_clear()
 
         # Presence of seasonality
-        self.test_presence_of_seasonality(time_series, time_series_name)
+        results_seasonality_dict = self.test_presence_of_seasonality(time_series, time_series_name)
         # self.test_presence_of_seasonality.cache_clear()
 
         # Stationarity
-        self.test_stationarity(time_series, time_series_name)
+        results_stationarity_dict = self.test_stationarity(time_series, time_series_name)
+        
+        # Save results in island_info
+        dict_all_results = {'trend': results_trend_dict, 'seasonality': results_seasonality_dict, 'stationarity': results_stationarity_dict}
 
         # Plotting characterisation for this transect
         if self.plot_results_transect:
             # if transect in [10, 11]:
             print('Plotting characterisation')
             self.plot_characterisation(time_series, time_series_name, transect)
+        
+        return dict_all_results
 
     def main(self):
 
@@ -1643,8 +1658,28 @@ class TimeSeriesAnalysis:
                 if 'monthly' in self.island_info['timeseries_preprocessing']['optimal time period']['dict_timeseries'][time_series_name].keys():
                     time_series = self.island_info['timeseries_preprocessing']['optimal time period']['dict_timeseries'][time_series_name]['monthly'][time_series_name]
                 self.plot_results_transect = True
-                self.characterisation(time_series, time_series_name, self.transect_to_plot)
+                _ = self.characterisation(time_series, time_series_name, self.transect_to_plot)
                 return self.island_info
+
+            # If file with results already exists, load it
+            path_res_BEAST = os.path.join(os.getcwd(), 'data', 'coastsat_data', '{}_{}'.format(self.island, self.country), '{}_{}_results_BEAST.data'.format(self.island, self.country))
+            if os.path.exists(path_res_BEAST):
+                with open(path_res_BEAST, 'rb') as file:
+                    res_BEAST_dict = pickle.load(file)
+                
+                self.island_info['timeseries_analysis'] = res_BEAST_dict
+            
+            # Empty dictionary for results BEAST
+            else:
+                if 'timeseries_analysis' in self.island_info.keys():
+                    res_BEAST_dict = self.island_info['timeseries_analysis']
+                
+                else:
+                    res_BEAST_dict = {}
+            
+            # print(res_BEAST_dict)
+            # self.make_plots()
+            # return self.island_info
 
             # Iterate over transects
             for transect in tqdm(self.transects, desc='Transect', position=0):
@@ -1652,38 +1687,47 @@ class TimeSeriesAnalysis:
             # for transect in tqdm(np.arange(37, list(self.transects)[-1]+1)):
 
                 time_series_name = 'coastline_position_transect_{}_waterline'.format(transect)
-                if 'monthly' in self.island_info['timeseries_preprocessing']['optimal time period']['dict_timeseries'][time_series_name].keys():
-                    time_series = self.island_info['timeseries_preprocessing']['optimal time period']['dict_timeseries'][time_series_name]['monthly'][time_series_name]
+                time_series = self.island_info['timeseries_preprocessing']['optimal time period']['dict_coastline_timeseries'][time_series_name]
+                # if 'monthly' in self.island_info['timeseries_preprocessing']['optimal time period']['dict_timeseries'][time_series_name].keys():
+                #     time_series = self.island_info['timeseries_preprocessing']['optimal time period']['dict_timeseries'][time_series_name]['monthly'][time_series_name]
                 
-                else:
-                    continue
+                # else:
+                #     continue
                 
                 # Time series quality check
                 if len(time_series) < 30:
                     continue
-
-                print(len(time_series))
                 
                 # Initialise empty dictionary for time series analysis for this transect
                 if time_series_name not in self.island_info['timeseries_analysis'].keys():
                     self.island_info['timeseries_analysis'][time_series_name] = {}
                 
                 if not self.overwrite_transect:
-                    if 'seasonality' in self.island_info['timeseries_analysis'][time_series_name].keys():
-                        if 'conditions_seasonality' in self.island_info['timeseries_analysis'][time_series_name]['seasonality'].keys():
+                    if time_series_name in res_BEAST_dict.keys() and res_BEAST_dict[time_series_name] != {}:
                             continue
-                        else:
-                            self.island_info['timeseries_analysis'][time_series_name] = {}
+                    # if 'seasonality' in self.island_info['timeseries_analysis'][time_series_name].keys():
+                    #     if 'conditions_seasonality' in self.island_info['timeseries_analysis'][time_series_name]['seasonality'].keys():
+                    #         continue
+                        # else:
+                        #     self.island_info['timeseries_analysis'][time_series_name] = {}
                     else:
                         self.island_info['timeseries_analysis'][time_series_name] = {}
                 else:
                     self.island_info['timeseries_analysis'][time_series_name] = {}
                 
                 # Characterisation of the time series
-                self.characterisation(time_series, time_series_name, transect)
+                dict_all_results = self.characterisation(time_series, time_series_name, transect)
 
-                save_island_info(self.island_info)
+                # Populate dictionary with results BEAST
+                res_BEAST_dict[time_series_name] = dict_all_results
 
+                # Save dictionary
+                with open(path_res_BEAST, 'wb') as file:
+                    pickle.dump(res_BEAST_dict, file)
+
+                # save_island_info(self.island_info)
+
+            self.island_info['timeseries_analysis'] = res_BEAST_dict
             save_island_info(self.island_info)
 
             # Make plots for the whole island

@@ -982,6 +982,9 @@ class Segmentation:
 
         if np.char.startswith(self.settings_LS['inputs']['filepath'], 'C:\\Users\\mp222\\OneDrive - Imperial College London\\IslandTime\\IslandTime'):
             self.settings_LS['inputs']['filepath'] = self.settings_LS['inputs']['filepath'].replace('IslandTime', 'IslandTimeGitHub', 1)
+        
+        if np.char.startswith(self.settings_LS['inputs']['filepath'], 'C:\\Users\\mp222'):
+            self.settings_LS['inputs']['filepath'] = self.settings_LS['inputs']['filepath'].replace('C:\\Users\\mp222', 'C:\\Users\\myriampe', 1)
 
         # Loop through list of satellites
         for sat in self.list_sat:
@@ -1069,17 +1072,27 @@ class Segmentation:
                     if '{}-{}-{}_{}'.format(day, month, year, sat) in dict_polygons_ts.keys():
                         #print('continue because polygon has already been extracted')
                         continue
+
+                    # Skip if bad georef
+                    if sat == 'S2':
+                        if metadata[sat]['acc_georef'][idx_filename] != 'PASSED':
+                            print('skip because bad georef')
+                            continue
+                    elif sat == 'L8' or sat == 'L9':
+                        if metadata[sat]['acc_georef'][idx_filename] > 10.:
+                            print('skip because bad georef')
+                            continue
                     
                     # Next steps are taken from CoastSat
                     # Get file name
                     fn = SDS_tools.get_filenames(filename, filepath, sat)
 
                     # Retrieve information about image
-                    #try:
+                    # try:
                     im_ms, georef, cloud_mask, im_extra, im_QA, im_nodata = SDS_preprocess.preprocess_single(fn, sat, self.settings_LS['cloud_mask_issue'], self.settings_LS['pan_off'], 'C02')
 
-                    #except:
-                        #continue
+                    # except:
+                    #     continue
                     
                     # Compute cloud_cover percentage (with no data pixels)
                     cloud_cover_combined = np.divide(sum(sum(cloud_mask.astype(int))), (cloud_mask.shape[0] * cloud_mask.shape[1]))

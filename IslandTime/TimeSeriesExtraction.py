@@ -1734,7 +1734,7 @@ class TimeSeriesCoastSat(IslandTimeBase):
 
     def __init__(self, island, country, verbose_init=True, overwrite=False, date_range=['2010-01-01', '2023-12-31'], sat_list=['L8', 'L9', 'S2'], \
                  collection='C02', plot_results=False, distance_between_transects=5, length_transect=250, reference_shoreline_transects_only=False, \
-                 extract_shorelines=True, re_download=False, retrieve_reference_shoreline_manually=True):
+                 extract_shorelines=False, re_download=False, retrieve_reference_shoreline_manually=False):
         super().__init__(island, country, verbose_init, overwrite)
         self.date_range = date_range
         self.sat_list = sat_list
@@ -2364,7 +2364,8 @@ class TimeSeriesERA5(IslandTimeBase):
             _, transects = TimeSeriesCoastSat(self.island, self.country, verbose_init=False, reference_shoreline_transects_only=True).main()
 
         # Define cdsapi key
-        cds = cdsapi.Client(url="https://cds.climate.copernicus.eu/api/v2", key="200721:d13b27b3-32f8-4315-a9c0-e65dc3eb6fdd")
+        cds = cdsapi.Client(url="https://cds.climate.copernicus.eu/api", key="8fefa0e4-71a6-4e36-8650-aa844bcd3f76")
+        # cds = cdsapi.Client()
 
         # Query cdsapi request
         fl = cds.retrieve(
@@ -2412,7 +2413,7 @@ class TimeSeriesERA5(IslandTimeBase):
                     '2013', '2014', '2015',
                     '2016', '2017', '2018',
                     '2019', '2020', '2021',
-                    '2022'
+                    '2022', '2023'
                 ],
                 'month': [
                     '01', '02', '03',
@@ -2425,10 +2426,10 @@ class TimeSeriesERA5(IslandTimeBase):
         
         # Open file as xarray dataset
         with urllib.request.urlopen(fl.location) as f:
-            data_ERA5 = xr.open_dataset(f.read())
+            data_ERA5 = xr.open_dataset(f)
         
         with urllib.request.urlopen(fl_waves.location) as f:
-            data_ERA5_waves = xr.open_dataset(f.read())
+            data_ERA5_waves = xr.open_dataset(f)
 
         # Winds
         df_ERA5_winds = self.get_timeseries_winds(data_ERA5, transects)
@@ -3167,7 +3168,7 @@ def update_results_map(country, path_to_data=os.path.join(os.getcwd(), 'data', '
     # folium.TileLayer(tiles=tile_url, attr='ESRI', name='ESRI Satellite', overlay=True).add_to(map_seasonality_minima)
 
     # Read file for islands to ignore
-    df_islands_ignore = pd.read_excel('islands_to_ignore.xlsx')
+    df_islands_ignore = pd.read_excel('excel//islands_to_ignore.xlsx')
     list_islands_ignore = df_islands_ignore['Island'].values
 
     print('Updating results maps...')
@@ -3807,3 +3808,69 @@ def polygon_characteristics_map(path_to_data=os.path.join(os.getcwd(), 'data', '
 
     # Open the map in a web browser
     #webbrowser.open(os.path.join(os.getcwd(), 'maps', 'progress_island_mapping.html'))
+
+def check_last_date_download(island, country):
+    path_data = os.path.join(os.getcwd(), 'data', 'coastsat_data', '{}_{}'.format(island, country))
+
+    # S2, L8, L9
+    path_S2 = os.path.join(path_data, 'S2', 'ms')
+    path_L8 = os.path.join(path_data, 'L8', 'ms')
+    path_L9 = os.path.join(path_data, 'L9', 'ms')
+
+    if not os.path.exists(path_S2):
+        print('No Sentinel-2 data has been downloaded')
+    
+    else:
+        S2_files = os.listdir(path_S2)
+
+        # remove 'ms_bands.tif' files
+        S2_files = [f for f in S2_files if 'ms_bands' not in f]
+        S2_files = [f for f in S2_files if 'image.QA_PIXEL' not in f]
+
+        y_S2, m_S2, d_S2 = S2_files[-1].split('_')[0].split('-')[:3]
+        last_S2 = datetime.datetime(int(y_S2), int(m_S2), int(d_S2))  
+
+        if last_S2 > datetime.datetime(2023, 12, 1):
+            print('All Sentinel-2 data has been downloaded')
+        
+        else:
+            print('Last Sentinel-2 data: ', last_S2)  
+        
+
+    if not os.path.exists(path_L8):
+        print('No Landsat-8 data has been downloaded')
+    
+    else:
+        L8_files = os.listdir(path_L8)
+
+        # remove 'ms_bands.tif' files
+        L8_files = [f for f in L8_files if 'ms_bands' not in f]
+        L8_files = [f for f in L8_files if 'image.QA_PIXEL' not in f]
+
+        y_L8, m_L8, d_L8 = L8_files[-1].split('_')[0].split('-')[:3]
+        last_L8 = datetime.datetime(int(y_L8), int(m_L8), int(d_L8))
+
+        if last_L8 > datetime.datetime(2023, 12, 1):
+            print('All Landsat-8 data has been downloaded')
+        
+        else:
+            print('Last Landsat-8 data: ', last_L8)
+    
+    if not os.path.exists(path_L9):
+        print('No Landsat-9 data has been downloaded')
+    
+    else:
+        L9_files = os.listdir(path_L9)
+
+        # remove 'ms_bands.tif' files
+        L9_files = [f for f in L9_files if 'ms_bands' not in f]
+        L9_files = [f for f in L9_files if 'image.QA_PIXEL' not in f]
+
+        y_L9, m_L9, d_L9 = L9_files[-1].split('_')[0].split('-')[:3]
+        last_L9 = datetime.datetime(int(y_L9), int(m_L9), int(d_L9))
+
+        if last_L9 > datetime.datetime(2023, 12, 1):
+            print('All Landsat-9 data has been downloaded')
+        
+        else:
+            print('Last Landsat-9 data: ', last_L9)
