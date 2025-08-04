@@ -1,6 +1,0 @@
-filename	2016-10-09-05-37-12_S2_Hulhudhoo (South Maalhosmadulu)_Maldives_ms_dup1.tif
-epsg	32643
-acc_georef	PASSED
-image_quality	PASSED
-im_width	55
-im_height	54
