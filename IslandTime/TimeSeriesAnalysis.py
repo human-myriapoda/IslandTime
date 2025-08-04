@@ -39,7 +39,7 @@ import warnings
 from functools import lru_cache
 import os
 import pickle
-os.environ['PYDEVD_WARN_SLOW_RESOLVE_TIMEOUT'] = '1000'
+# os.environ['PYDEVD_WARN_SLOW_RESOLVE_TIMEOUT'] = '1000'
 
 warnings.filterwarnings('ignore')
 
@@ -266,7 +266,7 @@ class TimeSeriesAnalysis:
         return dict
 
     # @lru_cache(maxsize=128)
-    def test_presence_of_trend(self, time_series, time_series_name):
+    def test_presence_of_trend(self, time_series, time_series_name, res_BEAST_transect):
         
         if self.verbose:
             print('Checking for the presence of a TREND')
@@ -306,12 +306,12 @@ class TimeSeriesAnalysis:
         trend = res.trend
 
         # BEAST decomposition
-        try:
-            res_BEAST = rb.beast(time_series.values, start=[time_series.index[0].year, time_series.index[0].month, time_series.index[0].day], season='harmonic', deltat='1/12 year', period='1 year', quiet=True, print_progress=False)
-            trend_BEAST = res_BEAST.trend.Y
+        # try:
+        # res_BEAST = rb.beast(time_series.values, start=[time_series.index[0].year, time_series.index[0].month, time_series.index[0].day], season='harmonic', deltat='1/12 year', period='1 year', quiet=True, print_progress=True, hasOutliers=False)
+        trend_BEAST = res_BEAST_transect.trend.Y
         
-        except:
-            trend_BEAST = trend
+        # except:
+        #     trend_BEAST = trend
 
         # Assign consistent result to trend_result
         trend_result = result_consistent
@@ -405,6 +405,7 @@ class TimeSeriesAnalysis:
                                 'trend_fitted_line_BEAST': line_BEAST}
         
         self.island_info['timeseries_analysis'][time_series_name]['trend'] = results_trend_dict
+        self.island_info['timeseries_analysis'][time_series_name]['full_results_BEAST'] = res_BEAST_transect
 
         return results_trend_dict
 
@@ -645,12 +646,12 @@ class TimeSeriesAnalysis:
             ax.set_xlim(time_series.index[0], time_series.index[-1])
             ax.set_title('Name: {}'.format(time_series_name))
             plt.show()
-            plt.close(fig)
+            # plt.close(fig)
         
         return behaviour_indian_monsoon, most_common_label_peaks, most_common_label_minima
 
     # @lru_cache(maxsize=128)
-    def test_presence_of_seasonality(self, time_series, time_series_name):
+    def test_presence_of_seasonality(self, time_series, time_series_name, res_BEAST_transect):
 
         if self.verbose:
             print('Checking for the presence of SEASONALITY')
@@ -672,7 +673,10 @@ class TimeSeriesAnalysis:
         
         # BEAST decomposition
         # try:
-        res_BEAST = rb.beast(time_series.values, start=[time_series.index[0].year, time_series.index[0].month, time_series.index[0].day], season='harmonic', deltat='1/12 year', period='1 year', quiet=True, print_progress=False)
+        # print(time_series.values)
+        # print([time_series.index[0].year, time_series.index[0].month, time_series.index[0].day])
+        # res_BEAST = rb.beast(time_series.values, start=[time_series.index[0].year, time_series.index[0].month, time_series.index[0].day], season='harmonic', deltat='1/12 year', period='1 year', quiet=False, print_progress=True, maxMissingRate=0.30)
+        res_BEAST = res_BEAST_transect
         seasonal_BEAST =  res_BEAST.season.Y
 
         # Iterate over tests
@@ -687,13 +691,13 @@ class TimeSeriesAnalysis:
                 lags_acf = acf(time_series - res_BEAST.trend.Y, nlags=len(time_series)-1)
                 lags_acf_fit = acf(time_series - res_BEAST.trend.Y, nlags=50)
 
-                if len(time_series) < 50:
+                if len(time_series) <= 50:
                     lags_acf = lags_acf_fit
 
                 # Define range of lags
                 range_lags_acf = np.arange(0, len(time_series))
 
-                if len(time_series) < 50:
+                if len(time_series) <= 50:
                     range_lags_acf_fit = range_lags_acf
                 
                 else:
@@ -703,18 +707,18 @@ class TimeSeriesAnalysis:
                 initial_guess_acf = [1, 0, 12, 0, 0]  
 
                 # Fitting sinusoidal function to ACF
-                try:
-                    params_acf, pcov_acf = curve_fit(seasonal_function_fitting, xdata=range_lags_acf_fit, ydata=lags_acf_fit, p0=initial_guess_acf, maxfev=100000)
+                # try:
+                params_acf, pcov_acf = curve_fit(seasonal_function_fitting, xdata=range_lags_acf_fit, ydata=lags_acf_fit, p0=initial_guess_acf, maxfev=1000000)
                 
-                except:
-                    x_new_acf = None
-                    y_new_acf = None
-                    rsquared_ = None
-                    pvalue_ = None
-                    condition_1 = False
-                    condition_2 = False
-                    first_peak_acf = None
-                    continue
+                # except:
+                #     x_new_acf = None
+                #     y_new_acf = None
+                #     rsquared_ = None
+                #     pvalue_ = None
+                #     condition_1 = False
+                #     condition_2 = False
+                #     first_peak_acf = None
+                #     continue
 
                 # Define function for delta method
                 f = lambda param,x : param[0] * np.exp(param[1] * x) * np.sin(2 * np.pi / param[2] * x + param[3]) + param[4] 
@@ -832,12 +836,12 @@ class TimeSeriesAnalysis:
                 #     seasonal_BEAST = res.seasonal
 
                 # try:
-                res_fourier_BEAST = rb.beast(filtered_data_fourier, start=[time_series.index[0].year, time_series.index[0].month, time_series.index[0].day], season='harmonic', deltat='1/12 year', period='1 year', quiet=True, print_progress=False)
-                seasonal_BEAST_fourier =  res_fourier_BEAST.season.Y
+                # res_fourier_BEAST = rb.beast(filtered_data_fourier, start=[time_series.index[0].year, time_series.index[0].month, time_series.index[0].day], season='harmonic', deltat='1/12 year', period='1 year', quiet=True, print_progress=False)
+                # seasonal_BEAST_fourier =  res_fourier_BEAST.season.Y
                 
                 # except:
-                #     res_fourier_BEAST = res_fourier
-                #     seasonal_BEAST_fourier = res_fourier.seasonal
+                res_fourier_BEAST = res_fourier
+                seasonal_BEAST_fourier = res_fourier.seasonal
 
                 # Extract seasonal component and trend
                 seasonal_STL = res.seasonal
@@ -931,8 +935,12 @@ class TimeSeriesAnalysis:
                     period_seasonal_BEAST_fourier = stats.mode(np.diff(peaks_seasonal_BEAST_fourier)).mode
 
                     # Absolute range of amplitude
-                    if abs(amplitude_seasonal_BEAST) > 1e6:
+                    if 2*abs(amplitude_seasonal_BEAST) > 250:
                         amplitude_seasonal_BEAST_absrange = 0.
+                    
+                    elif 2*abs(amplitude_seasonal_BEAST) < 5:
+                        amplitude_seasonal_BEAST_absrange = 0.
+                        condition_1, condition_2, condition_3 = False, False, False
 
                     else:
                         amplitude_seasonal_BEAST_absrange = 2*np.abs(amplitude_seasonal_BEAST)
@@ -1004,8 +1012,8 @@ class TimeSeriesAnalysis:
                                     'seasonality_indian_monsoon_minima_BEAST': most_common_label_minima_BEAST,
                                     'conditions_seasonality': {'condition_1': condition_1, 'condition_2': condition_2, 'condition_3': condition_3}, 
                                     'fit_curve_acf': {'x_new': x_new_acf, 'y_new': y_new_acf, 'rsquared': rsquared_, 'pvalue': pvalue_},                                                                             
-                                    'fit_params_BEAST': {'A': A_fit_BEAST, 'k': k_fit_BEAST, 's': s_fit_BEAST, 'period': period_fit_BEAST, 'phi': phi_fit_BEAST, 'offset': offset_fit_BEAST},
-                                    'full_results_BEAST': res_BEAST}
+                                    'fit_params_BEAST': {'A': A_fit_BEAST, 'k': k_fit_BEAST, 's': s_fit_BEAST, 'period': period_fit_BEAST, 'phi': phi_fit_BEAST, 'offset': offset_fit_BEAST}
+                                    }
 
         self.island_info['timeseries_analysis'][time_series_name]['seasonality'] = results_seasonality_dict
         
@@ -1256,9 +1264,14 @@ class TimeSeriesAnalysis:
                 x_intersections.append(intersection.geoms[0].x)
                 y_intersections.append(intersection.geoms[0].y)
             
+            elif type(intersection) == shapely.geometry.collection.GeometryCollection:
+                x_intersections.append(None)
+                y_intersections.append(None)
+            
             elif type(intersection) == shapely.geometry.LineString:
                 x_intersections.append(None)
                 y_intersections.append(None)
+
             else:
                 x_intersections.append(intersection.x)
                 y_intersections.append(intersection.y)
@@ -1405,24 +1418,6 @@ class TimeSeriesAnalysis:
         
         fig_temp.savefig('figures//seasonality_BEAST//{}_{}_seasonality_BEAST.png'.format(self.island, self.country), dpi=300, bbox_inches='tight')
         # plt.close(fig_temp)
-
-
-        # # Let's also define the description of each category : 1 (blue) is Sea; 2 (red) is burnt, etc... Order should be respected here ! Or using another dict maybe could help.
-        # labels = np.array(dict_names_labels.values)
-        # len_lab = len(labels)
-
-        # # prepare normalizer
-        # # Prepare bins for the normalizer
-        # norm_bins = np.sort([*dict_colours_labels.keys()]) + 0.5
-        # norm_bins = np.insert(norm_bins, 0, np.min(norm_bins) - 1.0)
-        # print(norm_bins)
-        # # Make normalizer and formatter
-        # norm = matplotlib.colors.BoundaryNorm(norm_bins, len_lab, clip=True)
-        # fmt = matplotlib.ticker.FuncFormatter(lambda x, pos: labels[norm(x)])
-
-        # cb = fig.colorbar(cm, ax=ax_temp[0])
-        # plt.show()
-       
 
     def _create_aggretation_dict(self, dict_results):
 
@@ -1603,15 +1598,13 @@ class TimeSeriesAnalysis:
         # Save in island_info
         self.island_info['timeseries_aggregation'] = {'dict_results_agg_minima': dict_results_agg_minima, 'dict_results_agg_peaks': dict_results_agg_peaks}
 
-    def characterisation(self, time_series, time_series_name, transect):
+    def characterisation(self, time_series, time_series_name, transect, res_BEAST_transect):
 
         # Presence of trend
-        results_trend_dict = self.test_presence_of_trend(time_series, time_series_name)
-        # self.test_presence_of_trend.cache_clear()
+        results_trend_dict = self.test_presence_of_trend(time_series, time_series_name, res_BEAST_transect)
 
         # Presence of seasonality
-        results_seasonality_dict = self.test_presence_of_seasonality(time_series, time_series_name)
-        # self.test_presence_of_seasonality.cache_clear()
+        results_seasonality_dict = self.test_presence_of_seasonality(time_series, time_series_name, res_BEAST_transect)
 
         # Stationarity
         results_stationarity_dict = self.test_stationarity(time_series, time_series_name)
@@ -1627,7 +1620,14 @@ class TimeSeriesAnalysis:
         
         return dict_all_results
 
+    def initialise_time_series_analysis(self):
+        if 'timeseries_analysis' not in self.island_info.keys() or self.overwrite_all:
+            self.island_info['timeseries_analysis'] = {}
+
     def main(self):
+
+        # Initialise time series analysis
+        self.initialise_time_series_analysis()
 
         if self.plot_only and not self.overwrite:
             # Make plots for the whole island
@@ -1635,105 +1635,114 @@ class TimeSeriesAnalysis:
 
             return self.island_info
 
-        else:
+        # else:
         
-            if 'timeseries_analysis' in self.island_info.keys() and not self.overwrite:
-                return self.island_info
-
-            if not 'timeseries_analysis' in self.island_info.keys():
-                self.island_info['timeseries_analysis'] = {}
-            
-            if self.overwrite_all:
-                self.island_info['timeseries_analysis'] = {}
-        
-            print('\n-------------------------------------------------------------------')
-            print('Time series analysis')
-            print('Island:', ', '.join([self.island, self.country]))
-            print('-------------------------------------------------------------------\n')
-
-            if self.transect_to_plot is not None:
-
-                time_series_name = 'coastline_position_transect_{}_waterline'.format(self.transect_to_plot)
-
-                if 'monthly' in self.island_info['timeseries_preprocessing']['optimal time period']['dict_timeseries'][time_series_name].keys():
-                    time_series = self.island_info['timeseries_preprocessing']['optimal time period']['dict_timeseries'][time_series_name]['monthly'][time_series_name]
-                self.plot_results_transect = True
-                _ = self.characterisation(time_series, time_series_name, self.transect_to_plot)
-                return self.island_info
-
-            # If file with results already exists, load it
-            path_res_BEAST = os.path.join(os.getcwd(), 'data', 'coastsat_data', '{}_{}'.format(self.island, self.country), '{}_{}_results_BEAST.data'.format(self.island, self.country))
-            if os.path.exists(path_res_BEAST):
-                with open(path_res_BEAST, 'rb') as file:
-                    res_BEAST_dict = pickle.load(file)
-                
-                self.island_info['timeseries_analysis'] = res_BEAST_dict
-            
-            # Empty dictionary for results BEAST
-            else:
-                if 'timeseries_analysis' in self.island_info.keys():
-                    res_BEAST_dict = self.island_info['timeseries_analysis']
-                
-                else:
-                    res_BEAST_dict = {}
-            
-            # print(res_BEAST_dict)
-            # self.make_plots()
-            # return self.island_info
-
-            # Iterate over transects
-            for transect in tqdm(self.transects, desc='Transect', position=0):
-            # for transect in self.transects:
-            # for transect in tqdm(np.arange(37, list(self.transects)[-1]+1)):
-
-                time_series_name = 'coastline_position_transect_{}_waterline'.format(transect)
-                time_series = self.island_info['timeseries_preprocessing']['optimal time period']['dict_coastline_timeseries'][time_series_name]
-                # if 'monthly' in self.island_info['timeseries_preprocessing']['optimal time period']['dict_timeseries'][time_series_name].keys():
-                #     time_series = self.island_info['timeseries_preprocessing']['optimal time period']['dict_timeseries'][time_series_name]['monthly'][time_series_name]
-                
-                # else:
-                #     continue
-                
-                # Time series quality check
-                if len(time_series) < 30:
-                    continue
-                
-                # Initialise empty dictionary for time series analysis for this transect
-                if time_series_name not in self.island_info['timeseries_analysis'].keys():
-                    self.island_info['timeseries_analysis'][time_series_name] = {}
-                
-                if not self.overwrite_transect:
-                    if time_series_name in res_BEAST_dict.keys() and res_BEAST_dict[time_series_name] != {}:
-                            continue
-                    # if 'seasonality' in self.island_info['timeseries_analysis'][time_series_name].keys():
-                    #     if 'conditions_seasonality' in self.island_info['timeseries_analysis'][time_series_name]['seasonality'].keys():
-                    #         continue
-                        # else:
-                        #     self.island_info['timeseries_analysis'][time_series_name] = {}
-                    else:
-                        self.island_info['timeseries_analysis'][time_series_name] = {}
-                else:
-                    self.island_info['timeseries_analysis'][time_series_name] = {}
-                
-                # Characterisation of the time series
-                dict_all_results = self.characterisation(time_series, time_series_name, transect)
-
-                # Populate dictionary with results BEAST
-                res_BEAST_dict[time_series_name] = dict_all_results
-
-                # Save dictionary
-                with open(path_res_BEAST, 'wb') as file:
-                    pickle.dump(res_BEAST_dict, file)
-
-                # save_island_info(self.island_info)
-
-            self.island_info['timeseries_analysis'] = res_BEAST_dict
-            save_island_info(self.island_info)
-
-            # Make plots for the whole island
-            self.make_plots()
-
-            # Aggregate results
-            self.aggregate_results()
-
+        if 'timeseries_analysis' in self.island_info.keys() and not self.overwrite:
             return self.island_info
+
+        print('\n-------------------------------------------------------------------')
+        print('Time series analysis')
+        print('Island:', ', '.join([self.island, self.country]))
+        print('-------------------------------------------------------------------\n')
+
+        path_res_BEAST_only = os.path.join(os.getcwd(), 'data', 'coastsat_data', '{}_{}'.format(self.island, self.country), '{}_{}_results_BEAST_only.data'.format(self.island, self.country))
+        if os.path.exists(path_res_BEAST_only):
+            with open(path_res_BEAST_only, 'rb') as file:
+                res_BEAST_dict_only = pickle.load(file)
+
+        if self.transect_to_plot is not None:
+
+            time_series_name = 'coastline_position_transect_{}_waterline'.format(self.transect_to_plot)
+
+            # if 'monthly' in self.island_info['timeseries_preprocessing']['optimal time period']['dict_timeseries'][time_series_name].keys():
+                # time_series = self.island_info['timeseries_preprocessing']['optimal time period']['dict_timeseries'][time_series_name]['monthly'][time_series_name]
+                # print(time_series)
+            time_series = self.island_info['timeseries_preprocessing']['optimal time period']['dict_coastline_timeseries'][time_series_name]
+            res_BEAST_transect = res_BEAST_dict_only[time_series_name]
+            self.plot_results_transect = True
+
+            _ = self.characterisation(time_series, time_series_name, self.transect_to_plot, res_BEAST_transect)
+            save_island_info(self.island_info)
+            return self.island_info
+
+        # If file with results already exists, load it
+        path_res_BEAST = os.path.join(os.getcwd(), 'data', 'coastsat_data', '{}_{}'.format(self.island, self.country), '{}_{}_results_BEAST.data'.format(self.island, self.country))
+        
+        if os.path.exists(path_res_BEAST):
+            with open(path_res_BEAST, 'rb') as file:
+                try:
+                    res_BEAST_dict = pickle.load(file)
+                except:
+                    os.remove(path_res_BEAST)
+                    res_BEAST_dict = {}
+
+            # self.island_info['timeseries_analysis'] = res_BEAST_dict
+        
+        # Empty dictionary for results BEAST
+        else:
+            # if 'timeseries_analysis' in self.island_info.keys():
+            #     res_BEAST_dict = self.island_info['timeseries_analysis']
+            
+            # else:
+            res_BEAST_dict = {}
+        
+
+
+        self.island_info['timeseries_analysis'] = self.island_info.get('timeseries_analysis', {})
+        self.island_info['timeseries_analysis'] =  res_BEAST_dict
+
+        # Iterate over transects
+        for transect in tqdm(self.transects, desc='Transect'):
+        # for transect in self.transects:
+        # for transect in tqdm(np.arange(37, list(self.transects)[-1]+1)):
+
+            time_series_name = 'coastline_position_transect_{}_waterline'.format(transect)
+            if time_series_name not in self.island_info['timeseries_preprocessing']['optimal time period']['dict_coastline_timeseries'].keys():
+                print('Transect {} not in dictionary'.format(transect))
+                continue
+
+            time_series = self.island_info['timeseries_preprocessing']['optimal time period']['dict_coastline_timeseries'][time_series_name]
+
+            # Time series quality check
+            if len(time_series) < 25:
+                continue
+            
+            # Initialise empty dictionary for time series analysis for this transect
+            if time_series_name not in self.island_info['timeseries_analysis'].keys():
+                self.island_info['timeseries_analysis'][time_series_name] = {}
+            
+            if not self.overwrite_transect:
+                if time_series_name in res_BEAST_dict.keys() and res_BEAST_dict[time_series_name] != {}:
+                        continue
+                else:
+                    self.island_info['timeseries_analysis'][time_series_name] = {}
+            else:
+                self.island_info['timeseries_analysis'][time_series_name] = {}
+            
+            # BEAST results for this transect
+            if time_series_name in res_BEAST_dict_only.keys():
+                result_BEAST_transect = res_BEAST_dict_only[time_series_name]
+            
+            else:
+                continue
+            
+            # Characterisation of the time series
+            dict_all_results = self.characterisation(time_series, time_series_name, transect, result_BEAST_transect)
+
+            # Populate dictionary with results BEAST
+            res_BEAST_dict[time_series_name] = dict_all_results
+
+            # Save dictionary
+            with open(path_res_BEAST, 'wb') as file:
+                pickle.dump(res_BEAST_dict, file)
+
+        self.island_info['timeseries_analysis'] = res_BEAST_dict
+        save_island_info(self.island_info)
+
+        # Make plots for the whole island
+        self.make_plots()
+
+        # Aggregate results
+        # self.aggregate_results()
+
+        return self.island_info

@@ -32,7 +32,7 @@ from scipy import interpolate
 import matplotlib
 matplotlib.use("Qt5Agg")
 import matplotlib.pyplot as plt
-from coastsatmaster.coastsat import SDS_download, SDS_preprocess, SDS_shoreline, SDS_tools, SDS_transects
+from IslandTime.coastsatmaster.coastsat import SDS_download, SDS_preprocess, SDS_shoreline, SDS_tools, SDS_transects
 import geopy.distance
 import geopandas as gpd
 from wikidataintegrator import wdi_core
@@ -2267,9 +2267,9 @@ class TimeSeriesERA5(IslandTimeBase):
                                               method='nearest')
         
         # Take mean of expver
-        if 'expver' in list(data_ERA5.variables):
-            timeseries_u10 = timeseries_u10.mean(dim='expver')
-            timeseries_v10 = timeseries_v10.mean(dim='expver')
+        # if 'expver' in list(data_ERA5.variables):
+        #     timeseries_u10 = timeseries_u10.mean(dim='expver')
+        #     timeseries_v10 = timeseries_v10.mean(dim='expver')
         
         # Get wind speed (speed = sqrt(u^2 + v^2))
         timeseries_wind_speed = np.hypot(timeseries_u10, timeseries_v10)
@@ -2286,7 +2286,7 @@ class TimeSeriesERA5(IslandTimeBase):
                                       'wind_direction_true_10m': timeseries_wind_direction_true.values,
                                       'wind_u10': timeseries_u10.values,
                                       'wind_v10': timeseries_v10.values},
-                                      index=data_ERA5['time'])
+                                      index=data_ERA5['date'])
         
         # Create time series specific to each transect -> wind speed in the direction of the transect
         # Create wind vector
@@ -2307,7 +2307,7 @@ class TimeSeriesERA5(IslandTimeBase):
             # Dot product
             wind_speed_parallel_transect = np.dot(unit_transect_vector, wind_vector)
 
-            self.island_info['timeseries_{}'.format(self.acronym)]['timeseries_transect_specific'][transect] = pd.DataFrame({'wind_speed_parallel_transect': wind_speed_parallel_transect}, index=data_ERA5['time'])
+            self.island_info['timeseries_{}'.format(self.acronym)]['timeseries_transect_specific'][transect] = pd.DataFrame({'wind_speed_parallel_transect': wind_speed_parallel_transect}, index=data_ERA5['date'])
 
         return df_ERA5_winds
 
@@ -2321,9 +2321,9 @@ class TimeSeriesERA5(IslandTimeBase):
                                                         latitude=self.island_info['spatial_reference']['latitude'],
                                                         method='nearest')
         # Take mean of expver
-        if 'expver' in list(data_ERA5.variables):
-            wave_height = wave_height.mean(dim='expver')
-            wave_period = wave_period.mean(dim='expver')        
+        # if 'expver' in list(data_ERA5.variables):
+        #     wave_height = wave_height.mean(dim='expver')
+        #     wave_period = wave_period.mean(dim='expver')        
 
         # SI units
         rho =  1025 # kg/m^3
@@ -2336,7 +2336,7 @@ class TimeSeriesERA5(IslandTimeBase):
         wave_energy = wave_energy / 1000.
 
         # Create DataFrame
-        df_ERA5_wave_energy = pd.DataFrame({'wave_energy_of_{}'.format(name): wave_energy}, index=data_ERA5['time'])
+        df_ERA5_wave_energy = pd.DataFrame({'wave_energy_of_{}'.format(name): wave_energy}, index=data_ERA5['date'])
 
         return df_ERA5_wave_energy
 
@@ -2363,73 +2363,79 @@ class TimeSeriesERA5(IslandTimeBase):
         else:
             _, transects = TimeSeriesCoastSat(self.island, self.country, verbose_init=False, reference_shoreline_transects_only=True).main()
 
-        # Define cdsapi key
-        cds = cdsapi.Client(url="https://cds.climate.copernicus.eu/api", key="8fefa0e4-71a6-4e36-8650-aa844bcd3f76")
-        # cds = cdsapi.Client()
-
-        # Query cdsapi request
-        fl = cds.retrieve(
-            'reanalysis-era5-single-levels-monthly-means',
-            {
-                'format': 'netcdf',
-                'product_type': 'monthly_averaged_reanalysis',
-                'variable': ['10m_u_component_of_wind', '10m_v_component_of_wind',
-                             '2m_dewpoint_temperature', '2m_temperature', 
-                             'soil_temperature_level_1', 'total_precipitation',
-                             'evaporation', 'sea_surface_temperature', 'mean_sea_level_pressure',
-                ],
-                'time': '00:00',
-                'year': [
-                    '2010', '2011', '2012', 
-                    '2013', '2014', '2015',
-                    '2016', '2017', '2018',
-                    '2019', '2020', '2021',
-                    '2022'
-                ],
-                'month': [
-                    '01', '02', '03',
-                    '04', '05', '06',
-                    '07', '08', '09',
-                    '10', '11', '12',
-                ],
-                'area': area_country,
-            })
-
-        # Query cdsapi request
-        fl_waves = cds.retrieve(
-            'reanalysis-era5-single-levels-monthly-means',
-            {
-                'format': 'netcdf',
-                'product_type': 'monthly_averaged_reanalysis',
-                'variable': ['mean_direction_of_total_swell', 'mean_direction_of_wind_waves', 
-                             'mean_period_of_total_swell', 'mean_period_of_wind_waves', 
-                             'mean_wave_direction', 'mean_wave_period',
-                             'significant_height_of_combined_wind_waves_and_swell',
-                             'significant_height_of_total_swell', 'significant_height_of_wind_waves',
-                ],
-                'time': '00:00',
-                'year': [
-                    '2010', '2011', '2012', 
-                    '2013', '2014', '2015',
-                    '2016', '2017', '2018',
-                    '2019', '2020', '2021',
-                    '2022', '2023'
-                ],
-                'month': [
-                    '01', '02', '03',
-                    '04', '05', '06',
-                    '07', '08', '09',
-                    '10', '11', '12',
-                ],
-                'area': area_country,
-            })
+        if os.path.exists(os.path.join(os.getcwd(), 'data', 'cdsapi', 'cdsapi_climate.nc')):
+            data_ERA5 = xr.open_dataset(os.path.join(os.getcwd(), 'data', 'cdsapi', 'cdsapi_climate.nc'))
+            data_ERA5_waves = xr.open_dataset(os.path.join(os.getcwd(), 'data', 'cdsapi', 'cdsapi_waves.nc'))
         
-        # Open file as xarray dataset
-        with urllib.request.urlopen(fl.location) as f:
-            data_ERA5 = xr.open_dataset(f)
-        
-        with urllib.request.urlopen(fl_waves.location) as f:
-            data_ERA5_waves = xr.open_dataset(f)
+        else:
+
+            # Define cdsapi key
+            cds = cdsapi.Client(url="https://cds.climate.copernicus.eu/api", key="8fefa0e4-71a6-4e36-8650-aa844bcd3f76")
+            # cds = cdsapi.Client()
+
+            # Query cdsapi request
+            fl = cds.retrieve(
+                'reanalysis-era5-single-levels-monthly-means',
+                {
+                    'format': 'netcdf',
+                    'product_type': 'monthly_averaged_reanalysis',
+                    'variable': ['10m_u_component_of_wind', '10m_v_component_of_wind',
+                                '2m_dewpoint_temperature', '2m_temperature', 
+                                'soil_temperature_level_1', 'total_precipitation',
+                                'evaporation', 'sea_surface_temperature', 'mean_sea_level_pressure',
+                    ],
+                    'time': '00:00',
+                    'year': [
+                        '2010', '2011', '2012', 
+                        '2013', '2014', '2015',
+                        '2016', '2017', '2018',
+                        '2019', '2020', '2021',
+                        '2022'
+                    ],
+                    'month': [
+                        '01', '02', '03',
+                        '04', '05', '06',
+                        '07', '08', '09',
+                        '10', '11', '12',
+                    ],
+                    'area': area_country,
+                })
+
+            # Query cdsapi request
+            fl_waves = cds.retrieve(
+                'reanalysis-era5-single-levels-monthly-means',
+                {
+                    'format': 'netcdf',
+                    'product_type': 'monthly_averaged_reanalysis',
+                    'variable': ['mean_direction_of_total_swell', 'mean_direction_of_wind_waves', 
+                                'mean_period_of_total_swell', 'mean_period_of_wind_waves', 
+                                'mean_wave_direction', 'mean_wave_period',
+                                'significant_height_of_combined_wind_waves_and_swell',
+                                'significant_height_of_total_swell', 'significant_height_of_wind_waves',
+                    ],
+                    'time': '00:00',
+                    'year': [
+                        '2010', '2011', '2012', 
+                        '2013', '2014', '2015',
+                        '2016', '2017', '2018',
+                        '2019', '2020', '2021',
+                        '2022', '2023'
+                    ],
+                    'month': [
+                        '01', '02', '03',
+                        '04', '05', '06',
+                        '07', '08', '09',
+                        '10', '11', '12',
+                    ],
+                    'area': area_country,
+                })
+            
+            # Open file as xarray dataset
+            with urllib.request.urlopen(fl.location) as f:
+                data_ERA5 = xr.open_dataset(f)
+            
+            with urllib.request.urlopen(fl_waves.location) as f:
+                data_ERA5_waves = xr.open_dataset(f)
 
         # Winds
         df_ERA5_winds = self.get_timeseries_winds(data_ERA5, transects)
@@ -2440,7 +2446,7 @@ class TimeSeriesERA5(IslandTimeBase):
         df_ERA5_wave_energy_combined = self.get_timeseries_wave_energy(data_ERA5_waves, 'swh', 'mwp', 'combined_wind_waves_and_swell')
 
         # Create DataFrame and units dictionary
-        df_ERA5 = pd.DataFrame(index=data_ERA5['time'])
+        df_ERA5 = pd.DataFrame(index=data_ERA5['date'])
         units_ERA5 = {'wind_speed_10m': 'm/s',
                       'wind_direction_10m': 'degree',
                       'wind_direction_true_10m': 'degree true',
@@ -2450,7 +2456,7 @@ class TimeSeriesERA5(IslandTimeBase):
 
         # Loop in every remaining variable
         for var_ERA5 in (list(data_ERA5.variables) + list(data_ERA5_waves.variables)):
-            if var_ERA5 in ['longitude', 'latitude', 'time', 'expver', 'month_number', 'year', 'u10', 'v10', 'shts', 'mpts', 'shww', 'mpww', 'swh', 'mwp']:
+            if var_ERA5 in ['longitude', 'latitude', 'date', 'expver', 'month_number', 'year', 'u10', 'v10', 'shts', 'mpts', 'shww', 'mpww', 'swh', 'mwp', 'number']:
                 continue    
 
             if var_ERA5 in list(data_ERA5.variables):
@@ -2469,8 +2475,8 @@ class TimeSeriesERA5(IslandTimeBase):
                                                      method='nearest')
 
             # Take mean of expver (if needed)
-            if 'expver' in list(data_to_use.variables):
-                timeseries_var = timeseries_var.mean(dim='expver')
+            # if 'expver' in list(data_to_use.variables):
+            #     timeseries_var = timeseries_var.mean(dim='expver')
 
             df_ERA5[long_name_var] = timeseries_var
             units_ERA5[long_name_var] = unit
@@ -3147,7 +3153,7 @@ def update_results_map(country, path_to_data=os.path.join(os.getcwd(), 'data', '
 
     # Get latitude and longitude of the whole country
     # area = ox.geocode_to_gdf(country)
-    area = ox.geocode_to_gdf('Huvadhu Atoll, Maldives')
+    area = ox.geocode_to_gdf('Maldives')
     latitude_country = area['geometry'].centroid.y[0]
     longitude_country = area['geometry'].centroid.x[0]
     
@@ -3174,6 +3180,8 @@ def update_results_map(country, path_to_data=os.path.join(os.getcwd(), 'data', '
     print('Updating results maps...')
 
     for file in tqdm(os.listdir(path_to_data)):
+        if file == 'archives':
+            continue
         island = file.split('_')[1] 
         country = file.split('_')[2].split('.')[0]
 
@@ -3216,6 +3224,10 @@ def update_results_map(country, path_to_data=os.path.join(os.getcwd(), 'data', '
                         y_intersections.append(intersection.geoms[0].y)
 
                     elif type(intersection) == shapely.geometry.LineString:
+                        x_intersections.append(0.)
+                        y_intersections.append(0.)
+                    
+                    elif type(intersection) == shapely.geometry.collection.GeometryCollection:
                         x_intersections.append(0.)
                         y_intersections.append(0.)
 
@@ -3669,8 +3681,9 @@ def update_data_map(path_to_data=os.path.join(os.getcwd(), 'data', 'info_islands
 
     print('Updating the map with the progress of the islands...')
 
-    # Loop through all files
     for file in tqdm(os.listdir(path_to_data)):
+        if file == 'archives':
+            continue
         # Obtain island and country names
         island = file.split('_')[1] 
         country = file.split('_')[2].split('.')[0]
@@ -3695,27 +3708,64 @@ def update_data_map(path_to_data=os.path.join(os.getcwd(), 'data', 'info_islands
             desc.append('Results available')
         
         else:
-            if 'timeseries_coastsat' in island_info.keys():
-                if 'timeseries' in island_info['timeseries_coastsat'].keys():
+            file_poly = os.path.join(os.getcwd(), 'data', 'coastsat_data', '{}_{}'.format(island, country), 'all_polygons_{}_{}.data'.format(island, country))
+            if os.path.exists(file_poly):
+                try:
+                    data_poly = pd.read_pickle(file_poly)
+                    # data_poly = pickle.load(file_poly)
+                    if list(data_poly[0].keys())[-1].split('_')[0].split('-')[-1] == '2022':
+                        colors.append('pink')
+                        desc.append('Segmentation available')
+                    else:
+                        colors.append('green')
+                        desc.append('Satellite images available')
+                except:
                     colors.append('green')
                     desc.append('Satellite images available')
-                
-                else:
-                    if os.path.exists(os.path.join(os.getcwd(), 'data', 'coastsat_data', island+'_'+country)):
-                        colors.append('orange')
-                        desc.append('Satellite images are being downloaded')
             
             else:
-                if os.path.exists(os.path.join(os.getcwd(), 'data', 'coastsat_data', island+'_'+country)):
-                    colors.append('orange')
-                    desc.append('Satellite images are being downloaded')
-                
-                else:
+                try:
+                    last_date = check_last_date_download(island, country, verbose=False)
+
+                    if all(last_date):
+                        colors.append('green')
+                        desc.append('Satellite images available')
+
+                    else:
+                        if any(last_date):
+                            colors.append('orange')
+                            desc.append('Satellite images are being downloaded')
+                        else:
+                            colors.append('red')
+                            desc.append('No satellite images')
+
+                except:
                     colors.append('red')
                     desc.append('No satellite images')
 
+
+
+                # if 'timeseries_coastsat' in island_info.keys():
+                #     if 'timeseries' in island_info['timeseries_coastsat'].keys():
+                #         colors.append('green')
+                #         desc.append('Satellite images available')
+                    
+                #     else:
+                #         if os.path.exists(os.path.join(os.getcwd(), 'data', 'coastsat_data', island+'_'+country)):
+                #             colors.append('orange')
+                #             desc.append('Satellite images are being downloaded')
+                
+                # else:
+                #     if os.path.exists(os.path.join(os.getcwd(), 'data', 'coastsat_data', island+'_'+country)):
+                #         colors.append('orange')
+                #         desc.append('Satellite images are being downloaded')
+                    
+                #     else:
+                #         colors.append('red')
+                #         desc.append('No satellite images')
+
     # Create a base map
-    area = ox.geocode_to_gdf('Huvadhu Atoll, Maldives')
+    area = ox.geocode_to_gdf('Maldives')
     m = folium.Map(location=[area['geometry'].centroid.y[0], area['geometry'].centroid.x[0]], zoom_start=10)
     # m = folium.Map(location=[sum(latitude) / len(latitude), sum(longitude) / len(longitude)], zoom_start=5)
     tile_url = 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'
@@ -3809,7 +3859,7 @@ def polygon_characteristics_map(path_to_data=os.path.join(os.getcwd(), 'data', '
     # Open the map in a web browser
     #webbrowser.open(os.path.join(os.getcwd(), 'maps', 'progress_island_mapping.html'))
 
-def check_last_date_download(island, country):
+def check_last_date_download(island, country, verbose=True, year=2023):
     path_data = os.path.join(os.getcwd(), 'data', 'coastsat_data', '{}_{}'.format(island, country))
 
     # S2, L8, L9
@@ -3817,60 +3867,94 @@ def check_last_date_download(island, country):
     path_L8 = os.path.join(path_data, 'L8', 'ms')
     path_L9 = os.path.join(path_data, 'L9', 'ms')
 
+    sentinel_2_test = False
+    landsat_8_test = False
+    landsat_9_test = False
+
     if not os.path.exists(path_S2):
-        print('No Sentinel-2 data has been downloaded')
+        if verbose:
+            print('No Sentinel-2 data has been downloaded')
     
     else:
         S2_files = os.listdir(path_S2)
 
-        # remove 'ms_bands.tif' files
-        S2_files = [f for f in S2_files if 'ms_bands' not in f]
-        S2_files = [f for f in S2_files if 'image.QA_PIXEL' not in f]
+        if len(S2_files) == 0:
+            if verbose:
+                print('No Sentinel-2 data has been downloaded')
+            sentinel_2_test = False
 
-        y_S2, m_S2, d_S2 = S2_files[-1].split('_')[0].split('-')[:3]
-        last_S2 = datetime.datetime(int(y_S2), int(m_S2), int(d_S2))  
-
-        if last_S2 > datetime.datetime(2023, 12, 1):
-            print('All Sentinel-2 data has been downloaded')
-        
         else:
-            print('Last Sentinel-2 data: ', last_S2)  
-        
+            # remove 'ms_bands.tif' files
+            S2_files = [f for f in S2_files if 'ms_bands' not in f]
+            S2_files = [f for f in S2_files if 'image.QA_PIXEL' not in f]
 
+            y_S2, m_S2, d_S2 = S2_files[-1].split('_')[0].split('-')[:3]
+            last_S2 = datetime.datetime(int(y_S2), int(m_S2), int(d_S2))  
+
+            if last_S2 > datetime.datetime(year, 12, 1):
+                if verbose:
+                    print('All Sentinel-2 data has been downloaded')
+                sentinel_2_test = True
+            
+            else:
+                if verbose:
+                    print('Last Sentinel-2 data: ', last_S2)  
+        
     if not os.path.exists(path_L8):
-        print('No Landsat-8 data has been downloaded')
+        if verbose:
+            print('No Landsat-8 data has been downloaded')
     
     else:
         L8_files = os.listdir(path_L8)
 
-        # remove 'ms_bands.tif' files
-        L8_files = [f for f in L8_files if 'ms_bands' not in f]
-        L8_files = [f for f in L8_files if 'image.QA_PIXEL' not in f]
-
-        y_L8, m_L8, d_L8 = L8_files[-1].split('_')[0].split('-')[:3]
-        last_L8 = datetime.datetime(int(y_L8), int(m_L8), int(d_L8))
-
-        if last_L8 > datetime.datetime(2023, 12, 1):
-            print('All Landsat-8 data has been downloaded')
-        
+        if len(L8_files) == 0:
+            if verbose:
+                print('No Landsat-8 data has been downloaded')
+            landsat_8_test = False
         else:
-            print('Last Landsat-8 data: ', last_L8)
+            # remove 'ms_bands.tif' files
+            L8_files = [f for f in L8_files if 'ms_bands' not in f]
+            L8_files = [f for f in L8_files if 'image.QA_PIXEL' not in f]
+
+            y_L8, m_L8, d_L8 = L8_files[-1].split('_')[0].split('-')[:3]
+            last_L8 = datetime.datetime(int(y_L8), int(m_L8), int(d_L8))
+
+            if last_L8 > datetime.datetime(year, 12, 1):
+                if verbose:
+                    print('All Landsat-8 data has been downloaded')
+                landsat_8_test = True
+            
+            else:
+                if verbose:
+                    print('Last Landsat-8 data: ', last_L8)
     
     if not os.path.exists(path_L9):
-        print('No Landsat-9 data has been downloaded')
+        if verbose:
+            print('No Landsat-9 data has been downloaded')
     
     else:
         L9_files = os.listdir(path_L9)
 
-        # remove 'ms_bands.tif' files
-        L9_files = [f for f in L9_files if 'ms_bands' not in f]
-        L9_files = [f for f in L9_files if 'image.QA_PIXEL' not in f]
-
-        y_L9, m_L9, d_L9 = L9_files[-1].split('_')[0].split('-')[:3]
-        last_L9 = datetime.datetime(int(y_L9), int(m_L9), int(d_L9))
-
-        if last_L9 > datetime.datetime(2023, 12, 1):
-            print('All Landsat-9 data has been downloaded')
-        
+        if len(L9_files) == 0:
+            if verbose:
+                print('No Landsat-9 data has been downloaded')
+            landsat_9_test = False
         else:
-            print('Last Landsat-9 data: ', last_L9)
+
+            # remove 'ms_bands.tif' files
+            L9_files = [f for f in L9_files if 'ms_bands' not in f]
+            L9_files = [f for f in L9_files if 'image.QA_PIXEL' not in f]
+
+            y_L9, m_L9, d_L9 = L9_files[-1].split('_')[0].split('-')[:3]
+            last_L9 = datetime.datetime(int(y_L9), int(m_L9), int(d_L9))
+
+            if last_L9 > datetime.datetime(year, 12, 1):
+                if verbose:
+                    print('All Landsat-9 data has been downloaded')
+                landsat_9_test = True
+            
+            else:
+                if verbose:
+                    print('Last Landsat-9 data: ', last_L9)
+    
+    return sentinel_2_test, landsat_8_test, landsat_9_test

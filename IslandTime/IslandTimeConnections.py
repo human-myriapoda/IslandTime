@@ -73,7 +73,7 @@ class TimeSeriesConnections:
 
         return ax
 
-    def evaluate_granger_causality(self, ts_df_subset, ax, invert=False, max_lag=12, alpha=0.05):
+    def evaluate_granger_causality(self, ts_df_subset, ax, invert=False, max_lag=24, alpha=0.05):
 
         print('--- Evaluating Granger causality ---')
 
@@ -656,16 +656,24 @@ class TimeSeriesConnections:
 
         # Loop through all time series
         for idx_ts in range(len(ts_df_subset.columns)):
+
             ts = ts_df_subset[ts_df_subset.columns[idx_ts]]
 
             # Run BEAST
             o = rb.beast(ts, start=[ts.index[0].year, ts.index[0].month, ts.index[0].day], season='harmonic', deltat='1/12 year', period='1 year', quiet=True, print_progress=False)
             
             # Extract trend, seasonal and residual components
-            trend = o.trend.Y
-            seasonal = o.season.Y
-            residual = ts - trend - seasonal
-            detrended = ts - trend
+            if ts_df_subset.columns[idx_ts] == 'iod':
+                trend = o.data
+                seasonal = o.data
+                residual = o.data
+                detrended = o.data
+
+            else:
+                trend = o.trend.Y
+                seasonal = o.season.Y
+                residual = ts - trend - seasonal
+                detrended = ts - trend
 
             # Get differential results
             diff = ts.diff().dropna()
@@ -697,7 +705,7 @@ class TimeSeriesConnections:
 
         # Create DataFrame with time series
         ts_df = pd.DataFrame(self.dict_time_series)
-        # ts_df_trend, ts_df_seasonal, ts_df_residual, ts_df_diff, ts_df_detrended = self.time_series_decomposition_BEAST(ts_df)
+        ts_df_trend, ts_df_seasonal, ts_df_residual, ts_df_diff, ts_df_detrended = self.time_series_decomposition_BEAST(ts_df)
 
         # Create all possible combinations of time series
         combinations = list(itertools.combinations(self.dict_time_series.keys(), 2))
@@ -730,26 +738,32 @@ class TimeSeriesConnections:
 
                 # Evaluate correlation and cross-correlation
                 index_fig = 1
-                axs[index_fig], dict_results_temp['correlation_lag_0'] = self.evaluate_correlation(ts_subset_dict['raw'], axs[index_fig])
+                axs[index_fig], dict_results_temp['correlation_lag_0'] = self.evaluate_correlation(ts_subset_dict['trend'], axs[index_fig])
+                # axs[index_fig], dict_results_temp['correlation_lag_0'] = self.evaluate_correlation(ts_subset_dict['raw'], axs[index_fig])
                 index_fig += 1
-                axs[index_fig], dict_results_temp['cross_correlation'] = self.evaluate_cross_correlation(ts_subset_dict['raw'], axs[index_fig])
+                axs[index_fig], dict_results_temp['cross_correlation'] = self.evaluate_cross_correlation(ts_subset_dict['trend'], axs[index_fig])
+                # axs[index_fig], dict_results_temp['cross_correlation'] = self.evaluate_cross_correlation(ts_subset_dict['raw'], axs[index_fig])
                 index_fig += 1
 
                 # Plot lagged correlation for significant lags from cross-correlation
                 for lag_type in ['first_significant_pos', 'first_significant_neg']:
                     lag_value = dict_results_temp['cross_correlation'][lag_type]
                     if lag_value is not np.nan:
-                        axs[index_fig], dict_results_temp[f'correlation_lag_{lag_value}'] = self.evaluate_correlation(ts_subset_dict['raw'], axs[index_fig], lag=lag_value)
+                        # axs[index_fig], dict_results_temp[f'correlation_lag_{lag_value}'] = self.evaluate_correlation(ts_subset_dict['raw'], axs[index_fig], lag=lag_value)
+                        axs[index_fig], dict_results_temp[f'correlation_lag_{lag_value}'] = self.evaluate_correlation(ts_subset_dict['trend'], axs[index_fig], lag=lag_value)
                         index_fig += 1
 
                 # Evaluate cointegration on the trend components
                 axs[index_fig], dict_results_temp['cointegration_trends'] = self.evaluate_cointegration(ts_subset_dict['trend'], axs[index_fig])
+                # axs[index_fig], dict_results_temp['cointegration_trends'] = self.evaluate_cointegration(ts_subset_dict['raw'], axs[index_fig])
                 index_fig += 1
 
                 # Evaluate Granger causality in both directions
                 axs[index_fig], dict_results_temp[f'grangercausality_{ts2} -> {ts1}'] = self.evaluate_granger_causality(ts_subset_dict['diff'], axs[index_fig])
+                # axs[index_fig], dict_results_temp[f'grangercausality_{ts2} -> {ts1}'] = self.evaluate_granger_causality(ts_subset_dict['trend'], axs[index_fig])
                 index_fig += 1
-                axs[index_fig], dict_results_temp[f'grangercausality_{ts1} -> {ts2}'] = self.evaluate_granger_causality(ts_subset_dict['residual'], axs[index_fig], invert=True)
+                # axs[index_fig], dict_results_temp[f'grangercausality_{ts1} -> {ts2}'] = self.evaluate_granger_causality(ts_subset_dict['trend'], axs[index_fig], invert=True)
+                axs[index_fig], dict_results_temp[f'grangercausality_{ts1} -> {ts2}'] = self.evaluate_granger_causality(ts_subset_dict['diff'], axs[index_fig], invert=True)
                 index_fig += 1
 
                 # Evaluate spectral similarity
@@ -767,7 +781,8 @@ class TimeSeriesConnections:
                     dict_results_temp['mutual_information'] = {'mutual_information': np.nan}
 
                 # Evaluate dynamic time warping
-                axs[index_fig], dict_results_temp['dynamic_time_warping_seasonal'] = self.evaluate_dynamic_time_warping(ts_subset_dict['seasonal'], axs[index_fig])
+                # axs[index_fig], dict_results_temp['dynamic_time_warping_seasonal'] = self.evaluate_dynamic_time_warping(ts_subset_dict['seasonal'], axs[index_fig])
+                axs[index_fig], dict_results_temp['dynamic_time_warping_seasonal'] = self.evaluate_dynamic_time_warping(ts_subset_dict['trend'], axs[index_fig])
                 index_fig += 1
                 axs[index_fig], dict_results_temp['dynamic_time_warping'] = self.evaluate_dynamic_time_warping(ts_subset_dict['raw'], axs[index_fig], seasonal=False)
 

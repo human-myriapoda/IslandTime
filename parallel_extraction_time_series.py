@@ -1,4 +1,4 @@
-from IslandTime import Workflow, retrieve_island_info, TimeSeriesCoastSat
+from IslandTime import Workflow, retrieve_island_info, TimeSeriesCoastSat, check_last_date_download
 import multiprocessing
 import concurrent.futures
 import numpy as np
@@ -43,7 +43,7 @@ def get_last_ms_date(path):
         elif int(date_last_file[1]) == 2 and int(date_last_file[2]) == 28:
             return datetime.datetime(int(date_last_file[0]), int(date_last_file[1])+1, 1)
         else:
-            datetime.datetime(int(date_last_file[0]), int(date_last_file[1]), int(date_last_file[2])+1)
+            return datetime.datetime(int(date_last_file[0]), int(date_last_file[1]), int(date_last_file[2])+1)
 
     return None
 
@@ -69,6 +69,8 @@ downloaded, partially_downloaded, not_downloaded = [], [], []
 
 # Loop in every file
 for file in os.listdir(path_to_data):
+    if file == 'archives':
+        continue
     island = file.split('_')[1]
     country = file.split('_')[2].split('.')[0]
     # if island not in ['Bodu', 'Kanufusheegaathufinolhu', 'Ufuligiri', 'B.Kudadhoo']:
@@ -78,38 +80,38 @@ for file in os.listdir(path_to_data):
         island_info = retrieve_island_info(island, country, verbose=False)
     
     except:
+        print(island)
         continue
 
     # Check if island has been downloaded
     if 'timeseries_analysis' in island_info.keys():
         continue
 
-    if 'timeseries_coastsat' in island_info.keys():
-        if 'timeseries' in island_info['timeseries_coastsat'].keys():
-            if all([sat in os.listdir(os.path.join(os.getcwd(), 'data', 'coastsat_data', '{}_{}'.format(island, country))) for sat in ['S2', 'L8', 'L9']]):
-                downloaded.append(island)
-            else:
-                partially_downloaded.append(island)
-        
-        else:
-            if os.path.exists(os.path.join(os.getcwd(), 'data', 'coastsat_data', island+'_'+country)):
-                partially_downloaded.append(island)
-    
     else:
-        if os.path.exists(os.path.join(os.getcwd(), 'data', 'coastsat_data', island+'_'+country)):
-            partially_downloaded.append(island)
+        try:
+            test = check_last_date_download(island, country, year=2022, verbose=False)
+        except:
+            print(island)
+            continue
+        if all(test):
+            downloaded.append(island)
         
+        # at least one False
         else:
-            not_downloaded.append(island)
+            if any(test):
+                partially_downloaded.append(island)
+            
+            else:
+                not_downloaded.append(island)
 
 # Create batch of islands to download
-batch_size = 3
+batch_size = 15
 dict_batch = {}
 country = 'Maldives'
 batch_partially_downloaded = False
 
 # Prioritise islands that have been partially downloaded
-if len(partially_downloaded) > 500:
+if len(partially_downloaded) > batch_size:
     batch_partially_downloaded = True
 
     if len(partially_downloaded) < batch_size:
@@ -121,6 +123,9 @@ if len(partially_downloaded) > 500:
     for arg in batch:
         dict_batch[arg] = {}
         path_coastsat_data = os.path.join(os.getcwd(), 'data', 'coastsat_data', '{}_{}'.format(arg, country))
+
+        if not os.path.exists(path_coastsat_data):
+            continue
 
         if 'L8' in os.listdir(path_coastsat_data):
             dict_batch = check_and_update_dict(arg, country, 'L8', dict_batch)
@@ -156,7 +161,7 @@ if len(partially_downloaded) > 500:
                 'sat_list': ['S2'],
                 'date_range': ['2010-01-01', '2023-12-31']
             }
-            continue 
+            continue
     
     # Create tuple of arguments
     tuple_args = []
@@ -173,7 +178,7 @@ else:
 
 # Main function
 if __name__ == '__main__':
-    num_cores = 8  # Adjust based on your system capabilities
+    num_cores = 60  # Adjust based on your system capabilities
 
     if batch_partially_downloaded:
         with multiprocessing.Pool(processes=num_cores) as pool:

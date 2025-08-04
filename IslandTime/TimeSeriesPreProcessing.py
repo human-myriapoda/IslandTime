@@ -72,8 +72,12 @@ class PreProcessing:
             if timeseries.empty:
                 continue
             
-            if timeseries.index.tzinfo is None:
-                timeseries.index = [pytz.utc.localize(timeseries.index[i]) for i in range(len(timeseries.index))]
+            # if timeseries.index.tzinfo is None:
+            #     timeseries.index = [pytz.utc.localize(timeseries.index[i]) for i in range(len(timeseries.index))]
+            
+            timeseries.index = pd.to_datetime(timeseries.index, errors='coerce')
+            if timeseries.index.tz is None:
+                timeseries.index = timeseries.index.tz_localize(pytz.UTC)
         
         # Combine them in one DataFrame
         df_timeseries = pd.concat(list_timeseries, axis=0)

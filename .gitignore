@@ -1,7 +1,6 @@
 data/
 excel/
 bash/
-info_islands
 figures/
 coastsat_data/
 cache/
@@ -9,13 +8,15 @@ maps/
 tests/
 test/
 shp/
-coastsatmaster/
+shp_atolls/
 coastsat/
 archives/
 info_copernicus/
 gif/
 geojson/
 old_jupyter_notebooks/
+.vscode/
+jupyter/
 _pycache_
 *.png
 *.nc
@@ -38,3 +39,4 @@ _pycache_
 *.pyc
 *.gif
 *.data
+*.ipynb

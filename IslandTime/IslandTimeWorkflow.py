@@ -43,7 +43,12 @@ class Workflow:
             self.island_info = self.extract_time_series(verbose=False)
 
         # Extract coastline time series data using Segmentation
-        self.island_info = Segmentation(self.island_info, find_polygons=self.small_island, plot_all=False, time_series_only=False, animation_polygons=False).main()
+        self.island_info = Segmentation(self.island_info, 
+                                        find_polygons=self.small_island, 
+                                        plot_all=False, 
+                                        time_series_only=False, 
+                                        animation_polygons=False, 
+                                        segmentation_only=False).main()
 
         # Save island_info
         save_island_info(self.island_info)
@@ -56,8 +61,10 @@ class Workflow:
         if self.island_info is None:
             self.island_info = self.extract_time_series(verbose=False)
             
+            
         # Pre-process time series data
-        self.island_info = PreProcessing(self.island_info, overwrite=self.overwrite_preprocess).main()
+        self.island_info = PreProcessing(self.island_info, 
+                                         overwrite=self.overwrite_preprocess).main()
 
         # Save island_info
         save_island_info(self.island_info)
@@ -71,7 +78,14 @@ class Workflow:
             self.island_info = self.extract_time_series(verbose=False)
 
         # Time series analysis
-        self.island_info = TimeSeriesAnalysis(self.island_info, overwrite=self.overwrite_analysis, plot_results_transect=False, plot_only=True, overwrite_transect=False, transect_to_plot=None, overwrite_all=False).main()
+        self.island_info = TimeSeriesAnalysis(self.island_info, 
+                                              overwrite=self.overwrite_analysis, 
+                                              plot_results_transect=False, 
+                                              plot_only=False, 
+                                              overwrite_transect=False, 
+                                              transect_to_plot=None, 
+                                              overwrite_all=False, 
+                                              n_seasonality=3).main()
 
         # Save island_info
         save_island_info(self.island_info)
@@ -84,7 +98,7 @@ class Workflow:
         self.extract_time_series()
 
         # Extract island metrics
-        self.island_metrics()
+        # self.island_metrics()
 
         # Extract coastline time series data using Segmentation
         if self.execute_segmentation:

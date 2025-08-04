@@ -38,7 +38,9 @@ matplotlib.rcParams['mathtext.fontset'] = 'stix'
 matplotlib.rcParams['font.family'] = 'STIXGeneral'
 
 class Segmentation:
-    def __init__(self, island_info, list_sat=['S2', 'L8', 'L9'], generate_unsupervised_classification=False, overwrite=False, save=True, plot_results=False, plot_all=False, find_polygons=True, time_series_only=False, animation_polygons=False):
+    def __init__(self, island_info, list_sat=['S2', 'L8', 'L9'], generate_unsupervised_classification=False, 
+                 overwrite=False, save=True, plot_results=False, plot_all=False, find_polygons=True, 
+                 time_series_only=False, animation_polygons=False, segmentation_only=True):
         self.island_info = island_info
         self.list_sat = list_sat
         self.generate_unsupervised_classification = generate_unsupervised_classification
@@ -49,6 +51,7 @@ class Segmentation:
         self.find_polygons = find_polygons
         self.time_series_only = time_series_only
         self.animation_polygons = animation_polygons
+        self.segmentation_only = segmentation_only
 
         # Extract relevant information from island_info
         self.island = self.island_info['general_info']['island']
@@ -554,8 +557,15 @@ class Segmentation:
         # Remove nan values
         im_no_nan = im_no_nan[~np.isnan(im_no_nan)]
 
-        f_otsu_two_classes = threshold_multiotsu(im_no_nan, classes=2)
-
+        if im_no_nan.size == 0:
+            return None, None, None, None
+        
+        try:
+            f_otsu_two_classes = threshold_multiotsu(im_no_nan, classes=2)
+        
+        except:
+            f_otsu_two_classes = threshold_multiotsu(im_no_nan, classes=1)
+        
         # Histogram of pixel values
         X_minima, X_peaks, X, histogram_distribution = self._histogram_pixel_values(im_no_nan, ax=ax3, plot_results=plot_results, method='smoothing')
 
@@ -641,6 +651,9 @@ class Segmentation:
         # Empty lists
         polygons_coi = []
         thresholds_coi = []
+
+        if polygons_dict is None:
+            return np.array(polygons_coi), np.array(thresholds_coi)
 
         # Loop over thresholds
         for key in polygons_dict.keys():
@@ -977,14 +990,24 @@ class Segmentation:
         with open(os.path.join(os.getcwd(), 'data', 'coastsat_data', '{}_{}'.format(self.island, self.country), '{}_{}_metadata.pkl'.format(self.island, self.country)), 'rb') as f:
             metadata = pickle.load(f)
         
-        if np.char.startswith(self.settings_LS['inputs']['filepath'], 'c:\\Users\\mp222\\OneDrive - Imperial College London\\IslandTime\\IslandTime'):
-            self.settings_LS['inputs']['filepath'] = self.settings_LS['inputs']['filepath'].replace('IslandTime', 'IslandTimeGitHub', 1)
+        # if np.char.startswith(self.settings_LS['inputs']['filepath'], 'c:\\Users\\mp222\\OneDrive - Imperial College London\\IslandTimeGitHub\\IslandTime'):
+        #     self.settings_LS['inputs']['filepath'] = self.settings_LS['inputs']['filepath'].replace('c:\\Users\\mp222\\OneDrive - Imperial College London\\IslandTimeGitHub\\IslandTime', 'c:\\Users\\mp222\\OneDrive - Imperial College London\\IslandTimeGitHub', 1)
 
-        if np.char.startswith(self.settings_LS['inputs']['filepath'], 'C:\\Users\\mp222\\OneDrive - Imperial College London\\IslandTime\\IslandTime'):
-            self.settings_LS['inputs']['filepath'] = self.settings_LS['inputs']['filepath'].replace('IslandTime', 'IslandTimeGitHub', 1)
+        # if np.char.startswith(self.settings_LS['inputs']['filepath'], 'c:\\Users\\mp222\\OneDrive - Imperial College London\\IslandTime\\IslandTime'):
+        # if np.char.startswith(self.settings_LS['inputs']['filepath'], 'c:\\Users\\mp222\\OneDrive - Imperial College London\\IslandTime'):
+            # self.settings_LS['inputs']['filepath'] = self.settings_LS['inputs']['filepath'].replace('IslandTime', 'IslandTimeGitHub', 1)
+
+        # if np.char.startswith(self.settings_LS['inputs']['filepath'], 'C:\\Users\\mp222\\OneDrive - Imperial College London\\IslandTime\\IslandTime'):
+        # if np.char.startswith(self.settings_LS['inputs']['filepath'], 'C:\\Users\\mp222\\OneDrive - Imperial College London\\IslandTime'):
+            # self.settings_LS['inputs']['filepath'] = self.settings_LS['inputs']['filepath'].replace('IslandTime', 'IslandTimeGitHub', 1)
         
-        if np.char.startswith(self.settings_LS['inputs']['filepath'], 'C:\\Users\\mp222'):
-            self.settings_LS['inputs']['filepath'] = self.settings_LS['inputs']['filepath'].replace('C:\\Users\\mp222', 'C:\\Users\\myriampe', 1)
+        # if np.char.startswith(self.settings_LS['inputs']['filepath'], 'C:\\Users\\mp222'):
+        #     self.settings_LS['inputs']['filepath'] = self.settings_LS['inputs']['filepath'].replace('C:\\Users\\mp222', 'C:\\Users\\myriampe', 1)
+        if np.char.startswith(self.settings_LS['inputs']['filepath'], 'c:\\Users\\myriampe'):
+            self.settings_LS['inputs']['filepath'] = self.settings_LS['inputs']['filepath'].replace('c:\\Users\\myriampe', 'c:\\Users\\mp222', 1)
+
+        if np.char.startswith(self.settings_LS['inputs']['filepath'], 'C:\\Users\\myriampe'):
+            self.settings_LS['inputs']['filepath'] = self.settings_LS['inputs']['filepath'].replace('C:\\Users\\myriampe', 'C:\\Users\\mp222', 1)
 
         # Loop through list of satellites
         for sat in self.list_sat:
@@ -1088,11 +1111,11 @@ class Segmentation:
                     fn = SDS_tools.get_filenames(filename, filepath, sat)
 
                     # Retrieve information about image
-                    # try:
-                    im_ms, georef, cloud_mask, im_extra, im_QA, im_nodata = SDS_preprocess.preprocess_single(fn, sat, self.settings_LS['cloud_mask_issue'], self.settings_LS['pan_off'], 'C02')
+                    try:
+                        im_ms, georef, cloud_mask, im_extra, im_QA, im_nodata = SDS_preprocess.preprocess_single(fn, sat, self.settings_LS['cloud_mask_issue'], self.settings_LS['pan_off'], 'C02')
 
-                    # except:
-                    #     continue
+                    except:
+                        print(fn)
                     
                     # Compute cloud_cover percentage (with no data pixels)
                     cloud_cover_combined = np.divide(sum(sum(cloud_mask.astype(int))), (cloud_mask.shape[0] * cloud_mask.shape[1]))
@@ -1178,6 +1201,7 @@ class Segmentation:
                                                                                                          plot_results=self.plot_all, 
                                                                                                          animation=False,
                                                                                                          find_polygons=self.find_polygons)
+
                     list_dict_polygons_segmented.append(dict_polygons_segmented)
                 
                 # Find optimal polygon
@@ -1305,7 +1329,8 @@ class Segmentation:
 
         # Transform polygons to image crs and calculate position on transect
         fig, ax = plt.subplots(figsize=(15, 10))
-        kk = 5
+        kk = 120
+        print(list(dict_georef.keys())[kk])
         georef = dict_georef[list(dict_georef.keys())[kk]]
         rgb_image = dict_rgb_ts[list(dict_rgb_ts.keys())[kk]]
         ax.imshow(self._image_stretch(rgb_image), extent=[georef[0], georef[0] + georef[1] * rgb_image.shape[1], georef[3] + georef[5] * rgb_image.shape[0], georef[3]])
@@ -1323,8 +1348,13 @@ class Segmentation:
             key_to_name = dict_best_polygons[key]
             polygon = dict_poly[key][dict_names[key_to_name]]
 
-            #if key.split('_')[1] == 'S2':
-                #continue
+            # if key.split('_')[1] == 'L9':
+            #     print('L9')
+            #     continue
+                
+            # if key.split('_')[1] == 'L8':
+            #     print('L9')
+            #     continue            
 
             if polygon is None:
                 #print('continue because polygon is None')
@@ -1336,7 +1366,7 @@ class Segmentation:
             # Get image epsg
             image_epsg = dict_image_epsg[key]
             rgb_image = dict_rgb_ts[key]
-            georef = dict_georef[key]
+            georef_image = dict_georef[key]
 
             # Define projection
             src_crs = pyproj.CRS('EPSG:3857')
@@ -1491,7 +1521,11 @@ class Segmentation:
         print('-------------------------------------------------------------------\n')
 
         # 1. Extract polygons
+        print('extracting polygons')
         dict_polygons_ts, dict_rgb_ts, dict_georef_ts, dict_image_epsg_ts = self.extract_polygons()
+
+        if self.segmentation_only:
+            return self.island_info
 
         # 2. Best polygons (user)
         dict_best_polygons = self.find_best_polygons(dict_polygons_ts, dict_rgb_ts)
