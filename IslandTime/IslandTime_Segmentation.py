@@ -26,7 +26,7 @@ from matplotlib.widgets import Button
 from tqdm import tqdm
 import pickle
 import os
-from coastsatmaster.coastsat import SDS_preprocess, SDS_tools
+from IslandTime.coastsatmaster.coastsat import SDS_preprocess, SDS_tools
 from xml.dom import minidom
 from osgeo import gdal, osr
 from arosics import COREG
@@ -40,7 +40,7 @@ matplotlib.rcParams['font.family'] = 'STIXGeneral'
 class Segmentation:
     def __init__(self, island_info, list_sat=['S2', 'L8', 'L9'], generate_unsupervised_classification=False, 
                  overwrite=False, save=True, plot_results=False, plot_all=False, find_polygons=True, 
-                 time_series_only=False, animation_polygons=False, segmentation_only=True):
+                 time_series_only=False, animation_polygons=False, segmentation_only=False):
         self.island_info = island_info
         self.list_sat = list_sat
         self.generate_unsupervised_classification = generate_unsupervised_classification
