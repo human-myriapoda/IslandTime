@@ -1,0 +1,6 @@
+filename	2022-05-22-05-25-10_L8_Hulhudhoo (South Maalhosmadulu)_Maldives_ms.tif
+epsg	32643
+acc_georef	8.227
+image_quality	9
+im_width	31
+im_height	30
