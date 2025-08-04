@@ -7,7 +7,7 @@ Author: Myriam Prasow-Emond, Department of Earth Science and Engineering, Imperi
 # Import modules
 import warnings
 warnings.filterwarnings('ignore')
-from IslandTime import plot_shoreline_transects, save_island_info
+from IslandTime import plot_shoreline_transects, save_island_info, retrieve_island_info
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy import stats
@@ -1327,7 +1327,8 @@ class TimeSeriesAnalysis:
         ax[1, 1].set_title('Seasonality minimum period', fontsize=15)
         fig.suptitle('Island: {}, {}'.format(self.island_info['general_info']['island'], self.island_info['general_info']['country']), fontsize=20)
 
-        #plt.show()
+        # plt.show()
+        plt.close(fig)
 
         # BEAST plot
         fig, ax = plt.subplots(nrows=2, ncols=2)
@@ -1356,8 +1357,8 @@ class TimeSeriesAnalysis:
         ax[1, 1].set_title('Seasonality minimum period BEAST', fontsize=15)
         fig.suptitle('Island: {}, {}'.format(self.island_info['general_info']['island'], self.island_info['general_info']['country']), fontsize=20)
 
-        plt.show()
-        # plt.close(fig)
+        # plt.show()
+        plt.close(fig)
 
         fig_temp, ax_temp = plt.subplots(1, 3, figsize=(20, 5))
         # fig_temp, ax_temp = plt.subplots(3, 1, figsize=(12, 20))
@@ -1415,7 +1416,7 @@ class TimeSeriesAnalysis:
         ax_temp[0].set_title('Minimum period', fontsize=20)
         ax_temp[1].set_title('Peak period', fontsize=20)  
         ax_temp[2].set_title('Differential Amplitude', fontsize=20)
-        
+        plt.show()
         fig_temp.savefig('figures//seasonality_BEAST//{}_{}_seasonality_BEAST.png'.format(self.island, self.country), dpi=300, bbox_inches='tight')
         # plt.close(fig_temp)
 
@@ -1645,7 +1646,7 @@ class TimeSeriesAnalysis:
         print('Island:', ', '.join([self.island, self.country]))
         print('-------------------------------------------------------------------\n')
 
-        path_res_BEAST_only = os.path.join(os.getcwd(), 'data', 'coastsat_data', '{}_{}'.format(self.island, self.country), '{}_{}_results_BEAST_only.data'.format(self.island, self.country))
+        path_res_BEAST_only = os.path.join(os.getcwd(), 'data_example', 'coastsat_data', '{}_{}'.format(self.island, self.country), '{}_{}_results_BEAST_only.data'.format(self.island, self.country))
         if os.path.exists(path_res_BEAST_only):
             with open(path_res_BEAST_only, 'rb') as file:
                 res_BEAST_dict_only = pickle.load(file)
@@ -1666,7 +1667,7 @@ class TimeSeriesAnalysis:
             return self.island_info
 
         # If file with results already exists, load it
-        path_res_BEAST = os.path.join(os.getcwd(), 'data', 'coastsat_data', '{}_{}'.format(self.island, self.country), '{}_{}_results_BEAST.data'.format(self.island, self.country))
+        path_res_BEAST = os.path.join(os.getcwd(), 'data_example', 'coastsat_data', '{}_{}'.format(self.island, self.country), '{}_{}_results_BEAST.data'.format(self.island, self.country))
         
         if os.path.exists(path_res_BEAST):
             with open(path_res_BEAST, 'rb') as file:
@@ -1746,3 +1747,31 @@ class TimeSeriesAnalysis:
         # self.aggregate_results()
 
         return self.island_info
+
+
+def run_BEAST(island, country):
+    island_info = retrieve_island_info(island, country, verbose=False)
+    path_res_BEAST = os.path.join(os.getcwd(), 'data_example', 'coastsat_data', '{}_{}'.format(island, country), '{}_{}_results_BEAST_only.data'.format(island, country))
+
+    if os.path.exists(path_res_BEAST):
+        with open(path_res_BEAST, 'rb') as file:
+                dict_B = pickle.load(file)
+    else:
+        dict_B = {}
+
+    for i in list(island_info['timeseries_preprocessing']['optimal time period']['dict_coastline_timeseries'].keys()):
+            
+        time_series_name = i
+        if time_series_name in dict_B.keys():
+                if not np.isnan(dict_B[time_series_name].R2[0]):
+                    continue
+        time_series = island_info['timeseries_preprocessing']['optimal time period']['dict_coastline_timeseries'][time_series_name]
+        if len(time_series) < 25:
+            continue
+        res_BEAST = rb.beast(time_series, start=[time_series.index[0].year, time_series.index[0].month, time_series.index[0].day], season='harmonic', deltat='1/12 year', period='1 year', quiet=True, print_progress=True)
+        dict_B[time_series_name] = res_BEAST
+
+        with open(path_res_BEAST, 'wb') as file:
+                pickle.dump(dict_B, file)
+    
+    return dict_B

@@ -27,7 +27,7 @@ class PreProcessing:
         self.island_info = island_info
         self.plot_confounders = plot_confounders
         self.frequency = frequency
-        self.island_info_path = os.path.join(os.getcwd(), 'data', 'info_islands')
+        self.island_info_path = os.path.join(os.getcwd(), 'data_example', 'info_islands')
         self.island = self.island_info['general_info']['island']
         self.country = self.island_info['general_info']['country']
         self.overwrite = overwrite

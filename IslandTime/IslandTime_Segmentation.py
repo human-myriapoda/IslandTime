@@ -40,7 +40,7 @@ matplotlib.rcParams['font.family'] = 'STIXGeneral'
 class Segmentation:
     def __init__(self, island_info, list_sat=['S2', 'L8', 'L9'], generate_unsupervised_classification=False, 
                  overwrite=False, save=True, plot_results=False, plot_all=False, find_polygons=True, 
-                 time_series_only=False, animation_polygons=False, segmentation_only=False):
+                 time_series_only=False, animation_polygons=False, segmentation_only=False, user_manually=False):
         self.island_info = island_info
         self.list_sat = list_sat
         self.generate_unsupervised_classification = generate_unsupervised_classification
@@ -52,6 +52,7 @@ class Segmentation:
         self.time_series_only = time_series_only
         self.animation_polygons = animation_polygons
         self.segmentation_only = segmentation_only
+        self.user_manually = user_manually
 
         # Extract relevant information from island_info
         self.island = self.island_info['general_info']['island']
@@ -963,7 +964,7 @@ class Segmentation:
     def extract_polygons(self):
 
         # Open existing dictionary with polygons (if it exists)
-        all_polygons_file = os.path.join(os.getcwd(), 'data', 'coastsat_data', '{}_{}'.format(self.island, self.country), 'all_polygons_{}_{}.data'.format(self.island, self.country))
+        all_polygons_file = os.path.join(os.getcwd(), 'data_example', 'coastsat_data', '{}_{}'.format(self.island, self.country), 'all_polygons_{}_{}.data'.format(self.island, self.country))
 
         if os.path.exists(all_polygons_file) and not self.overwrite:
             # Read file
@@ -987,7 +988,7 @@ class Segmentation:
             dict_image_epsg_ts = {}
 
         # Load metadata (CoastSat)
-        with open(os.path.join(os.getcwd(), 'data', 'coastsat_data', '{}_{}'.format(self.island, self.country), '{}_{}_metadata.pkl'.format(self.island, self.country)), 'rb') as f:
+        with open(os.path.join(os.getcwd(), 'data_example', 'coastsat_data', '{}_{}'.format(self.island, self.country), '{}_{}_metadata.pkl'.format(self.island, self.country)), 'rb') as f:
             metadata = pickle.load(f)
         
         # if np.char.startswith(self.settings_LS['inputs']['filepath'], 'c:\\Users\\mp222\\OneDrive - Imperial College London\\IslandTimeGitHub\\IslandTime'):
@@ -1015,7 +1016,7 @@ class Segmentation:
 
             if sat == 'PSS':
                 # Define path for PSS images
-                filepath = os.path.join(os.getcwd(), 'data', 'coastsat_data', '{}_{}'.format(self.island, self.country), 'PSScene', '{}_{}_psscene_analytic_udm2'.format(self.island, self.country), 'PSScene')
+                filepath = os.path.join(os.getcwd(), 'data_example', 'coastsat_data', '{}_{}'.format(self.island, self.country), 'PSScene', '{}_{}_psscene_analytic_udm2'.format(self.island, self.country), 'PSScene')
                 filenames = [f for f in os.listdir(filepath) if f.endswith('_AnalyticMS_clip.tif')]
 
             else:
@@ -1252,7 +1253,7 @@ class Segmentation:
     def find_best_polygons(self, dict_polygons_ts, dict_rgb_ts):
         
         # File path for best polygons
-        best_polygons_file = os.path.join(os.getcwd(), 'data', 'coastsat_data', '{}_{}'.format(self.island, self.country), 'best_polygons_{}_{}.data'.format(self.island, self.country))
+        best_polygons_file = os.path.join(os.getcwd(), 'data_example', 'coastsat_data', '{}_{}'.format(self.island, self.country), 'best_polygons_{}_{}.data'.format(self.island, self.country))
         if os.path.exists(best_polygons_file) and not self.overwrite:
             # Read file
             with open(best_polygons_file, 'rb') as f:
@@ -1265,7 +1266,12 @@ class Segmentation:
             dict_best_polygons = {}
         
         # User choice for best polygons
-        dict_best_polygons = self._user_best_polygon(dict_polygons_ts, dict_rgb_ts, dict_choice=dict_best_polygons)
+        if self.user_manually:
+            dict_best_polygons = self._user_best_polygon(dict_polygons_ts, dict_rgb_ts, dict_choice=dict_best_polygons)
+        
+        else:
+            for key in dict_polygons_ts:
+                dict_best_polygons[key] = 'Optimal'
 
         # Save dictionary
         if self.save:
@@ -1329,7 +1335,7 @@ class Segmentation:
 
         # Transform polygons to image crs and calculate position on transect
         fig, ax = plt.subplots(figsize=(15, 10))
-        kk = 120
+        kk = 150
         print(list(dict_georef.keys())[kk])
         georef = dict_georef[list(dict_georef.keys())[kk]]
         rgb_image = dict_rgb_ts[list(dict_rgb_ts.keys())[kk]]
@@ -1487,7 +1493,8 @@ class Segmentation:
         ax.axis('off')
         fig.tight_layout()
         fig.savefig('figures//season_comparison//{}_season_comparison.png'.format(self.island), dpi=300, transparent=True)
-        plt.close(fig)
+        plt.show()
+        # plt.close(fig)
         
         # Datetime index and time series for DataFrame
         datetime_ts = pd.to_datetime([list(dict_time_series.keys())[i].split('_')[0] for i in range(len(dict_time_series.keys()))], format='%d-%m-%Y')

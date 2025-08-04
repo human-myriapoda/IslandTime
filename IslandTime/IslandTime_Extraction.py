@@ -74,7 +74,7 @@ class IslandTimeBase:
         self.island = island
         self.country = country
         self.verbose_init = verbose_init
-        self.island_info_path = os.path.join(os.getcwd(), 'data', 'info_islands')
+        self.island_info_path = os.path.join(os.getcwd(), 'data_example', 'info_islands')
         self.overwrite = overwrite 
 
     def assign_metadata(self):
@@ -224,9 +224,9 @@ class PreTimeSeries:
         self.overwrite = overwrite
         self.atoll = atoll
         self.polygon = polygon
-        self.dict_satellite_path = os.path.join(os.getcwd(), 'data', 'info_satellite')
-        self.island_info_path = os.path.join(os.getcwd(), 'data', 'info_islands')
-        self.duvat_magnan_2019_path = os.path.join(os.getcwd(), 'data', 'duvat_magnan_2019')
+        self.dict_satellite_path = os.path.join(os.getcwd(), 'data_example', 'info_satellite')
+        self.island_info_path = os.path.join(os.getcwd(), 'data_example', 'info_islands')
+        self.duvat_magnan_2019_path = os.path.join(os.getcwd(), 'data_example', 'duvat_magnan_2019')
 
     def _retrieve_coordinates_wikipedia(self):
         """
@@ -1073,7 +1073,7 @@ class TimeSeriesDisasters(IslandTimeBase):
     """
     def __init__(self, island, country, verbose_init=True, overwrite=False):
         super().__init__(island, country, verbose_init, overwrite)
-        self.disasters_path = os.path.join(os.getcwd(), 'data', 'disasters')
+        self.disasters_path = os.path.join(os.getcwd(), 'data_example', 'disasters')
         self.acronym = 'disasters'
         self.name_description = 'Disasters (EM-DAT)'
         self.description = 'The International Disaster Database, also called Emergency Events Database (EM-DAT), contains essential core data on the occurrence and effects of over 22,000 mass disasters in the world from 1900 to the present day. The database is compiled from various sources, including UN agencies, non-governmental organisations, insurance companies, research institutes and press agencies.'
@@ -1266,7 +1266,7 @@ class TimeSeriesWHO(IslandTimeBase):
     """
     def __init__(self, island, country, verbose_init=True, overwrite=False):
         super().__init__(island, country, verbose_init, overwrite)
-        self.WHO_path = os.path.join(os.getcwd(), 'data', 'WHO')
+        self.WHO_path = os.path.join(os.getcwd(), 'data_example', 'WHO')
         self.acronym = 'WHO'
         self.name_description = 'World Health Organization (WHO)'
         self.description = 'This module allows us to retrieve socioeconomics and environmental data from World Health Organization (WHO).'
@@ -1398,7 +1398,7 @@ class TimeSeriesSeaLevelAnomaly(IslandTimeBase):
     """
     def __init__(self, island, country, verbose_init=True, overwrite=False):
         super().__init__(island, country, verbose_init, overwrite)
-        self.copernicus_data_path = os.path.join(os.getcwd(), 'data', 'copernicus_data')
+        self.copernicus_data_path = os.path.join(os.getcwd(), 'data_example', 'copernicus_data')
         self.acronym = 'sea_level_anomaly'
         self.name_description = 'Sea level anomaly'
         self.description = 'This module calculates time series of sea level anomaly from remote sensing (Copernicus) for a given island.'
@@ -1556,7 +1556,7 @@ class TimeSeriesPSMSL(IslandTimeBase):
     def __init__(self, island, country, verbose_init=True, overwrite=False):
         super().__init__(island, country, verbose_init, overwrite)
         self.number_of_stations = 3
-        self.PSMSL_path = os.path.join(os.getcwd(), 'data', 'PSMSL')
+        self.PSMSL_path = os.path.join(os.getcwd(), 'data_example', 'PSMSL')
         self.acronym = 'PSMSL'
         self.name_description = 'Permanent Service for Mean Sea Level (PSMSL)'
         self.description = 'This module allows us to retrieve tide-gauge sea-level data from the Permanent Service for Mean Sea Level (PSMSL).'
@@ -1655,7 +1655,7 @@ class TimeSeriesPSLGM(IslandTimeBase):
     """
     def __init__(self, island, country, verbose_init=True, overwrite=False):
         super().__init__(island, country, verbose_init, overwrite)
-        self.PSLGM_path = os.path.join(os.getcwd(), 'data', 'PSLGM')
+        self.PSLGM_path = os.path.join(os.getcwd(), 'data_example', 'PSLGM')
         self.acronym = 'PSLGM'
         self.name_description = 'Pacific Sea Level and Geodetic Monitoring Project (PSLGM)'
         self.description = 'This module allows us to retrieve data from the Pacific Sea Level and Geodetic Monitoring Project (Monthly Sea Level and Meteorological Statistics).'
@@ -1734,12 +1734,12 @@ class TimeSeriesCoastSat(IslandTimeBase):
 
     def __init__(self, island, country, verbose_init=True, overwrite=False, date_range=['2010-01-01', '2023-12-31'], sat_list=['L8', 'L9', 'S2'], \
                  collection='C02', plot_results=False, distance_between_transects=5, length_transect=250, reference_shoreline_transects_only=False, \
-                 extract_shorelines=False, re_download=False, retrieve_reference_shoreline_manually=False):
+                 extract_shorelines=False, re_download=False, retrieve_reference_shoreline_manually=True):
         super().__init__(island, country, verbose_init, overwrite)
         self.date_range = date_range
         self.sat_list = sat_list
         self.collection = collection
-        self.coastsat_data_path = os.path.join(os.getcwd(), 'data', 'coastsat_data')
+        self.coastsat_data_path = os.path.join(os.getcwd(), 'data_example', 'coastsat_data')
         self.plot_results = plot_results
         self.distance_between_transects = distance_between_transects
         self.length_transect = length_transect
@@ -2147,45 +2147,45 @@ class TimeSeriesCoastSat(IslandTimeBase):
         self.island_info['timeseries_{}'.format(self.acronym)]['inputs'] = inputs
         self.island_info['timeseries_{}'.format(self.acronym)]['settings'] = settings
 
-        if not self.reference_shoreline_transects_only:
-            # Output file
-            file_output = os.path.join(filepath_data, sitename, sitename + '_output.pkl')
+        # if not self.reference_shoreline_transects_only:
+        #     # Output file
+        #     file_output = os.path.join(filepath_data, sitename, sitename + '_output.pkl')
 
-            # Check if shoreline positions have already been extracted
-            if os.path.exists(file_output) and not self.overwrite and not self.extract_shorelines:
-                with open(file_output, 'rb') as f:
-                    output = pickle.load(f)
+        #     # Check if shoreline positions have already been extracted
+        #     if os.path.exists(file_output) and not self.overwrite and not self.extract_shorelines:
+        #         with open(file_output, 'rb') as f:
+        #             output = pickle.load(f)
 
-            # Extract shoreline positions
-            else:
-                output = SDS_shoreline.extract_shorelines(metadata, settings)
+        #     # Extract shoreline positions
+        #     else:
+        #         output = SDS_shoreline.extract_shorelines(metadata, settings)
 
-            # Removes duplicates (images taken on the same date by the same satellite)
-            output = SDS_tools.remove_duplicates(output, label='shorelines_waterline')
-            output = SDS_tools.remove_duplicates(output, label='shorelines_vegline')
+        #     # Removes duplicates (images taken on the same date by the same satellite)
+        #     output = SDS_tools.remove_duplicates(output, label='shorelines_waterline')
+        #     output = SDS_tools.remove_duplicates(output, label='shorelines_vegline')
 
-            # Remove inaccurate georeferencing (set threshold to 10 m)
-            output = SDS_tools.remove_inaccurate_georef(output, 10) 
+        #     # Remove inaccurate georeferencing (set threshold to 10 m)
+        #     output = SDS_tools.remove_inaccurate_georef(output, 10) 
 
-            # Plot mapped shorelines
-            if self.plot_results:
+        #     # Plot mapped shorelines
+        #     if self.plot_results:
 
-                # Define figure
-                fig = plt.figure(figsize=[15, 8])
+        #         # Define figure
+        #         fig = plt.figure(figsize=[15, 8])
 
-                # Plot every shoreline
-                for i in range(len(output['shorelines_0'])):
-                    sl = output['shorelines_0'][i]
-                    date = output['dates'][i]
-                    plt.plot(sl[:, 0], sl[:, 1], '.', label=date.strftime('%d-%m-%Y'))
+        #         # Plot every shoreline
+        #         for i in range(len(output['shorelines_0'])):
+        #             sl = output['shorelines_0'][i]
+        #             date = output['dates'][i]
+        #             plt.plot(sl[:, 0], sl[:, 1], '.', label=date.strftime('%d-%m-%Y'))
 
-                # Aesthetic parameters
-                plt.legend()
-                plt.axis('equal')
-                plt.xlabel('Eastings')
-                plt.ylabel('Northings')
-                plt.grid(linestyle=':', color='0.5')
-                plt.show(block=False)
+        #         # Aesthetic parameters
+        #         plt.legend()
+        #         plt.axis('equal')
+        #         plt.xlabel('Eastings')
+        #         plt.ylabel('Northings')
+        #         plt.grid(linestyle=':', color='0.5')
+        #         plt.show(block=False)
         
         # Get transects
         if 'transects' in self.island_info['spatial_reference'].keys() and not self.overwrite:
@@ -2195,44 +2195,44 @@ class TimeSeriesCoastSat(IslandTimeBase):
             self.get_transects()
             transects = self.island_info['spatial_reference']['transects']
 
-        if not self.reference_shoreline_transects_only:
+        # if not self.reference_shoreline_transects_only:
             
-            # Along-shore distance over which to consider shoreline points to compute the median intersection
-            settings_transects = {'along_dist': 25}
-            cross_distance_waterline = SDS_transects.compute_intersection(output, transects, settings_transects, label='shorelines_waterline') 
-            cross_distance_vegline = SDS_transects.compute_intersection(output, transects, settings_transects, label='shorelines_vegline')
+        #     # Along-shore distance over which to consider shoreline points to compute the median intersection
+        #     settings_transects = {'along_dist': 25}
+        #     cross_distance_waterline = SDS_transects.compute_intersection(output, transects, settings_transects, label='shorelines_waterline') 
+        #     cross_distance_vegline = SDS_transects.compute_intersection(output, transects, settings_transects, label='shorelines_vegline')
 
-            # Remove outliers
-            settings_outliers = {'max_cross_change': 40,             # maximum cross-shore change observable between consecutive timesteps
-                                'otsu_threshold': [-1.1, 0.5],        # min and max intensity threshold use for contouring the shoreline
-                                'plot_fig': False}           # whether to plot the intermediate steps
+        #     # Remove outliers
+        #     settings_outliers = {'max_cross_change': 40,             # maximum cross-shore change observable between consecutive timesteps
+        #                         'otsu_threshold': [-1.1, 0.5],        # min and max intensity threshold use for contouring the shoreline
+        #                         'plot_fig': False}           # whether to plot the intermediate steps
                                 
-            cross_distance_waterline_no_outliers = SDS_transects.reject_outliers(cross_distance_waterline, output, settings_outliers, label='waterline') 
-            cross_distance_vegline_no_outliers = SDS_transects.reject_outliers(cross_distance_vegline, output, settings_outliers, label='vegline')       
+        #     cross_distance_waterline_no_outliers = SDS_transects.reject_outliers(cross_distance_waterline, output, settings_outliers, label='waterline') 
+        #     cross_distance_vegline_no_outliers = SDS_transects.reject_outliers(cross_distance_vegline, output, settings_outliers, label='vegline')       
 
-            # Create a dictionary with results
-            dict_timeseries = {'datetime': output['dates']}
+        #     # Create a dictionary with results
+        #     dict_timeseries = {'datetime': output['dates']}
 
-            # Loop over transects
-            for key in cross_distance_waterline.keys():
-                dict_timeseries['coastline_position_transect_{}_waterline'.format(key)] = cross_distance_waterline[key]
+        #     # Loop over transects
+        #     for key in cross_distance_waterline.keys():
+        #         dict_timeseries['coastline_position_transect_{}_waterline'.format(key)] = cross_distance_waterline[key]
 
-            for key in cross_distance_waterline_no_outliers.keys():    
-                dict_timeseries['coastline_position_transect_{}_waterline_no_outliers'.format(key)] = cross_distance_waterline_no_outliers[key]
+        #     for key in cross_distance_waterline_no_outliers.keys():    
+        #         dict_timeseries['coastline_position_transect_{}_waterline_no_outliers'.format(key)] = cross_distance_waterline_no_outliers[key]
 
-            for key in cross_distance_vegline.keys():
-                dict_timeseries['coastline_position_transect_{}_vegline'.format(key)] = cross_distance_vegline[key]
+        #     for key in cross_distance_vegline.keys():
+        #         dict_timeseries['coastline_position_transect_{}_vegline'.format(key)] = cross_distance_vegline[key]
             
-            for key in cross_distance_vegline_no_outliers.keys():
-                dict_timeseries['coastline_position_transect_{}_vegline_no_outliers'.format(key)] = cross_distance_vegline_no_outliers[key]
+        #     for key in cross_distance_vegline_no_outliers.keys():
+        #         dict_timeseries['coastline_position_transect_{}_vegline_no_outliers'.format(key)] = cross_distance_vegline_no_outliers[key]
 
-            # Create and save DataFrame
-            df_timeseries = pd.DataFrame(dict_timeseries).set_index('datetime')
-            fn = os.path.join(settings['inputs']['filepath'], settings['inputs']['sitename'], 'transect_time_series.csv')
-            df_timeseries.to_csv(fn, sep=',')
+        #     # Create and save DataFrame
+        #     df_timeseries = pd.DataFrame(dict_timeseries).set_index('datetime')
+        #     fn = os.path.join(settings['inputs']['filepath'], settings['inputs']['sitename'], 'transect_time_series.csv')
+        #     df_timeseries.to_csv(fn, sep=',')
             
-            # Save information in dictionary
-            self.island_info['timeseries_{}'.format(self.acronym)]['timeseries'] = df_timeseries
+        #     # Save information in dictionary
+        #     self.island_info['timeseries_{}'.format(self.acronym)]['timeseries'] = df_timeseries
 
 # --------------------------------------------------------------------------------------------------------------------------------------------------------  
 class TimeSeriesERA5(IslandTimeBase):
@@ -2363,9 +2363,9 @@ class TimeSeriesERA5(IslandTimeBase):
         else:
             _, transects = TimeSeriesCoastSat(self.island, self.country, verbose_init=False, reference_shoreline_transects_only=True).main()
 
-        if os.path.exists(os.path.join(os.getcwd(), 'data', 'cdsapi', 'cdsapi_climate.nc')):
-            data_ERA5 = xr.open_dataset(os.path.join(os.getcwd(), 'data', 'cdsapi', 'cdsapi_climate.nc'))
-            data_ERA5_waves = xr.open_dataset(os.path.join(os.getcwd(), 'data', 'cdsapi', 'cdsapi_waves.nc'))
+        if os.path.exists(os.path.join(os.getcwd(), 'data_example', 'cdsapi', 'cdsapi_climate.nc')):
+            data_ERA5 = xr.open_dataset(os.path.join(os.getcwd(), 'data_example', 'cdsapi', 'cdsapi_climate.nc'))
+            data_ERA5_waves = xr.open_dataset(os.path.join(os.getcwd(), 'data_example', 'cdsapi', 'cdsapi_waves.nc'))
         
         else:
 
@@ -2507,7 +2507,7 @@ class AddEcologicalCoastalUnits(IslandTimeBase):
         self.name_description = 'Ecological Coastal Units (ECUs)'
         self.description = 'This module retrieves Ecological Coastal Units (ECUs) and add the information for each transect.'
         self.source = 'https://www.esri.com/arcgis-blog/products/arcgis-living-atlas/mapping/ecus-available/'
-        self.ECU_path = os.path.join(os.getcwd(), 'data', 'ECU')
+        self.ECU_path = os.path.join(os.getcwd(), 'data_example', 'ECU')
         self.dict_rename = {'MEAN_SIG_W': 'Mean Significant Wave Height', 
                             'TIDAL_RANG': 'Tidal Range', 
                             'CHLOROPHYL': 'Chlorophyll-a', 
@@ -2593,8 +2593,8 @@ class TimeSeriesVegetation(IslandTimeBase):
     """
     def __init__(self, island, country, verbose_init=True, overwrite=False):
         super().__init__(island, country, verbose_init, overwrite)
-        self.info_satellite_path = os.path.join(os.getcwd(), 'data', 'info_satellite')
-        self.coastsat_data_path = os.path.join(os.getcwd(), 'data', 'coastsat_data',  '{}_{}'.format(self.island, self.country))
+        self.info_satellite_path = os.path.join(os.getcwd(), 'data_example', 'info_satellite')
+        self.coastsat_data_path = os.path.join(os.getcwd(), 'data_example', 'coastsat_data',  '{}_{}'.format(self.island, self.country))
         self.thresholds_NDVI = [0.25, 0.90]
         self.acronym = 'vegetation'
         self.name_description = 'Vegetation health (NDVI)'
@@ -3000,7 +3000,7 @@ class TimeSeriesClimateIndices(IslandTimeBase):
         self.island_info['timeseries_{}'.format(self.acronym)]['timeseries'] = df_timeseries_climate_indices
 
 # --------------------------------------------------------------------------------------------------------------------------------------------------------
-def retrieve_island_info(island, country, island_info_path=os.path.join(os.getcwd(), 'data', 'info_islands'), run_pre_timeseries_steps=True, verbose=True):
+def retrieve_island_info(island, country, island_info_path=os.path.join(os.getcwd(), 'data_example', 'info_islands'), run_pre_timeseries_steps=True, verbose=True):
     """
     Retrieve information about an island and its timeseries data.
 
@@ -3080,7 +3080,7 @@ def run_all(island, country, verbose_init=True, overwrite=False):
 
 def save_island_info(island_info):
 
-    island_info_path = os.path.join(os.getcwd(), 'data', 'info_islands')
+    island_info_path = os.path.join(os.getcwd(), 'data_example', 'info_islands')
     island = island_info['general_info']['island']
     country = island_info['general_info']['country']
 
@@ -3149,7 +3149,7 @@ def plot_shoreline_transects(island_info, transect_plot=None, ax=None):
     if ax is None:
         plt.show()
 
-def update_results_map(country, path_to_data=os.path.join(os.getcwd(), 'data', 'info_islands')):
+def update_results_map(country, path_to_data=os.path.join(os.getcwd(), 'data_example', 'info_islands')):
 
     # Get latitude and longitude of the whole country
     # area = ox.geocode_to_gdf(country)
@@ -3674,7 +3674,7 @@ def update_results_map(country, path_to_data=os.path.join(os.getcwd(), 'data', '
     #webbrowser.open(os.path.join(os.getcwd(), 'maps', 'results_islands_seasonality_peaks.html'))
     #webbrowser.open(os.path.join(os.getcwd(), 'maps', 'results_islands_seasonality_minima.html'))
 
-def update_data_map(path_to_data=os.path.join(os.getcwd(), 'data', 'info_islands')):
+def update_data_map(path_to_data=os.path.join(os.getcwd(), 'data_example', 'info_islands')):
 
     # Create empty lists
     latitude, longitude, colors, names, desc = [], [], [], [], []
@@ -3708,7 +3708,7 @@ def update_data_map(path_to_data=os.path.join(os.getcwd(), 'data', 'info_islands
             desc.append('Results available')
         
         else:
-            file_poly = os.path.join(os.getcwd(), 'data', 'coastsat_data', '{}_{}'.format(island, country), 'all_polygons_{}_{}.data'.format(island, country))
+            file_poly = os.path.join(os.getcwd(), 'data_example', 'coastsat_data', '{}_{}'.format(island, country), 'all_polygons_{}_{}.data'.format(island, country))
             if os.path.exists(file_poly):
                 try:
                     data_poly = pd.read_pickle(file_poly)
@@ -3781,7 +3781,7 @@ def update_data_map(path_to_data=os.path.join(os.getcwd(), 'data', 'info_islands
     # Open the map in a web browser
     #webbrowser.open(os.path.join(os.getcwd(), 'maps', 'progress_island_mapping.html'))
 
-def polygon_characteristics_map(path_to_data=os.path.join(os.getcwd(), 'data', 'info_islands')):
+def polygon_characteristics_map(path_to_data=os.path.join(os.getcwd(), 'data_example', 'info_islands')):
 
     # Create empty lists
     latitude, longitude, colors, names, desc = [], [], [], [], []
@@ -3820,12 +3820,12 @@ def polygon_characteristics_map(path_to_data=os.path.join(os.getcwd(), 'data', '
                     desc.append('Satellite images available')
                 
                 else:
-                    if os.path.exists(os.path.join(os.getcwd(), 'data', 'coastsat_data', island+'_'+country)):
+                    if os.path.exists(os.path.join(os.getcwd(), 'data_example', 'coastsat_data', island+'_'+country)):
                         colors.append('orange')
                         desc.append('Satellite images are being downloaded')
             
             else:
-                if os.path.exists(os.path.join(os.getcwd(), 'data', 'coastsat_data', island+'_'+country)):
+                if os.path.exists(os.path.join(os.getcwd(), 'data_example', 'coastsat_data', island+'_'+country)):
                     colors.append('orange')
                     desc.append('Satellite images are being downloaded')
                 
@@ -3860,7 +3860,7 @@ def polygon_characteristics_map(path_to_data=os.path.join(os.getcwd(), 'data', '
     #webbrowser.open(os.path.join(os.getcwd(), 'maps', 'progress_island_mapping.html'))
 
 def check_last_date_download(island, country, verbose=True, year=2023):
-    path_data = os.path.join(os.getcwd(), 'data', 'coastsat_data', '{}_{}'.format(island, country))
+    path_data = os.path.join(os.getcwd(), 'data_example', 'coastsat_data', '{}_{}'.format(island, country))
 
     # S2, L8, L9
     path_S2 = os.path.join(path_data, 'S2', 'ms')

@@ -12,7 +12,7 @@ import matplotlib.pyplot as plt
 # TODO: optimise
 
 class RegionPlotting:
-    def __init__(self, region_name, path_to_data=os.path.join(os.getcwd(), 'data', 'info_islands')):
+    def __init__(self, region_name, path_to_data=os.path.join(os.getcwd(), 'data_example', 'info_islands')):
         self.region_name = region_name
         self.path_to_data = path_to_data
     

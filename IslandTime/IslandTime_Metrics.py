@@ -25,7 +25,7 @@ class Metrics:
         self.plot_metrics_region = plot_metrics_region
         self.region_name = region_name
         self.gdf_metrics_file = os.path.join(os.getcwd(), 'shp', 'islands_metrics.shp')
-        self.path_to_data = os.path.join(os.getcwd(), 'data', 'info_islands')
+        self.path_to_data = os.path.join(os.getcwd(), 'data_example', 'info_islands')
 
     
     def _calculate_average_curvature(self, polygon: Polygon):
@@ -80,8 +80,8 @@ class Metrics:
     
     def _calculate_sediment_budget(self):
 
-        all_polygons_file = os.path.join(os.getcwd(), 'data', 'coastsat_data', '{}_{}'.format(self.island, self.country), 'all_polygons_{}_{}.data'.format(self.island, self.country))
-        best_polygons_file = os.path.join(os.getcwd(), 'data', 'coastsat_data', '{}_{}'.format(self.island, self.country), 'best_polygons_{}_{}.data'.format(self.island, self.country))
+        all_polygons_file = os.path.join(os.getcwd(), 'data_example', 'coastsat_data', '{}_{}'.format(self.island, self.country), 'all_polygons_{}_{}.data'.format(self.island, self.country))
+        best_polygons_file = os.path.join(os.getcwd(), 'data_example', 'coastsat_data', '{}_{}'.format(self.island, self.country), 'best_polygons_{}_{}.data'.format(self.island, self.country))
 
         if os.path.exists(all_polygons_file):
             # Read file

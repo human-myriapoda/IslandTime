@@ -3,7 +3,7 @@ import os
 os.environ['PYDEVD_WARN_SLOW_RESOLVE_TIMEOUT'] = '1000'
 
 class Workflow:
-    def __init__(self, island, country, run_all=False, overwrite_extract=False, overwrite_preprocess=True, overwrite_analysis=True, execute_segmentation=False, execute_preprocess=False, execute_analysis=False, update_maps=False, small_island=True):
+    def __init__(self, island, country, run_all=False, overwrite_extract=False, overwrite_preprocess=True, overwrite_analysis=True, execute_segmentation=False, execute_preprocess=False, execute_analysis=False, update_maps=False, small_island=False):
         self.island = island
         self.country = country
         self.run_all = run_all
@@ -15,7 +15,7 @@ class Workflow:
         self.execute_analysis = execute_analysis
         self.update_maps = update_maps
         self.small_island = small_island
-        self.path_to_data = os.path.join(os.getcwd(), 'data', 'info_islands')
+        self.path_to_data = os.path.join(os.getcwd(), 'data_example', 'info_islands')
 
     def extract_time_series(self, verbose=True):
 
